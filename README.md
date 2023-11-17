@@ -1,11 +1,11 @@
-By: The Kaplan Global Epidemiology Lab
+By: The Kaplan Global Epidemiology Lab<br>
 Contact:
 
-# 4 Stages of IBD
+# The 4 Stages of IBD
 
 This repository contains the scripts for analysis and visualization of the four epidemiologic stages of Inflammatory Bowel Disease as described in our paper *The Global Evolution of Inflammatory Bowel Disease across Four Epidemiologic Stages* (draft form - 2023/11/17).
 
-Citation:
+Citation:<br>
 DOI:
 
 ## Overview
