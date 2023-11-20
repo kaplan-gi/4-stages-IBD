@@ -1,0 +1,119 @@
+---
+title: "4-stage-IBD Violin Plot"
+author: "Julia Gorospe"
+date: "2023-10-30"
+output: html_document
+R version: 4.2.1 (2022-06-23)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Monterey 12.5.1
+---
+
+# 1 Script Setup
+1.1 Resetting environment
+```{r, setup, include = FALSE}
+# Clear environment
+rm(list = ls(all = TRUE))
+
+# Set directory
+require("knitr")
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '~/Dropbox/Ratio_2021 (2)')   #CHANGE ME!
+
+# Activate reticulate
+library(reticulate)
+virtualenv_create("r-reticulate")
+#virtualenv_install("kaleido", envname = "r-reticulate")
+#virtualenv_install("python-poppler", envname = "r-reticulate")
+use_virtualenv("r-reticulate")
+
+# Install and load packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(rio,                 # v0.5.16 import/exporting files
+               tidyverse,           # v1.3.0
+               plotly,
+               htmlwidgets)
+```
+
+1.2 Load data
+```{r, warning = FALSE}
+raw <- import("https://raw.githubusercontent.com/kaplan-gi/4-stages-IBD/main/1_Data/GIVES21_example_data.csv")
+```
+
+
+# 2 Data Prep
+2.1 Filter data
+```{r}
+# Tidy dataset and back calculate missing populations
+data <- raw %>%
+  filter(age_cat == "All",
+         data_type == "Incidence")
+```
+
+# 3 Plot Design
+3.1 Formatting
+```{r}
+# margin
+marg <- list(l = 75, r = 75,
+             t = 25, b = 25)
+
+# colors
+green <- c("#1B9E77")
+grey <- c("#666666")
+orange <- c("#D95F02")
+purple <- c("#7570B3")
+
+# horizontal line
+hline <- function(y = 0, color = "black") {
+  list(
+    type = "line",
+    x0 = 0,
+    x1 = 1,
+    xref = "paper",
+    y0 = y,
+    y1 = y,
+    line = list(color = color, width = 0.5, dash = "dot")
+  )
+}
+```
+
+3.2 Plotting
+```{r}
+violin <- data %>% 
+  plot_ly(type = "violin") %>% 
+  layout(title = "<b>All Regions</b>", 
+             yaxis = list(title = "Incidence (per 100,000)",
+                          zeroline = FALSE),
+         annotations = list(x = -0.1,
+                            y = 42,
+                            text = "Ceiling Threshold",
+                            showarrow = FALSE,
+                            xanchor = "right",
+                            font = list(color = "#444444")),
+             margin = list(l = 75, r = 75,
+               t = 75, b = 75),
+             shapes = list(hline(40))) %>% 
+  add_trace(y = ~CD_rate,
+            color = I(grey),
+            type = "violin",
+            box = list(visible = TRUE),
+            x0 = "Crohn's Disease",
+            showlegend = FALSE) %>% 
+  add_trace(y = ~UC_IBDu_rate,
+            color = I(green),
+            type = "violin",
+            box = list(visible = TRUE),
+            x0 = "Ulcerative Colitis",
+            showlegend = FALSE)
+```
+
+3.3 Saving
+```{r}
+# Interactive
+htmlwidgets::saveWidget(widget = violin,
+                         file = paste0("ViolinPlot.html"),
+                         selfcontained = TRUE)
+
+# Static
+reticulate::py_run_string("import sys")
+save_image(violin, "ViolinPlot.png", width = 800, height = 500, scale = 6)
+```

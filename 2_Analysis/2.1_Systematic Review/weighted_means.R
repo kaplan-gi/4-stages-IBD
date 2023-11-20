@@ -20,7 +20,7 @@ pacman::p_load(
   tidyverse)           # v1.3.0
 
 # Load data
-raw <- import("https://github.com/kaplan-gi/4-stages-IBD/1_Data/GIVES21_example_data.xlsx", guess_max = 3000)
+raw <- rio::import("https://raw.githubusercontent.com/kaplan-gi/4-stages-IBD/main/1_Data/GIVES21_example_data.csv")
 
 
 #--- 2 Data Prep
