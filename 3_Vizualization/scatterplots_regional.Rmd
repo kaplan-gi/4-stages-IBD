@@ -1,0 +1,466 @@
+---
+title: "4-stages-IBD Regional Scatterplots"
+author: "Julia Gorospe"
+date: "20232-12-12"
+output: html_document
+R version: 4.2.1 (2022-06-23)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Monterey 12.5.1
+---
+
+# 1 Script Setup
+1.1 Resetting environment
+```{r, setup, include = FALSE}
+# Clear environment
+rm(list = ls(all = TRUE))
+
+# Set directory
+require("knitr")
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '~/Dropbox/Ratio_2021 (2)')   #CHANGE ME!
+
+# Activate reticulate
+library(reticulate)
+virtualenv_create("r-reticulate")
+#virtualenv_install("kaleido", envname = "r-reticulate")
+#virtualenv_install("python-poppler", envname = "r-reticulate")
+use_virtualenv("r-reticulate")
+
+# Install and load packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(rio,                 # v0.5.16 import/exporting files
+               tidyverse,           # v1.3.0
+               plotly,
+               htmlwidgets,
+               fANCOVA)
+```
+
+1.2 Load data
+```{r, warning = FALSE}
+raw <- import("https://raw.githubusercontent.com/kaplan-gi/4-stages-IBD/main/1_Data/GIVES21_example_data.csv")
+```
+
+# 2 Data Prep
+2.1 Filter data
+```{r}
+# Tidy dataset and back calculate missing populations
+data <- raw %>%
+  filter(age_cat == "All")
+```
+
+2.2 Subset data
+```{r}
+# Incidence datasets
+country_listI <- data %>%
+  filter(data_type == "Incidence") %>%
+  split(., f = .$country)                  # separate df for each country
+
+# Prevalence datasets
+country_listP <- data %>%
+  filter(data_type == "Prevalence") %>%
+  split(., f = .$country)         
+```
+
+# 3 Plot Design
+3.1 Formatting
+```{r}
+# margin
+marg <- list(l = 75, r = 75,
+               t = 25, b = 25)
+
+# colors
+green <- c("#1B9E77")
+grey <- c("#666666")
+orange <- c("#D95F02")
+purple <- c("#7570B3")
+
+
+# x-axis ranges
+xrange <- data %>% 
+  group_by(country) %>% 
+  summarise(xmin = min(year_data) - 1,
+            xmax = max(year_data) + 1)
+
+# stacked incidence scatterplot
+A <- list(x = -0.09,
+          y = 1.1,
+          text = "<b>A</b>",
+          xref = "paper",
+          yref = "paper",
+          xanchor = "center",
+          yanchor = "middle",
+          showarrow = FALSE,
+          font = list(size = 18))
+
+B <- list(x = -0.09,
+          y = 1.1,
+          text = "<b>B</b>",
+          xref = "paper",
+          yref = "paper",
+          xanchor = "center",
+          yanchor = "middle",
+          showarrow = FALSE,
+          font = list(size = 18))
+```
+
+# 4 Plot Generation
+4.1 Generating incidence boxplots for each country
+```{r, warning = FALSE}
+boxesI <- lapply(country_listI, function (x)
+  plot <- x %>% 
+    plot_ly(type = "box",
+            boxpoints = "all",
+            jitter = 0.8,
+            pointpos = 0,
+            showlegend = FALSE) %>% 
+    add_trace(y = ~CD_rate,
+              color = I(grey),
+              text = paste0("CD Rate: ", round(x$CD_rate,digits = 2), 
+                            "<br>Year: ", x$year_data,
+                            "<br>Study: ", x$author, " ", x$year_study, 
+                            "<br>Location: ", x$name),
+              hoverinfo = "text",
+              name = "CD") %>% 
+    add_trace(y = ~UC_IBDu_rate,
+              color = I(green),
+              text = paste0("UC + IBD-u Rate: ", round(x$UC_IBDu_rate,digits = 2),
+                            "<br>Year: ", x$year_data,
+                            "<br>Study: ", x$author, " ", x$year_study, 
+                            "<br>Location: ", x$name),
+              hoverinfo = "text",
+              name = "UC + IBD-u") %>% 
+
+    layout(xaxis = list(title = "Disease"),
+           yaxis = list(range = list(0, (1.1*(max(x$UC_IBDu_rate, x$CD_rate, na.rm = TRUE))))),
+           margin = marg)
+  )
+```
+
+4.2 Generating prevalence boxplots for each country
+```{r, warning = FALSE}
+boxesP <- lapply(country_listP, function (x)
+  p <- x %>% 
+    plot_ly(type = "box",
+            boxpoints = "all",
+            jitter = 0.8,
+            pointpos = 0,
+            showlegend = FALSE) %>% 
+    add_trace(y = ~CD_rate,
+              color = I(purple),
+              text = paste0("CD Rate: ", round(x$CD_rate,digits = 2),
+                            "<br>Year: ", x$year_data,
+                            "<br>Study: ", x$author, " ", x$year_study,
+                            "<br>Location: ", x$name),
+              hoverinfo = "text",
+              name = "CD") %>% 
+    add_trace(y = ~UC_IBDu_rate,
+              color = I(orange),
+              text = paste0("UC + IBD-u Rate: ", round(x$UC_IBDu_rate, digits = 2),
+                            "<br>Year: ", x$year_data,
+                            "<br>Study: ", x$author, " ", x$year_study, 
+                            "<br>Location: ", x$name),
+            hoverinfo = "text",
+            name = "UC + IBD-u") %>% 
+    layout(xaxis = list(title = "Disease"),
+           yaxis = list(range = list(0, (1.1*(max(x$UC_IBDu_rate, x$CD_rate, na.rm = TRUE))))),
+         margin = marg))
+```
+
+4.3 Generating incidence scatterplots for each country
+```{r, warning = FALSE}
+scatterI <- lapply(country_listI, function (x) {
+  
+    # xrange
+    xmin <- xrange$xmin[xrange$country == unique(x$country)] 
+    xmax <- xrange$xmax[xrange$country == unique(x$country)]
+  
+    # plot
+    p <- x %>% 
+      plot_ly(type = "scatter") %>% 
+      add_markers(x = ~year_data, y = ~CD_rate,
+                  mode = "markers",
+                  opacity = 0.8,
+                  marker = list(color = grey),
+                  text = paste0("CD Rate: ", round(x$CD_rate, digits = 2),
+                                "<br>Year: ", x$year_data,
+                                "<br>Study: ", x$author, " ", x$year_study,
+                                "<br>Location: ", x$name),
+                  hoverinfo = "text",
+                  name = "CD Incidence",
+                  legendgroup = "A") %>% 
+      add_markers(x = ~year_data, y = ~UC_IBDu_rate,
+                  mode = "markers",
+                  opacity = 0.8,
+                  marker = list(color = green),
+                  text = paste0("UC + IBD-u Rate: ", round(x$UC_IBDu_rate, digits = 2),
+                                "<br>Year: ", x$year_data,
+                                "<br>Study: ", x$author, " ", x$year_study,
+                                "<br>Location: ", x$name),
+                  hoverinfo = "text",
+                  name = "UC + IBD-u Incidence",
+                  legendgroup = "A") %>% 
+      layout(xaxis = list(title = "Year",
+                          range = list(xmin, xmax)),
+             yaxis = list(title = "Incidence (per 100,000)",
+                          range = list(0, (1.1*(max(x$UC_IBDu_rate, x$CD_rate, na.rm = TRUE))))),
+             annotations = A,
+             margin = marg)
+    
+    # add loess trend lines if there are enough datapoints
+    if (length(unique(x$UC_IBDu_rate)) >= 5 & length(unique(x$year_data)) >= 5) {
+      noNA_UC <- x %>% filter(!is.na(UC_IBDu_rate))
+      # if there is a density of data of greater than 1 per year then use auto if not use default 0.75
+      if (nrow(noNA_UC)/length(unique(noNA_UC$year_data)) > 1.25) {
+        loess_UC <- loess.as(noNA_UC$year_data, noNA_UC$UC_IBDu_rate, degree = 2, criterion = "aicc",
+                           family = "gaussian", user.span = NULL)
+      } else {
+        loess_UC <- loess.as(noNA_UC$year_data, noNA_UC$UC_IBDu_rate, degree = 2, criterion = "aicc",
+                           family = "gaussian", user.span = 0.8)
+      }
+
+      loess_curve_UC <- curve(predict(loess_UC, newdata = data.frame(x = x)), 
+                              from  = min(noNA_UC$year_data), to = max(noNA_UC$year_data))
+      p <- p %>% 
+        add_trace(x = ~loess_curve_UC$x, y = ~loess_curve_UC$y,
+                  mode = "lines",
+                  opacity = 0.4,
+                  line = list(color = green, width= 4),
+                  hoverinfo = "skip",
+                  showlegend = FALSE)
+    } else {
+      p <- p
+    }
+    
+    if (length(unique(x$CD_rate)) >= 5 & length(unique(x$year_data)) >= 5) {
+       noNA_CD <- x %>% filter(!is.na(CD_rate))
+       
+       if (nrow(noNA_CD)/length(unique(noNA_CD$year_data)) > 1.25) {
+         loess_CD <- loess.as(noNA_CD$year_data, noNA_CD$CD_rate, degree = 2, criterion = "aicc",
+                           family = "gaussian", user.span = NULL)
+       } else {
+         loess_CD <- loess.as(noNA_CD$year_data, noNA_CD$CD_rate, degree = 2, criterion = "aicc",
+                            family = "gaussian", user.span = 0.8)
+       }
+       
+       loess_curve_CD <- curve(predict(loess_CD, newdata = data.frame(x = x)),
+                               from  = min(noNA_CD$year_data), to = max(noNA_CD$year_data))
+       p <- p %>%
+         add_trace(x = ~loess_curve_CD$x, y = ~loess_curve_CD$y,
+                   mode = "lines",
+                   opacity = 0.4,
+                   line = list(color = grey, width = 4),
+                   hoverinfo = "skip",
+                   showlegend = FALSE)
+     } else {
+       p <- p
+     }
+  }
+)
+```
+
+4.5 Generating prevalence scatterplots for each country
+```{r}
+scatterP <- lapply(country_listP, function (x) {
+  
+  # xrange
+  xmin <- xrange$xmin[xrange$country == unique(x$country)] 
+  xmax <- xrange$xmax[xrange$country == unique(x$country)]
+  
+  # plot
+  p <- x %>% 
+    plot_ly(type = "scatter") %>% 
+    add_markers(x = ~year_data, y = ~CD_rate,
+                mode = "markers",
+                opacity = 0.8,
+                marker = list(color = purple),
+                text = paste0("CD Rate: ", round(x$CD_rate, digits = 2),
+                              "<br>Year: ", x$year_data,
+                              "<br>Study: ", x$author, " ", x$year_study,
+                              "<br>Location: ", x$name),
+                hoverinfo = "text",
+                name = "CD Prevalence",
+                legendgroup = "B") %>% 
+    add_markers(x = ~year_data, y = ~UC_IBDu_rate,
+                mode = "markers",
+                opacity = 0.8,
+                marker = list(color = orange),
+                text = paste0("UC + IBD-u Rate: ", round(x$UC_IBDu_rate, digits = 2),
+                              "<br>Year: ", x$year_data,
+                              "<br>Study: ", x$author, " ", x$year_study,
+                              "<br>Location: ", x$name),
+                hoverinfo = "text",
+                name = "UC + IBD-u Prevalence",
+                legendgroup = "B") %>% 
+    layout(xaxis = list(title = "Year",
+                        range = list(xmin, xmax)),
+           yaxis = list(title = "Prevalence (per 100,000)",
+                        range = list(0, (1.1*(max(x$UC_IBDu_rate, x$CD_rate, na.rm = TRUE))))),
+           annotations = B,
+           margin = marg)
+  
+ # add loess trend lines if there are enough datapoints
+    if (length(unique(x$UC_IBDu_rate)) >= 5 & length(unique(x$year_data)) >= 5) {
+      noNA_UC <- x %>% filter(!is.na(UC_IBDu_rate))
+      # if there is a density of data of greater than 1 per year then use auto if not use default 0.75
+      if (nrow(noNA_UC)/length(unique(noNA_UC$year_data)) > 1.25) {
+        loess_UC <- loess.as(noNA_UC$year_data, noNA_UC$UC_IBDu_rate, degree = 2, criterion = "aicc",
+                           family = "gaussian", user.span = NULL)
+      } else {
+        loess_UC <- loess.as(noNA_UC$year_data, noNA_UC$UC_IBDu_rate, degree = 2, criterion = "aicc",
+                           family = "gaussian", user.span = 0.8)
+      }
+
+      loess_curve_UC <- curve(predict(loess_UC, newdata = data.frame(x = x)), 
+                              from  = min(noNA_UC$year_data), to = max(noNA_UC$year_data))
+      p <- p %>% 
+        add_trace(x = ~loess_curve_UC$x, y = ~loess_curve_UC$y,
+                  mode = "lines",
+                  opacity = 0.4,
+                  line = list(color = orange, width= 4),
+                  hoverinfo = "skip",
+                  showlegend = FALSE)
+    } else {
+      p <- p
+      
+    }
+    
+    if (length(unique(x$CD_rate)) >= 5 & length(unique(x$year_data)) >= 5) {
+       noNA_CD <- x %>% filter(!is.na(CD_rate))
+       
+       if (nrow(noNA_CD)/length(unique(noNA_CD$year_data)) > 1.25) {
+         loess_CD <- loess.as(noNA_CD$year_data, noNA_CD$CD_rate, degree = 2, criterion = "aicc",
+                           family = "gaussian", user.span = NULL)
+       } else {
+         loess_CD <- loess.as(noNA_CD$year_data, noNA_CD$CD_rate, degree = 2, criterion = "aicc",
+                            family = "gaussian", user.span = 0.8)
+       }
+       
+       loess_curve_CD <- curve(predict(loess_CD, newdata = data.frame(x = x)),
+                               from  = min(noNA_CD$year_data), to = max(noNA_CD$year_data))
+       p <- p %>%
+         add_trace(x = ~loess_curve_CD$x, y = ~loess_curve_CD$y,
+                   mode = "lines",
+                   opacity = 0.4,
+                   line = list(color = purple, width = 4),
+                   hoverinfo = "skip",
+                   showlegend = FALSE)
+     } else {
+       p <- p
+     }
+  }
+)
+```
+
+# 5 Aggregating and Saving
+5.1 Aggregating incidence plots
+```{r, echo = FALSE}
+# Nest lists of plots
+plots_listI <- list(scatterI, boxesI)
+
+# Extract first item of each element and assign to new list
+plots_listI2 <- list()
+for (i in 1:length(plots_listI[[1]])) {
+  plots_listI2[[i]] <- lapply(plots_listI, `[[`, i)
+}
+
+# Arrange lists in single plot
+combinedI <- list()
+for (i in 1:length(plots_listI[[1]])) {
+  combinedI[[i]] <- subplot(plots_listI2[[i]],
+                            widths = c(0.7, 0.3),
+                            titleY = TRUE, titleX = TRUE,
+                            shareY = TRUE,
+                            margin = 0.02) %>% 
+    layout(margin = list(b = 50))
+}
+
+# Name plots by country
+namesI <- names(plots_listI[[1]])
+names(combinedI) <- namesI
+```
+
+5.2 Aggregating prevalence plots
+```{r, warning = FALSE}
+# Nest lists of plots
+plots_listP <- list(scatterP, boxesP)
+
+# Extract first item of each element and assign to new list
+plots_listP2 <- list()
+for (i in 1:length(plots_listP[[1]])) {
+  plots_listP2[[i]] <- lapply(plots_listP, `[[`, i)
+}
+
+# Arrange lists in single plot
+combinedP <- list()
+for (i in 1:length(plots_listP[[1]])) {
+  combinedP[[i]] <- subplot(plots_listP2[[i]],
+                            widths = c(0.7, 0.3),
+                            titleY = TRUE, titleX = TRUE,
+                            shareY = TRUE,
+                            margin = 0.02) %>% 
+    layout(margin = list(t = 50))
+}
+
+# Name plots by country
+namesP <- names(plots_listP[[1]])
+names(combinedP) <- namesP
+```
+
+5.3 Merging incidence and prevalence
+```{r}
+# List all country names
+keys <- unique(c(names(combinedI), names(combinedP)))
+
+# Merge plots from each list by name, if only inc or prev available just keep the single plot
+combinedIP <- list()
+for (i in keys) {
+  if ((i %in% names(combinedI)) & (i %in% names(combinedP))) {
+  combinedIP[[i]] <- subplot(combinedI[[i]], combinedP[[i]],
+                             nrows = 2,
+                             heights = c(0.5,0.5),
+                             margin = 0.08,
+                             titleY = TRUE, titleX = TRUE) %>% 
+    layout(title = paste0("<b>", i, "</b>"),
+           legend = list(tracegroupgap = 260,
+                         y = 0.5),
+           margin = list(t = 75, b = 75))
+  } else if ((i %in% names(combinedI)) & !(i %in% names(combinedP))) {
+    combinedIP[[i]] <- combinedI[[i]] %>% 
+      layout(title = paste0("<b>", i, "</b>"),
+             legend = list(y = 0.5),
+             margin = list(t = 75, b = 75))
+    } else {
+      combinedIP[[i]] <- combinedP[[i]] %>% 
+        layout(title = paste0("<b>", i, "</b>"),
+               legend = list(y = 0.5),
+               margin = list(t = 75, b = 75))
+      }
+}
+
+# Order alphabetically
+sortedIP <- combinedIP[order(names(combinedIP))]
+```
+
+5.4 Saving
+```{r}
+#save widgets as self-contained html files, viewed in browser
+lapply(names(sortedIP), function(x)
+  htmlwidgets::saveWidget(widget = sortedIP[[x]],
+                         file = paste0(x, "_Plot.html"),
+                         selfcontained = TRUE))
+
+
+#save plotly objects as static png or pdf images
+reticulate::py_run_string("import sys")
+lapply(names(sortedIP), function(x)
+  save_image(sortedIP[[x]],
+             file = paste0(x, "_Plot.png"),
+             width = 1000, height = 700,
+             scale = 6))
+
+lapply(names(sortedIP), function(x)
+  save_image(sortedIP[[x]],
+             file = paste0(x, "_Plot.pdf"),
+             width = 1000, height = 700,
+             scale = 1))   #issue with MathJax 
+```

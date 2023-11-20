@@ -10,8 +10,8 @@
 #--- 1 Script Setup
 
 rm(list = ls(all = TRUE))
-setwd("~/Dropbox/Ratio_2021 (2)")
-path <- ""    # CHANGE ME!
+setwd("~/Dropbox/Ratio_2021 (2)") # CHANGE ME!
+path <- ""                        # CHANGE ME!
 
 # Install and load packages
 if (!require("pacman")) install.packages("pacman")
