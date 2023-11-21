@@ -31,7 +31,7 @@ Weighted mean incidence and prevalence as well as Annual Average Percent Change 
 
 An iterative machine learning methedology was used to classify regions by epidemiologic stage based on the absolute incidence and prevalence in a given year as well as the change in incidence and prevalence year-to-year.
 
-##### Forecasting Prevalence
+##### Forecasting Stage 4 Prevalence
 
 A Partial Differential Equation was developed to model the transition from an observable stage 3 to a theoretical stage 4, allowing for prediciton of prevalence equilibrium.
 
