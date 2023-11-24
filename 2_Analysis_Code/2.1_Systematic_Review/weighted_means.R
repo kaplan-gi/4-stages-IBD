@@ -76,6 +76,7 @@ prev_CD <- prev_data %>% filter(!is.na(CD_rate))
 prev_UC <- prev_data %>% filter(!is.na(UC_IBDu_rate))
 
 
+
 #--- 3 Weighted Means
 
 # Weighted means function
