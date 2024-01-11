@@ -34,7 +34,7 @@ An iterative machine learning methedology was used to classify regions by epidem
 ##### Forecasting Stage 4 Prevalence
 
 A Partial Differential Equation (PDE) was developed to model the transition from an observable stage 3 to a theoretical stage 4, allowing for prediction of prevalence equilibrium in three model regions. The model relies on an observed incidence and prevalence point as well as time-dependent age-stuctured population values.
-***Note:*** *The analysis for this section was performed with Wolfram Mathimatica and is contained in a .nb file which can be viewed with the free Wolfram Player application available from [www.wolfram.com](https://www.wolfram.com/player/).*
+<br>***Note:*** *The analysis for this section was performed with Wolfram Mathimatica and is contained in a .nb file which can be viewed with the free Wolfram Player application available from [www.wolfram.com](https://www.wolfram.com/player/).*
 
 
 
