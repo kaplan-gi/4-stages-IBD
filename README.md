@@ -23,19 +23,20 @@ The data for this project were compiled from a systematic review of four academi
 
 ## Analyses
 
-##### Systematic Review
+#### Systematic Review
 
-Weighted mean incidence and prevalence as well as Annual Average Percent Change (AAPC) measures were calculated to summarize the dataset and describe the epidemiology at either a study-level or a region-level. A classic meta-analysis grouped by epidemiologic stage was performed to determine pooled rates across the available studies.<br>
-    ***Data:*** *GIVES21_example_data.csv, a 10% random sample of our systematic review data can be used to run the AAPCs.R, meta-analysis.R, and weighted_means.R scripts.*
+Weighted mean incidence and prevalence as well as Annual Average Percent Change (AAPC) measures were calculated to summarize the dataset and describe the epidemiology at either a study-level or a region-level. A classic meta-analysis grouped by epidemiologic stage was performed to determine pooled rates across the available studies.<br><br>
+    ***Data:*** *GIVES21_example_data.csv, a 10% random sample of our systematic review data can be used to run the AAPCs.R, meta-analysis.R, and weighted_means.R scripts*
 
-##### Epidemiologic Stage Classification
+#### Epidemiologic Stage Classification
 
 An iterative machine learning methedology was used to classify regions by epidemiologic stage based on the absolute incidence and prevalence in a given year as well as the change in incidence and prevalence year-to-year.
 
-##### Forecasting Stage 4 Prevalence
+#### Forecasting Stage 4 Prevalence
 
-A Partial Differential Equation (PDE) was developed to model the transition from an observable stage 3 to a theoretical stage 4, allowing for prediction of prevalence equilibrium in three model regions. The model relies on an observed incidence and prevalence point as well as time-dependent age-stuctured population values.<br>
-    ***Data:*** *synthetic_example_data_PDE_input.csv, an example of data with similar structure to the data used in our stage 4 model corresponding to the Stage3_4_IBD_prevalence.nb file.*<br>
+A Partial Differential Equation (PDE) was developed to model the transition from an observable stage 3 to a theoretical stage 4, allowing for prediction of prevalence equilibrium in three model regions. The model relies on an observed incidence and prevalence point as well as time-dependent age-stuctured population values.<br><br>
+    ***Data:*** *To comply with various global health data protection requirements and in order to minimize the possibility of unintentionally sharing information that can be used to re-identify private information, the complete datasets cannot be made publicly available. The data from the present study are held securely in de-identified form on a secure server at the University of Calgary and were provided by: provincial administrative healthcare organizations in Alberta, British Columbia, Manitoba, Newfoundland and Labrador, Nova Scotia, Ontario, Quebec, and Saskatchewan (Canada); the Danish National Patient Register (Denmark); and TrakCare (Lothian, Scotland). Legal data-sharing agreements between the researchers and the data providers (e.g., health care organizations and government) prohibit researchers from making the data set publicly available.<br>
+    synthetic_example_data_PDE_input.csv, an example of data with similar structure to the data used in our stage 4 model corresponding to the Stage3_4_IBD_prevalence.nb file*<br>
     ***Note:*** *The analysis for this section was performed with Wolfram Mathimatica and is contained in a .nb file which can be viewed with the free Wolfram Player application available from [www.wolfram.com](https://www.wolfram.com/player/).*
 
 
