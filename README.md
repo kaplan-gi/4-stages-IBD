@@ -30,7 +30,7 @@ Weighted mean incidence and prevalence as well as Annual Average Percent Change 
 
 #### Epidemiologic Stage Classification
 
-An iterative machine learning methedology was used to classify regions by epidemiologic stage based on the absolute incidence and prevalence in a given year as well as the change in incidence and prevalence year-to-year.
+An random forest classifier was used to classify regions by epidemiologic stage based on the incidence and prevalence values in a given year as well as the absolute value change in incidence and prevalence year-to-year.
 
 #### Forecasting Stage 4 Prevalence
 
