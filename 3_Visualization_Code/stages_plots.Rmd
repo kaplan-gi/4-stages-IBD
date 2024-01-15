@@ -1,0 +1,1346 @@
+---
+title: "Scatter and box plots for incidence and prevalence by epidemiologic stage"
+author: "Lindsay Hracs; Julia Gorospe"
+date of script: "2023-11-26"
+date of plot generation: "2023-11-26"
+output: html_document, PNG, other image types
+R version: 4.2.2 (2022-06-23)
+---
+This script prepares interactive plots to explore trends of IBD incidence and prevalence within epi stage categories. 
+No whiskers and outliers on box plots.
+
+Outline:
+
+   * 1 Script Setup 
+   * 2 Data Prep
+   * 3 Plot Design
+   * 4 Aggregating and Saving
+
+# 1 Script Setup
+1.1 Resetting environment
+```{r, setup, include = FALSE}
+
+# clear environment
+rm(list = ls(all = TRUE))
+
+# set directory
+require("knitr")
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '~/your/file_path')   # change to your path
+
+```
+
+1.2 Load packages
+```{r, include = FALSE}
+
+# ensure pacman is installed
+if (!require("pacman")) install.packages("pacman")
+
+# install and load packages
+pacman::p_load(
+      rio,                
+      openxlsx,
+      tidyverse,          
+      ggpubr,
+      plotly,
+      htmlwidgets,
+      manipulateWidget,
+      htmltools,
+      RColorBrewer,
+      reshape2)
+
+```
+
+1.3 Load data
+```{r, warning = FALSE}
+
+# load dataset
+data <- read.csv("~/your/file_path/goes/here/your_annual_random_forest_results.csv")
+
+```
+
+# 2 Data Prep
+2.1 Subset data
+```{r}
+
+# filter data and create subsets for scatter plots
+CD_inc <- data %>%
+    filter(!is.na(CD_inc)) %>%
+    mutate(data_type = "incidence",
+           disease_type = "CD",
+           group = paste0("CDinc", predicted_stage)) %>%
+    rename(rate = CD_inc) %>%
+    dplyr::select(index, country, name, year_data, data_type, disease_type, rate, predicted_stage, status, group)
+
+UC_inc <- data %>%
+    filter(!is.na(UC_inc)) %>%
+    mutate(data_type = "incidence",
+           disease_type = "UC",
+           group = paste0("UCinc", predicted_stage)) %>%
+    rename(rate = UC_inc) %>%
+     dplyr::select(index, country, name, year_data, data_type, disease_type, rate, predicted_stage, status, group)
+
+CD_prev <- data %>%
+    filter(!is.na(CD_prev)) %>%
+    mutate(data_type = "prevalence",
+           disease_type = "CD",
+           group = paste0("CDprev", predicted_stage)) %>%
+    rename(rate = CD_prev) %>%
+     dplyr::select(index, country, name, year_data, data_type, disease_type, rate, predicted_stage, status, group)
+
+UC_prev <- data %>%
+    filter(!is.na(UC_prev)) %>%
+    mutate(data_type = "prevalence",
+           disease_type = "UC",
+           group = paste0("UCprev", predicted_stage)) %>%
+    rename(rate = UC_prev) %>%
+     dplyr::select(index, country, name, year_data, data_type, disease_type, rate, predicted_stage, status, group)
+
+# combine subsets for plots that require all data
+full <- rbind(CD_inc, UC_inc, CD_prev, UC_prev)
+
+# create data subsets for plots that require disease and stage breakdown
+inc <- full %>% 
+    filter(data_type == "incidence")
+
+prev <- full %>%  
+    filter(data_type == "prevalence")
+
+stage1_inc_CD <- inc %>% filter(group == "CDincstage1")
+stage2_inc_CD <- inc %>% filter(group == "CDincstage2")
+stage3_inc_CD <- inc %>% filter(group == "CDincstage3")
+
+stage1_prev_CD <- prev %>% filter(group == "CDprevstage1")
+stage2_prev_CD <- prev %>% filter(group == "CDprevstage2")
+stage3_prev_CD <- prev %>% filter(group == "CDprevstage3")
+
+stage1_inc_UC <- inc %>% filter(group == "UCincstage1")
+stage2_inc_UC <- inc %>% filter(group == "UCincstage2")
+stage3_inc_UC <- inc %>% filter(group == "UCincstage3")
+
+stage1_prev_UC <- prev %>% filter(group == "UCprevstage1")
+stage2_prev_UC <- prev %>% filter(group == "UCprevstage2")
+stage3_prev_UC <- prev %>% filter(group == "UCprevstage3")
+
+```
+
+
+# 3 Plot Design
+3.1 Formatting
+```{r}
+
+# set auto-adjusting axis limits
+ymax_i <- 1.1*(max(inc$rate, na.rm = TRUE))
+ymax_p <- 1.1*(max(prev$rate, na.rm = TRUE))
+
+# vertical line
+vline <- function(x = 0, color = "#444") { # colour matches plotly default for fonts
+  list(
+    type = "line",
+    y0 = -0.025,
+    y1 = 1,
+    yref = "paper",
+    x0 = x,
+    x1 = x,
+    line = list(color = color, dash = "solid")
+  )
+}
+
+# horizonal line
+hline <- function(y = 0, color = "#444") {
+  list(
+    type = "line", 
+    x0 = 0.01, 
+    x1 = 0.99, 
+    xref = "paper",
+    y0 = y, 
+    y1 = y, 
+    line = list(color = color, dash = "dot")
+  )
+}
+
+format <- list(size = 15)
+
+# plot colours
+colour_stage1 = "#7570B3"
+colour_stage2 = "#D95F02"
+colour_stage3 = "#1B9E77"
+
+```
+
+
+3.2 Incidence box plots
+```{r}
+
+# calculate quantiles and medians
+inc_quants <- tapply(inc$rate, inc$group, quantile)
+
+inc_Q1s <- sapply(1:6, function(i) inc_quants[[i]][2]) # number of groups  = 6
+inc_Q3s <- sapply(1:6, function(i) inc_quants[[i]][4])
+inc_meds <- tapply(inc$rate, inc$group, median)
+
+# specify annotations
+inc_annote = list( 
+  list( 
+    x = 0.25,  
+    y = -0.07, 
+    text = "Crohn's Disease",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.75,  
+    y = -0.07, 
+    text = "Ulcerative Colitis",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25-0.1667,  
+    y = inc_Q1s[1]-0.0375, 
+    text = paste0("25th = ", format(round(inc_Q1s[1], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "paper", # has to be "paper" because value technically smaller than y
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25-0.1667,  
+    y = inc_Q3s[1]+0.75, 
+    text = paste0("75th = ", format(round(inc_Q3s[1], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25,  
+    y = inc_Q1s[2]-0.61, 
+    text = paste0("25th = ",format(round(inc_Q1s[2], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25,  
+    y = inc_Q3s[2]+0.75, 
+    text = paste0("75th = ", format(round(inc_Q3s[2], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+0.1667,  
+    y = inc_Q1s[3]-0.75, 
+    text = paste0("25th = ", format(round(inc_Q1s[3], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+0.1667,  
+    y = inc_Q3s[3]+0.75, 
+    text = paste0("75th = ", format(round(inc_Q3s[3], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(2*0.1667),  
+    y = inc_Q1s[4]-0.17, 
+    text = paste0("25th = ", format(round(inc_Q1s[4], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "paper", # has to be "paper" because technically smaller than y
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(2*0.1667),  
+    y = inc_Q3s[4]+0.75, 
+    text = paste0("75th = ", format(round(inc_Q3s[4], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(3*0.1667),  
+    y = inc_Q1s[5]-0.75, 
+    text = paste0("25th = ", format(round(inc_Q1s[5], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(3*0.1667),  
+    y = inc_Q3s[5]+0.75, 
+    text = paste0("75th = ", format(round(inc_Q3s[5], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(4*0.1667),  
+    y = inc_Q1s[6]-0.75, 
+    text = paste0("25th = ", format(round(inc_Q1s[6], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(4*0.1667),  
+    y = inc_Q3s[6]+0.75, 
+    text = paste0("75th = ", format(round(inc_Q3s[6], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  )
+)
+
+# build plot; to ignore whiskers, traces must be added individually with Q1, median, and Q3 specified
+inc_box <- plot_ly() %>%
+    add_trace(
+        type = "box", 
+        q1 = inc_Q1s[1],
+        median = inc_meds[1], 
+        q3 = inc_Q3s[1],
+        color = I(colour_stage1),
+        legendgroup = 1,
+        showlegend = FALSE,
+        name = "Stage 1",
+        x0 = "CDstage1",
+        hoverinfo = "x+y") %>% # this hoverinfo formatting leaves out "name"
+    add_trace(
+        type = "box",
+        q1 = inc_Q1s[2],
+        median = inc_meds[2], 
+        q3 = inc_Q3s[2],
+        color = I(colour_stage2),
+        legendgroup = 2,
+        showlegend = FALSE,
+        name = "Stage 2",
+        x0 = "CDstage2",
+        hoverinfo = "x+y") %>%
+    add_trace(
+        type = "box", 
+        q1 = inc_Q1s[3],
+        median = inc_meds[3], 
+        q3 = inc_Q3s[3],
+        color = I(colour_stage3),
+        legendgroup = 3,
+        showlegend = FALSE,
+        name = "Stage 3",
+        x0 = "CDstage3",
+        hoverinfo = "x+y") %>% 
+    add_trace(
+        type = "box",
+        q1 = inc_Q1s[4],
+        median = inc_meds[4], 
+        q3 = inc_Q3s[4],
+        color = I(colour_stage1),
+        legendgroup = 1,
+        showlegend = FALSE,
+        name = "UCstage1",
+        x0 = "UCstage1",
+        hoverinfo = "x+y") %>%
+    add_trace(
+        type = "box", 
+        q1 = inc_Q1s[5],
+        median = inc_meds[5], 
+        q3 = inc_Q3s[5],
+        color = I(colour_stage2),
+        legendgroup = 2,
+        showlegend = FALSE,
+        name = "UCstage2",
+        x0 = "UCstage2",
+        hoverinfo = "x+y") %>%
+    add_trace(
+        type = "box",
+        q1 = inc_Q1s[6],
+        median = inc_meds[6], 
+        q3 = inc_Q3s[6],
+        color = I(colour_stage3),
+        legendgroup = 3,
+        showlegend = FALSE,
+        name = "UCstage3",
+        x0 = "UCstage3",
+        hoverinfo = "x+y") %>%
+    layout(legend = list(title = list(text = "Epidemiologic Stage"),
+                         y = 0.5,
+                         font = list(size = 16)),
+           showlegend = TRUE,
+           xaxis = list(title = "Disease Type",
+                        ticktext = list("CD Stage 1", "CD Stage 2", "CD Stage 3", "UC Stage 1", "UC Stage 2", "UC Stage 3"),
+                        tickvals = list("CDstage1", "CDstage2", "CDstage3", "UCstage1", "UCstage2", "UCstage3"),
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20),
+                        showticklabels = FALSE),
+           yaxis = list(title = "Incidence (per 100,000)",
+                        range = c(0,25),
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           annotations = inc_annote,
+           shapes = list(vline(2.5)), 
+           margin = c(1, 1, 0, 0))
+inc_box
+
+```
+
+
+3.3 Prevalence box plots
+```{r}
+
+# calculate quantiles and medians
+prev_quants <- tapply(prev$rate, prev$group, quantile)
+
+prev_Q1s <- sapply(1:6, function(i) prev_quants[[i]][2]) # number of groups  = 6
+prev_Q3s <- sapply(1:6, function(i) prev_quants[[i]][4])
+prev_meds <- tapply(prev$rate, prev$group, median)
+
+# specify annotations
+prev_annote = list( 
+  list( 
+    x = 0.25,  
+    y = -0.07, 
+    text = "Crohn's Disease",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.75,  
+    y = -0.07, 
+    text = "Ulcerative Colitis",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25-0.1667,  
+    y = prev_Q1s[1]-0.29, 
+    text = paste0("25th = ", format(round(prev_Q1s[1], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "paper", # has to be "paper" because value is technically smaller than y
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25-0.1667,  
+    y = prev_Q3s[1]+12, 
+    text = paste0("75th = ", format(round(prev_Q3s[1], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25,  
+    y = prev_Q1s[2]-9.025, 
+    text = paste0("25th = ", format(round(prev_Q1s[2], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+    #bgcolor="white"
+  ),
+   list( 
+    x = 0.25,  
+    y = prev_Q3s[2]+12, 
+    text = paste0("75th = ", format(round(prev_Q3s[2], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+0.1667,  
+    y = prev_Q1s[3]-12, 
+    text = paste0("25th = ", format(round(prev_Q1s[3], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+0.1667,  
+    y = prev_Q3s[3]+12, 
+    text = paste0("75th = ", format(round(prev_Q3s[3], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(2*0.1667),  
+    y = prev_Q1s[4]-1.735, 
+    text = paste0("25th = ", format(round(prev_Q1s[4], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "paper", # has to be "paper" because technically smaller than y
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(2*0.1667),  
+    y = prev_Q3s[4]+12, 
+    text = paste0("75th = ", format(round(prev_Q3s[4], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(3*0.1667),  
+    y = prev_Q1s[5]-12, 
+    text = paste0("25th = ", format(round(prev_Q1s[5], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(3*0.1667),  
+    y = prev_Q3s[5]+12, 
+    text = paste0("75th = ", format(round(prev_Q3s[5], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(4*0.1667),  
+    y = prev_Q1s[6]-12, 
+    text = paste0("25th = ", format(round(prev_Q1s[6], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  ),
+   list( 
+    x = 0.25+(4*0.1667),  
+    y = prev_Q3s[6]+12, 
+    text = paste0("75th = ", format(round(prev_Q3s[6], digits = 1), nsmall = 1)),  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",  
+    showarrow = FALSE,
+    font = list(size = 20)
+  )
+)
+
+# build plot; to ignore whiskers, traces must be added individually with Q1, median, and Q3 specified
+prev_box <- plot_ly() %>%
+    add_trace(
+        type = "box", 
+        q1 = prev_Q1s[1],
+        median = prev_meds[1], 
+        q3 = prev_Q3s[1],
+        color = I(colour_stage1),
+        legendgroup = 1,
+        showlegend = TRUE,
+        name = "Stage 1",
+        x0 = "CDstage1",
+        hoverinfo = "x+y") %>% # this hoverinfo formatting leaves out "name"
+    add_trace(
+        type = "box",
+        q1 = prev_Q1s[2],
+        median = prev_meds[2], 
+        q3 = prev_Q3s[2],
+        color = I(colour_stage2),
+        legendgroup = 2,
+        showlegend = TRUE,
+        name = "Stage 2",
+        x0 = "CDstage2",
+        hoverinfo = "x+y") %>%
+    add_trace(
+        type = "box", 
+        q1 = prev_Q1s[3],
+        median = prev_meds[3], 
+        q3 = prev_Q3s[3],
+        color = I(colour_stage3),
+        legendgroup = 3,
+        showlegend = TRUE,
+        name = "Stage 3",
+        x0 = "CDstage3",
+        hoverinfo = "x+y") %>% 
+    add_trace(
+        type = "box",
+        q1 = prev_Q1s[4],
+        median = prev_meds[4], 
+        q3 = prev_Q3s[4],
+        color = I(colour_stage1),
+        legendgroup = 1,
+        showlegend = FALSE,
+        name = "Stage 1",
+        x0 = "UCstage1",
+        hoverinfo = "x+y") %>%
+    add_trace(
+        type = "box", 
+        q1 = prev_Q1s[5],
+        median = prev_meds[5], 
+        q3 = prev_Q3s[5],
+        color = I(colour_stage2),
+        legendgroup = 2,
+        showlegend = FALSE,
+        name = "Stage 2",
+        x0 = "UCstage2",
+        hoverinfo = "x+y") %>%
+    add_trace(
+        type = "box",
+        q1 = prev_Q1s[6],
+        median = prev_meds[6], 
+        q3 = prev_Q3s[6],
+        color = I(colour_stage3),
+        legendgroup = 3,
+        showlegend = FALSE,
+        name = "Stage 3",
+        x0 = "UCstage3",
+        hoverinfo = "x+y") %>%
+    layout(legend = list(title = list(text = "Epidemiologic Stage"),
+                         y = 0.5,
+                         font = list(size = 22)),
+           showlegend = TRUE,
+           xaxis = list(title = "Disease Type",
+                        ticktext = list("CD Stage 1", "CD Stage 2", "CD Stage 3", "UC Stage 1", "UC Stage 2", "UC Stage 3"),
+                        tickvals = list("CDstage1", "CDstage2", "CDstage3", "UCstage1", "UCstage2", "UCstage3"),
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20),
+                        showticklabels = FALSE),
+           yaxis = list(title = "Prevalence (per 100,000)",
+                        range = c(0,400),
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           annotations = prev_annote,
+           shapes = list(vline(2.5)),
+           margin = c(1, 0, 0, 0))
+prev_box
+
+```
+
+3.4 Incidence of Crohn's Disease scatter plot
+```{r}
+
+# specify annotations
+inc_CD_annote = list( 
+  list( 
+    x = 0.075,  
+    y = 43.5, 
+    text = "Ceiling Threshold",  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",    
+    showarrow = FALSE,
+    font = list(size = 20)
+  )
+)
+# plot CD incidence
+inc_scatter_CD <- plot_ly(type = "scatter", mode = "markers") %>% 
+    # stage 3
+    add_markers(data = stage3_inc_CD, x = ~year_data, y = ~rate,
+                marker = list(color = "#1B9E77", size = 7),
+                name = "Stage 3",
+                legendrank = 3,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage3_inc_CD$rate, digits = 2),
+                              "<br>Year: ", stage3_inc_CD$year_data, 
+                              "<br>Location: ", stage3_inc_CD$name, ", ", stage3_inc_CD$country,
+                              "<br>Stage: stage 3"),
+                hoverinfo = "text",
+                legendgroup = 3) %>%
+    # stage 2
+    add_markers(data = stage2_inc_CD, x = ~year_data, y = ~rate,
+                marker = list(color = "#D95F02", size = 7),
+                name = "Stage 2",
+                legendrank = 2,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage2_inc_CD$rate, digits = 2),
+                              "<br>Year: ", stage2_inc_CD$year_data,
+                              "<br>Location: ", stage2_inc_CD$name, ", ", stage2_inc_CD$country,
+                              "<br>Stage: stage 2"),
+                hoverinfo = "text",
+                legendgroup = 2) %>%
+     # stage 1
+     add_markers(data = stage1_inc_CD, x = ~year_data, y = ~rate,
+                marker = list(color = "#7570B3", size = 7),
+                name = "Stage 1",
+                legendrank = 1,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage1_inc_CD$rate, digits = 2),
+                              "<br>Year: ", stage1_inc_CD$year_data,
+                              "<br>Location: ", stage1_inc_CD$name, ", ", stage1_inc_CD$country,
+                              "<br>Stage: stage 1"),
+                hoverinfo = "text",
+                legendgroup = 1) %>%
+    layout(legend = list(
+                         title = list(text = "Epidemiologic Stage"),
+                         font = list(size = 22),
+                         y = 0.5),
+           xaxis = list(title = "Year",
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           yaxis = list(title = "Incidence (per 100,000)",
+                        range = list(0, ymax_i),
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           annotations = inc_CD_annote,
+           shapes = list(hline(40)),
+           margin = c(0.05, 0, 0, 0)
+    )
+          
+inc_scatter_CD
+
+```
+
+3.5 Incidence of Ulcerative Colitis scatter plot
+```{r}
+
+# specify annotations
+inc_UC_annote = list( 
+  list( 
+    x = 0.075,  
+    y = 43.5, 
+    text = "Ceiling Threshold",  
+    xref = "paper",  
+    yref = "y",  
+    xanchor = "center",  
+    yanchor = "auto",    
+    showarrow = FALSE,
+    font = list(size = 20)
+  )
+)
+
+# plot UC incidence
+inc_scatter_UC <- plot_ly(type = "scatter", mode = "markers") %>% 
+    # stage 3
+    add_markers(data = stage3_inc_UC, x = ~year_data, y = ~rate,
+                marker = list(color = "#1B9E77", size = 7),
+                name = "Stage 3",
+                legendrank = 3,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage3_inc_UC$rate, digits = 2),
+                              "<br>Year: ", stage3_inc_UC$year_data, 
+                              "<br>Location: ", stage3_inc_UC$name, ", ", stage3_inc_UC$country,
+                              "<br>Stage: stage 3"),
+                hoverinfo = "text",
+                legendgroup = 3,
+                showlegend = FALSE) %>%
+    # stage 2
+    add_markers(data = stage2_inc_UC, x = ~year_data, y = ~rate,
+                marker = list(color = "#D95F02", size = 7),
+                name = "Stage 2",
+                legendrank = 2,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage2_inc_UC$rate, digits = 2),
+                              "<br>Year: ", stage2_inc_UC$year_data,
+                              "<br>Location: ", stage2_inc_UC$name, ", ", stage2_inc_UC$country,
+                              "<br>Stage: stage 2"),
+                hoverinfo = "text",
+                legendgroup = 2,
+                showlegend = FALSE) %>%
+     # stage 1
+     add_markers(data = stage1_inc_UC, x = ~year_data, y = ~rate,
+                marker = list(color = "#7570B3", size = 7),
+                name = "Stage 1",
+                legendrank = 1,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage1_inc_UC$rate, digits = 2),
+                              "<br>Year: ", stage1_inc_UC$year_data,
+                              "<br>Location: ", stage1_inc_UC$name, ", ", stage1_inc_UC$country,
+                              "<br>Stage: stage 1"),
+                hoverinfo = "text",
+                legendgroup = 1,
+                showlegend = FALSE) %>% 
+    layout(legend = list(title = list(text = "Epidemiologic Stage"),
+                         font = list(size = 20),
+                         y = 0.5),
+           xaxis = list(title = "Year",
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           yaxis = list(title = "Incidence (per 100,000)",
+                        range = list(0, ymax_i),
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           annotations = inc_UC_annote,
+           shapes = list(hline(40)),
+           margin = c(0.05, 0, 0, 0)
+    )
+          
+inc_scatter_UC
+
+```
+
+3.6 Prevalence of Crohn's Disease scatter plot
+
+```{r}
+
+# plot CD prevalence
+prev_scatter_CD <- plot_ly(type = "scatter", mode = "markers") %>% 
+    # stage 3
+    add_markers(data = stage3_prev_CD, x = ~year_data, y = ~rate,
+                marker = list(color = "#1B9E77", size = 7),
+                name = "Stage 3",
+                legendrank = 3,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage3_prev_CD$rate, digits = 2),
+                              "<br>Year: ", stage3_prev_CD$year_data, 
+                              "<br>Location: ", stage3_prev_CD$name, ", ", stage3_prev_CD$country,
+                              "<br>Stage: ", stage3_prev_CD$predicted_stage),
+                hoverinfo = "text",
+                legendgroup = 3,
+                showlegend = FALSE) %>% 
+    # stage 2
+    add_markers(data = stage2_prev_CD, x = ~year_data, y = ~rate,
+                marker = list(color = "#D95F02", size = 7),
+                name = "Stage 2",
+                legendrank = 2,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage2_prev_CD$rate, digits = 2),
+                              "<br>Year: ", stage2_prev_CD$year_data, 
+                              "<br>Location: ", stage2_prev_CD$name, ", ", stage2_prev_CD$country,
+                              "<br>Stage: ", stage2_prev_CD$predicted_stage),
+                hoverinfo = "text",
+                legendgroup = 2,
+                showlegend = FALSE) %>% 
+    # stage 1
+    add_markers(data = stage1_prev_CD, x = ~year_data, y = ~rate,
+                marker = list(color = "#7570B3", size = 7),
+                name = "Stage 1",
+                legendrank = 1,
+                opacity = 1,
+                text = paste0("CD Rate: ", round(stage1_prev_CD$rate, digits = 2),
+                              "<br>Year: ", stage1_prev_CD$year_data, 
+                              "<br>Location: ", stage1_prev_CD$name, ", ", stage1_prev_CD$country,
+                              "<br>Stage: ", stage1_prev_CD$stage),
+                hoverinfo = "text",
+                legendgroup = 1,
+                showlegend = FALSE) %>% 
+    layout(legend = list(title = list(text = "Epidemiologic Stage"),
+                         font = list(size = 20),
+                         y = 0.5),
+           xaxis = list(title = "Year",
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           yaxis = list(title = "Prevalence (per 100,000)",
+                        range = list(0, ymax_p),
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           margin = c(0.05, 0, 0, 0)
+    )
+          
+prev_scatter_CD
+
+```
+
+
+3.7 Prevalence of Ulcerative Colitis scatter plot
+```{r}
+
+# plot UC incidence
+prev_scatter_UC <- plot_ly(type = "scatter", mode = "markers") %>% 
+    # stage 3
+    add_markers(data = stage3_prev_UC, x = ~year_data, y = ~rate,
+                marker = list(color = "#1B9E77", size = 7),
+                name = "Stage 3",
+                legendrank = 3,
+                opacity = 1,
+                text = paste0("UC Rate: ", round(stage3_prev_UC$rate, digits = 2),
+                              "<br>Year: ", stage3_prev_UC$year_data, 
+                              "<br>Location: ", stage3_prev_UC$name, ", ", stage3_prev_UC$country,
+                              "<br>Stage: ", stage3_prev_UC$predicted_stage),
+                hoverinfo = "text",
+                legendgroup = 3,
+                showlegend = FALSE) %>% 
+    # stage 2
+    add_markers(data = stage2_prev_UC, x = ~year_data, y = ~rate,
+                marker = list(color = "#D95F02", size = 7),
+                name = "Stage 2",
+                legendrank = 2,
+                opacity = 1,
+                text = paste0("UC Rate: ", round(stage2_prev_UC$rate, digits = 2),
+                              "<br>Year: ", stage2_prev_UC$year_data, 
+                              "<br>Location: ", stage2_prev_UC$name, ", ", stage2_prev_UC$country,
+                              "<br>Stage: ", stage2_prev_UC$predicted_stage),
+                hoverinfo = "text",
+                legendgroup = 2,
+                showlegend = FALSE) %>% 
+    # stage 1
+    add_markers(data = stage1_prev_UC, x = ~year_data, y = ~rate,
+                marker = list(color = "#7570B3", size = 7),
+                name = "Stage 1",
+                legendrank = 1,
+                opacity = 1,
+                text = paste0("UC Rate: ", round(stage1_prev_UC$rate, digits = 2),
+                              "<br>Year: ", stage1_prev_UC$year_data, 
+                              "<br>Location: ", stage1_prev_UC$name, ", ", stage1_prev_UC$country,
+                              "<br>Stage: ", stage1_prev_UC$predicted_stage),
+                hoverinfo = "text",
+                legendgroup = 1,
+                showlegend = FALSE) %>% 
+    layout(legend = list(title = list(text = "Epidemiologic Stage"),
+                         font = list(size = 20),
+                         y = 0.5),
+           xaxis = list(title = "Year",
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           yaxis = list(title = "Prevalence (per 100,000)",
+                        range = list(0, ymax_p),
+                        titlefont = list(size = 22),
+                        tickfont = list(size = 20)),
+           margin = c(0.05, 0, 0, 0)
+    )
+          
+prev_scatter_UC
+```
+
+# 4 Aggregation
+4.1 Combine box plots
+```{r}
+
+# stacked incidence scatterplot
+annote_inc_box = list( 
+  list( 
+    x = -0.0375,  
+    y = 1, 
+    text = "<b>A</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.0375,  
+    y = 0.415, 
+    text = "<b>B</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ) 
+)
+
+panel_box <- subplot(inc_box, prev_box, 
+                        nrows = 2,
+                        titleX = TRUE,
+                        titleY = TRUE,
+                        margin = 0.1) %>% 
+                layout(legend = list(x = 1.01, y = 0.5),
+                       annotations = annote_inc_box,
+                       margin = list(l = 100, r = 100,
+                                     t = 75, b = 75))
+
+panel_box
+
+```
+
+4.2 Combine incidence scatter plots
+```{r}
+
+# stacked incidence scatterplot
+annote_inc = list( 
+  list( 
+    x = -0.045,  
+    y = 0.975, 
+    text = "<b>A.</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.045,  
+    y = 0.375, 
+    text = "<b>B.</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = 0.5,  
+    y = 1, 
+    text = "<b>Incidence of Crohn's Disease</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24)
+  ),  
+  list( 
+    x = 0.5,  
+    y = 0.4,  
+    text = "<b>Incidence of Ulcerative Colitis</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+)
+
+combined_inc <- subplot(inc_scatter_CD, inc_scatter_UC, 
+                        nrows = 2,
+                        titleX = TRUE,
+                        titleY = TRUE,
+                        margin = 0.1) %>% 
+                layout(legend = list(x = 1.01, y = 0.5),
+                       annotations = annote_inc,
+                       xaxis = list(tickvals = list(1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020),
+                                    ticktext = list("1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010", "2020"),
+                                    range = list(1925, 2025),
+                                    titlefont = list(size = 22),
+                                    tickfont = list(size = 20)),
+                       xaxis2 = list(tickvals = list(1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020),
+                                    ticktext = list("1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010", "2020"),
+                                    range = list(1925, 2025),
+                                    titlefont = list(size = 22),
+                                    tickfont = list(size = 20)),
+                       margin = list(l = 75, r = 75,
+                                     t = 25, b = 75))
+combined_inc
+
+```
+
+4.3 Combine prevalence scatter plots
+```{r}
+
+# stacked prevalence scatterplot
+annote_prev = list(
+    list( 
+    x = -0.045,  
+    y = 1, 
+    text = "<b>A.</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24)
+  ),  
+  list( 
+    x = -0.045,  
+    y = 0.4, 
+    text = "<b>B.</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24)
+  ),
+  list(
+    x = 0.5,  
+    y = 1, 
+    text = "<b>Prevalence of Crohn's Disease</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24)
+  ),  
+  list( 
+    x = 0.5,  
+    y = 0.4,  
+    text = "<b>Prevalence of Ulcerative Colitis</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+)
+
+combined_prev <- subplot(prev_scatter_CD, prev_scatter_UC, 
+                      nrows = 2,
+                      titleX = TRUE,
+                      titleY = TRUE,
+                      margin = 0.1) %>% 
+                layout(legend = list(x = 1.01, y = 0.5),
+                       annotations = annote_prev,
+                       xaxis = list(tickvals = list(1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020),
+                                    ticktext = list("1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010", "2020"),
+                                    range = list(1925, 2025),
+                                    titlefont = list(size = 22),
+                                    tickfont = list(size = 20)),
+                       xaxis2 = list(tickvals = list(1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020),
+                                    ticktext = list("1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010", "2020"),
+                                    range = list(1925, 2025),
+                                    titlefont = list(size = 22),
+                                    tickfont = list(size = 20)),
+                       margin = list(l = 75, r = 75,
+                                     t = 25, b = 75))
+
+
+combined_prev
+
+```
+
+4.4 Combine incidence and prevalence scatter plots for 4-panel figure
+```{r}
+
+# stacked incidence and prevalence scatterplots
+annote_panel = list(
+    list( 
+    x = -0.05,  
+    y = 0.975, 
+    text = "<b>A</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.05,  
+    y = 0.72, 
+    text = "<b>B</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+   list( 
+    x = -0.05,  
+    y = 0.475, 
+    text = "<b>C</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.05,  
+    y = 0.2175, 
+    text = "<b>D</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.75,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.5,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.25,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = -0.005,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = -0.05,  
+    y = 0.8,  
+    text = "Incidence (per 100,000)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = -0.05,  
+    y = 0.545,  
+    text = "Incidence (per 100,000)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = -0.05,  
+    y = 0.289,  
+    text = "Prevalence (per 100,000)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = -0.05,  
+    y = 0.041,  
+    text = "Prevalence (per 100,000)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+)
+
+four_panel_scatter <- subplot(inc_scatter_CD, inc_scatter_UC, prev_scatter_CD, prev_scatter_UC, 
+                      nrows = 4,
+                      heights = c(0.225, 0.25, 0.25, 0.225),
+                      margin = 0.03) %>%
+                layout(legend = list(x = 1.01, y = 0.5),
+                       annotations = annote_panel,
+                       xaxis = list(tickvals = list(1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020),
+                                    ticktext = list("1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010", "2020"),
+                                    range = list(1925, 2025),
+                                    titlefont = list(size = 22),
+                                    tickfont = list(size = 20)),
+                       xaxis2 = list(tickvals = list(1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020),
+                                    ticktext = list("1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010", "2020"),
+                                    range = list(1925, 2025),
+                                    titlefont = list(size = 22),
+                                    tickfont = list(size = 20)),
+                       xaxis3 = list(tickvals = list(1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020),
+                                    ticktext = list("1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010", "2020"),
+                                    range = list(1925, 2025),
+                                    titlefont = list(size = 22),
+                                    tickfont = list(size = 20)),
+                       xaxis4 = list(tickvals = list(1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020),
+                                    ticktext = list("1930", "1940", "1950", "1960", "1970", "1980", "1990", "2000", "2010", "2020"),
+                                    range = list(1925, 2025),
+                                    titlefont = list(size = 22),
+                                    tickfont = list(size = 20)),
+                       margin = list(l = 100, r = 100,
+                                     t = 25, b = 75))
+
+
+four_panel_scatter
+
+```
+
+# Save plots
+```{r}
+# set directory where plots will be saved
+setwd("~/your/file_path/goes/here/")
+
+panel_box %>% htmlwidgets::onRender( # change for each plot as designed above; adjust output size as needed
+  "function(el, x) {
+  var gd = document.getElementById(el.id);
+  Plotly.downloadImage(gd, {format: 'png', width: 2000, height: 1250, filename: 'file_name', scale: 5}); 
+  }"
+ )
+```
