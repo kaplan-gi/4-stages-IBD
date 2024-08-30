@@ -25,12 +25,12 @@ The data for this project were compiled from a systematic review of four academi
 
 #### Systematic Review
 
-Weighted mean incidence and prevalence as well as Annual Average Percent Change (AAPC) measures were calculated to summarize the dataset and describe the epidemiology at either a study-level or a region-level. A classic meta-analysis grouped by epidemiologic stage was performed to determine pooled rates across the available studies.<br><br>
-    ***Data:*** *GIVES21_example_data.csv, a 10% random sample of our systematic review data can be used to run the AAPCs.R, meta-analysis.R, and weighted_means.R scripts*
+Weighted mean incidence and prevalence as well as Annual Average Percent Change (AAPC) measures were calculated to summarize the dataset and describe the epidemiology at either a study-level or a region-level.<br><br>
+    ***Data:*** *GIVES21_example_data.csv, a 10% random sample of our systematic review data can be used to run the AAPCs.R, and weighted_means.R scripts*
 
 #### Epidemiologic Stage Classification
 
-An random forest classifier was used to classify regions by epidemiologic stage based on the incidence and prevalence values in a given year as well as the absolute value change in incidence and prevalence year-to-year.
+An random forest classifier was used to classify regions by epidemiologic stage based on the incidence and prevalence values in a given year as well as the change in incidence and prevalence year-to-year.
 
 #### Forecasting Stage 4 Prevalence
 

@@ -292,20 +292,18 @@
       document.body.style.height = "100%";
       document.documentElement.style.width = "100%";
       document.documentElement.style.height = "100%";
-      if (cel) {
-        cel.style.position = "absolute";
-        var pad = unpackPadding(sizing.padding);
-        cel.style.top = pad.top + "px";
-        cel.style.right = pad.right + "px";
-        cel.style.bottom = pad.bottom + "px";
-        cel.style.left = pad.left + "px";
-        el.style.width = "100%";
-        el.style.height = "100%";
-      }
+      cel.style.position = "absolute";
+      var pad = unpackPadding(sizing.padding);
+      cel.style.top = pad.top + "px";
+      cel.style.right = pad.right + "px";
+      cel.style.bottom = pad.bottom + "px";
+      cel.style.left = pad.left + "px";
+      el.style.width = "100%";
+      el.style.height = "100%";
 
       return {
-        getWidth: function() { return cel.offsetWidth; },
-        getHeight: function() { return cel.offsetHeight; }
+        getWidth: function() { return cel.getBoundingClientRect().width; },
+        getHeight: function() { return cel.getBoundingClientRect().height; }
       };
 
     } else {
@@ -313,8 +311,8 @@
       el.style.height = px(sizing.height);
 
       return {
-        getWidth: function() { return el.offsetWidth; },
-        getHeight: function() { return el.offsetHeight; }
+        getWidth: function() { return cel.getBoundingClientRect().width; },
+        getHeight: function() { return cel.getBoundingClientRect().height; }
       };
     }
   }
@@ -538,8 +536,8 @@
 
           elementData(el, "initialized", true);
           if (bindingDef.initialize) {
-            var result = bindingDef.initialize(el, el.offsetWidth,
-              el.offsetHeight);
+            var rect = el.getBoundingClientRect();
+            var result = bindingDef.initialize(el, rect.width, rect.height);
             elementData(el, "init_result", result);
           }
         }
@@ -581,29 +579,30 @@
       forEach(matches, function(el) {
         var sizeObj = initSizing(el, binding);
 
+        var getSize = function(el) {
+          if (sizeObj) {
+            return {w: sizeObj.getWidth(), h: sizeObj.getHeight()}
+          } else {
+            var rect = el.getBoundingClientRect();
+            return {w: rect.width, h: rect.height}
+          }
+        };
+
         if (hasClass(el, "html-widget-static-bound"))
           return;
         el.className = el.className + " html-widget-static-bound";
 
         var initResult;
         if (binding.initialize) {
-          initResult = binding.initialize(el,
-            sizeObj ? sizeObj.getWidth() : el.offsetWidth,
-            sizeObj ? sizeObj.getHeight() : el.offsetHeight
-          );
+          var size = getSize(el);
+          initResult = binding.initialize(el, size.w, size.h);
           elementData(el, "init_result", initResult);
         }
 
         if (binding.resize) {
-          var lastSize = {
-            w: sizeObj ? sizeObj.getWidth() : el.offsetWidth,
-            h: sizeObj ? sizeObj.getHeight() : el.offsetHeight
-          };
+          var lastSize = getSize(el);
           var resizeHandler = function(e) {
-            var size = {
-              w: sizeObj ? sizeObj.getWidth() : el.offsetWidth,
-              h: sizeObj ? sizeObj.getHeight() : el.offsetHeight
-            };
+            var size = getSize(el);
             if (size.w === 0 && size.h === 0)
               return;
             if (size.w === lastSize.w && size.h === lastSize.h)
@@ -905,7 +904,6 @@
     return result;
   }
 })();
-
 </script>
 <script>
 HTMLWidgets.widget({
@@ -1430,15 +1428,17 @@ HTMLWidgets.widget({
       // communication between the widget and direct manipulation events
       if (x.selectize) {
         var selectizeID = Object.keys(x.selectize)[i];
-        var items = x.selectize[selectizeID].items;
+        var options = x.selectize[selectizeID];
         var first = [{value: "", label: "(All)"}];
-        var opts = {
-          options: first.concat(items),
-          searchField: "label",
-          valueField: "value",
-          labelField: "label",
-          maxItems: 50
-        };
+        var opts = $.extend({
+            options: first.concat(options.items),
+            searchField: "label",
+            valueField: "value",
+            labelField: "label",
+            maxItems: 50
+          }, 
+          options
+        );
         var select = $("#" + selectizeID).find("select")[0];
         var selectize = $(select).selectize(opts)[0].selectize;
         // NOTE: this callback is triggered when *directly* altering 
@@ -1933,11 +1933,9 @@ e.exports=function(t){return null!=t&&(n(t)||function(t){return"function"==typeo
 </head>
 <body style="background-color: white;">
 <div id="htmlwidget_container">
-<div id="htmlwidget-b82cd7bb173cfe41a8f7" class="plotly html-widget" style="width:100%;height:400px;">
-
+  <div class="plotly html-widget html-fill-item" id="htmlwidget-4cb8a9c5ed68795b86f6" style="width:100%;height:400px;"></div>
 </div>
-</div>
-<script type="application/json" data-for="htmlwidget-b82cd7bb173cfe41a8f7">{"x":{"data":[{"type":"scatter","mode":"markers","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"scatter","x":[2013],"y":[3.90533567754911],"mode":"markers","opacity":0.8,"marker":{"color":"#666666","line":{"color":"rgba(255,127,14,1)"}},"text":"CD Rate: 3.91<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"CD Incidence","legendgroup":"A","error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"scatter","x":[2013],"y":[5.40153570985689],"mode":"markers","opacity":0.8,"marker":{"color":"#1B9E77","line":{"color":"rgba(44,160,44,1)"}},"text":"UC + IBD-u Rate: 5.4<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"UC + IBD-u Incidence","legendgroup":"A","error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null},{"fillcolor":"rgba(214,39,40,0.4941)","boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"type":"box","marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"line":{"color":"rgba(214,39,40,1)"},"xaxis":"x2","yaxis":"y","frame":null},{"fillcolor":"rgba(102,102,102,0.5)","boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"type":"box","y":[3.90533567754911],"text":"CD Rate: 3.91<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"CD","marker":{"color":"rgba(102,102,102,1)","line":{"color":"rgba(102,102,102,1)"}},"line":{"color":"rgba(102,102,102,1)"},"xaxis":"x2","yaxis":"y","frame":null},{"fillcolor":"rgba(27,158,119,0.5)","boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"type":"box","y":[5.40153570985689],"text":"UC + IBD-u Rate: 5.4<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"UC + IBD-u","marker":{"color":"rgba(27,158,119,1)","line":{"color":"rgba(27,158,119,1)"}},"line":{"color":"rgba(27,158,119,1)"},"xaxis":"x2","yaxis":"y","frame":null},{"type":"scatter","mode":"markers","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"line":{"color":"rgba(227,119,194,1)"},"xaxis":"x3","yaxis":"y2","frame":null},{"type":"scatter","mode":"markers","opacity":0.8,"marker":{"color":"#7570B3","line":{"color":"rgba(127,127,127,1)"}},"error_y":{"color":"rgba(127,127,127,1)"},"error_x":{"color":"rgba(127,127,127,1)"},"line":{"color":"rgba(127,127,127,1)"},"xaxis":"x3","yaxis":"y2","frame":null},{"type":"scatter","x":[1985],"y":[45.5145418961358],"mode":"markers","opacity":0.8,"marker":{"color":"#D95F02","line":{"color":"rgba(188,189,34,1)"}},"text":"UC + IBD-u Rate: 45.51<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"UC + IBD-u Prevalence","legendgroup":"B","error_y":{"color":"rgba(188,189,34,1)"},"error_x":{"color":"rgba(188,189,34,1)"},"line":{"color":"rgba(188,189,34,1)"},"xaxis":"x3","yaxis":"y2","frame":null},{"fillcolor":"rgba(23,190,207,0.4941)","boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"type":"box","marker":{"color":"rgba(23,190,207,1)","line":{"color":"rgba(23,190,207,1)"}},"line":{"color":"rgba(23,190,207,1)"},"xaxis":"x4","yaxis":"y2","frame":null},{"fillcolor":"rgba(31,119,180,0.4941)","boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"type":"box","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x4","yaxis":"y2","frame":null},{"fillcolor":"rgba(217,95,2,0.5)","boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"type":"box","y":[45.5145418961358],"text":"UC + IBD-u Rate: 45.51<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"UC + IBD-u","marker":{"color":"rgba(217,95,2,1)","line":{"color":"rgba(217,95,2,1)"}},"line":{"color":"rgba(217,95,2,1)"},"xaxis":"x4","yaxis":"y2","frame":null}],"layout":{"xaxis":{"domain":[0,0.68],"automargin":true,"title":"Year","range":[1984,2014],"anchor":"y"},"xaxis2":{"domain":[0.72,1],"automargin":true,"title":"Disease","anchor":"y"},"xaxis3":{"domain":[0,0.68],"automargin":true,"title":"Year","range":[1984,2014],"anchor":"y2"},"xaxis4":{"domain":[0.72,1],"automargin":true,"title":"Disease","anchor":"y2"},"yaxis2":{"domain":[0,0.42],"automargin":true,"range":[0,50.0659960857494],"title":"Prevalence (per 100,000)","anchor":"x3"},"yaxis":{"domain":[0.58,1],"automargin":true,"range":[0,5.94168928084258],"title":"Incidence (per 100,000)","anchor":"x"},"annotations":[],"shapes":[],"images":[],"margin":{"b":75,"l":75,"t":75,"r":75},"hovermode":"closest","showlegend":true,"title":"<b>India<\/b>","legend":{"tracegroupgap":260,"y":0.5}},"attrs":{"ab3addcd452":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"ab3addcd452.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"mode":"markers","opacity":0.8,"marker":{"color":"#666666"},"text":"CD Rate: 3.91<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"CD Incidence","legendgroup":"A","inherit":true},"ab3addcd452.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"mode":"markers","opacity":0.8,"marker":{"color":"#1B9E77"},"text":"UC + IBD-u Rate: 5.4<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"UC + IBD-u Incidence","legendgroup":"A","inherit":true},"ab3a3a994757":{"boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box"},"ab3a3a994757.1":{"boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","y":{},"color":["#666666"],"text":"CD Rate: 3.91<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"CD","inherit":true},"ab3a3a994757.2":{"boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","y":{},"color":["#1B9E77"],"text":"UC + IBD-u Rate: 5.4<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"UC + IBD-u","inherit":true},"ab3a2b0326c2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"ab3a2b0326c2.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"mode":"markers","opacity":0.8,"marker":{"color":"#7570B3"},"text":"CD Rate: NA<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"CD Prevalence","legendgroup":"B","inherit":true},"ab3a2b0326c2.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"mode":"markers","opacity":0.8,"marker":{"color":"#D95F02"},"text":"UC + IBD-u Rate: 45.51<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"UC + IBD-u Prevalence","legendgroup":"B","inherit":true},"ab3a1bc4510b":{"boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box"},"ab3a1bc4510b.1":{"boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","y":{},"color":["#7570B3"],"text":"CD Rate: NA<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"CD","inherit":true},"ab3a1bc4510b.2":{"boxpoints":"all","jitter":0.8,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","y":{},"color":["#D95F02"],"text":"UC + IBD-u Rate: 45.51<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"UC + IBD-u","inherit":true}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"subplot":true,"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-<script type="application/htmlwidget-sizing" data-for="htmlwidget-b82cd7bb173cfe41a8f7">{"viewer":{"width":"100%","height":400,"padding":0,"fill":true},"browser":{"width":"100%","height":400,"padding":0,"fill":true}}</script>
+<script type="application/json" data-for="htmlwidget-4cb8a9c5ed68795b86f6">{"x":{"data":[{"type":"scatter","mode":"markers","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"scatter","x":[2013],"y":[3.9053356775491102],"mode":"markers","opacity":0.80000000000000004,"marker":{"color":"#666666","line":{"color":"rgba(255,127,14,1)"}},"text":"CD Rate: 3.91<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"CD Incidence","legendgroup":"A","error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"type":"scatter","x":[2013],"y":[5.4015357098568897],"mode":"markers","opacity":0.80000000000000004,"marker":{"color":"#1B9E77","line":{"color":"rgba(44,160,44,1)"}},"text":"UC + IBD-u Rate: 5.4<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"UC + IBD-u Incidence","legendgroup":"A","error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null},{"fillcolor":"rgba(214,39,40,0.4941)","boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"type":"box","marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"line":{"color":"rgba(214,39,40,1)"},"xaxis":"x2","yaxis":"y","frame":null},{"fillcolor":"rgba(102,102,102,0.5)","boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"type":"box","y":[3.9053356775491102],"text":"CD Rate: 3.91<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"CD","marker":{"color":"rgba(102,102,102,1)","line":{"color":"rgba(102,102,102,1)"}},"line":{"color":"rgba(102,102,102,1)"},"xaxis":"x2","yaxis":"y","frame":null},{"fillcolor":"rgba(27,158,119,0.5)","boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"type":"box","y":[5.4015357098568897],"text":"UC + IBD-u Rate: 5.4<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"UC + IBD-u","marker":{"color":"rgba(27,158,119,1)","line":{"color":"rgba(27,158,119,1)"}},"line":{"color":"rgba(27,158,119,1)"},"xaxis":"x2","yaxis":"y","frame":null},{"type":"scatter","mode":"markers","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"line":{"color":"rgba(227,119,194,1)"},"xaxis":"x3","yaxis":"y2","frame":null},{"type":"scatter","mode":"markers","opacity":0.80000000000000004,"marker":{"color":"#7570B3","line":{"color":"rgba(127,127,127,1)"}},"error_y":{"color":"rgba(127,127,127,1)"},"error_x":{"color":"rgba(127,127,127,1)"},"line":{"color":"rgba(127,127,127,1)"},"xaxis":"x3","yaxis":"y2","frame":null},{"type":"scatter","x":[1985],"y":[45.514541896135803],"mode":"markers","opacity":0.80000000000000004,"marker":{"color":"#D95F02","line":{"color":"rgba(188,189,34,1)"}},"text":"UC + IBD-u Rate: 45.51<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"UC + IBD-u Prevalence","legendgroup":"B","error_y":{"color":"rgba(188,189,34,1)"},"error_x":{"color":"rgba(188,189,34,1)"},"line":{"color":"rgba(188,189,34,1)"},"xaxis":"x3","yaxis":"y2","frame":null},{"fillcolor":"rgba(23,190,207,0.4941)","boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"type":"box","marker":{"color":"rgba(23,190,207,1)","line":{"color":"rgba(23,190,207,1)"}},"line":{"color":"rgba(23,190,207,1)"},"xaxis":"x4","yaxis":"y2","frame":null},{"fillcolor":"rgba(31,119,180,0.4941)","boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"type":"box","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x4","yaxis":"y2","frame":null},{"fillcolor":"rgba(217,95,2,0.5)","boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"type":"box","y":[45.514541896135803],"text":"UC + IBD-u Rate: 45.51<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"UC + IBD-u","marker":{"color":"rgba(217,95,2,1)","line":{"color":"rgba(217,95,2,1)"}},"line":{"color":"rgba(217,95,2,1)"},"xaxis":"x4","yaxis":"y2","frame":null}],"layout":{"xaxis":{"domain":[0,0.67999999999999994],"automargin":true,"title":"Year","range":[1984,2014],"anchor":"y"},"xaxis2":{"domain":[0.71999999999999997,1],"automargin":true,"title":"Disease","anchor":"y"},"xaxis3":{"domain":[0,0.67999999999999994],"automargin":true,"title":"Year","range":[1984,2014],"anchor":"y2"},"xaxis4":{"domain":[0.71999999999999997,1],"automargin":true,"title":"Disease","anchor":"y2"},"yaxis2":{"domain":[0,0.41999999999999998],"automargin":true,"range":[0,50.06599608574939],"title":"Prevalence (per 100,000)","anchor":"x3"},"yaxis":{"domain":[0.57999999999999996,1],"automargin":true,"range":[0,5.9416892808425787],"title":"Incidence (per 100,000)","anchor":"x"},"annotations":[{"x":-0.061199999999999991,"y":1.042,"text":"<b>A<\/b>","xref":"paper","yref":"paper","xanchor":"center","yanchor":"middle","showarrow":false,"font":{"size":18}},{"x":-0.061199999999999991,"y":0.46200000000000002,"text":"<b>B<\/b>","xref":"paper","yref":"paper","xanchor":"center","yanchor":"middle","showarrow":false,"font":{"size":18}}],"shapes":[],"images":[],"margin":{"b":75,"l":75,"t":75,"r":75},"hovermode":"closest","showlegend":true,"title":"<b>India<\/b>","legend":{"tracegroupgap":260,"itemclick":false,"itemdoubleclick":false,"groupclick":false,"y":0.5}},"attrs":{"98f534418799":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"98f534418799.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"mode":"markers","opacity":0.80000000000000004,"marker":{"color":"#666666"},"text":"CD Rate: 3.91<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"CD Incidence","legendgroup":"A","inherit":true},"98f534418799.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"mode":"markers","opacity":0.80000000000000004,"marker":{"color":"#1B9E77"},"text":"UC + IBD-u Rate: 5.4<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"UC + IBD-u Incidence","legendgroup":"A","inherit":true},"98f525dac9a3":{"boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box"},"98f525dac9a3.1":{"boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","y":{},"color":["#666666"],"text":"CD Rate: 3.91<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"CD","inherit":true},"98f525dac9a3.2":{"boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","y":{},"color":["#1B9E77"],"text":"UC + IBD-u Rate: 5.4<br>Year: 2013<br>Study: Ng 2018<br>Location: Hyderabad","hoverinfo":"text","name":"UC + IBD-u","inherit":true},"98f5b719fba":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"98f5b719fba.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"mode":"markers","opacity":0.80000000000000004,"marker":{"color":"#7570B3"},"text":"CD Rate: NA<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"CD Prevalence","legendgroup":"B","inherit":true},"98f5b719fba.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"mode":"markers","opacity":0.80000000000000004,"marker":{"color":"#D95F02"},"text":"UC + IBD-u Rate: 45.51<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"UC + IBD-u Prevalence","legendgroup":"B","inherit":true},"98f561012a62":{"boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box"},"98f561012a62.1":{"boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","y":{},"color":["#7570B3"],"text":"CD Rate: NA<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"CD","inherit":true},"98f561012a62.2":{"boxpoints":"all","jitter":0.80000000000000004,"pointpos":0,"showlegend":false,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","y":{},"color":["#D95F02"],"text":"UC + IBD-u Rate: 45.51<br>Year: 1985<br>Study: Khosla 1986<br>Location: Haryana","hoverinfo":"text","name":"UC + IBD-u","inherit":true}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"subplot":true,"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<script type="application/htmlwidget-sizing" data-for="htmlwidget-4cb8a9c5ed68795b86f6">{"viewer":{"width":"100%","height":400,"padding":0,"fill":true},"browser":{"width":"100%","height":400,"padding":0,"fill":true}}</script>
 </body>
 </html>
