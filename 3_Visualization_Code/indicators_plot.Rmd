@@ -1,0 +1,385 @@
+---
+title: 'Describing Epidemiologic Stages'
+author: "Julia Gorospe"
+date created: "2024-05-16"
+date updated: "2024-09-05"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 4
+    toc_float: true
+R version: 4.3.2 (2023-10-31)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS Monterey 12.5.1
+---
+
+## Overview
+This notebook explores the five country-level socioeconomic indicators that have been selected to characterize the socioeconomic state of regions in each epidemiologic stage of inflammatory bowel disease (IBD). Variables were selected based on their relevance to the manuscript under review, temporal and geographic coverage, and the reliability of the data source. For the purposes of this subanalysis, only countries and years that have a corresponding predicted stage classification at the country-decade level will be presented.<br><br>
+
+#### 1.0 Script Setup
+```{r, setup, include = FALSE}
+# Clear environment
+rm(list = ls(all = TRUE))
+
+# Set directory
+require("knitr")
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/Dropbox/Ratio_2021 (2)")   #CHANGE ME!
+```
+
+```{r, warning = FALSE, include = FALSE}
+# Ensure pacman is installed
+#if (!require("pacman")) install.packages("pacman")
+
+# Install and load packages
+pacman::p_load(
+      rio,                 # v0.5.16 import/exporting files
+      tidyverse,           # v1.3.0
+      zoo,
+      plotly,
+      htmlwidgets,
+      dunn.test
+      )
+```
+
+#### 1.1 Load data
+Import metadata sheet with indicators for all countries across time and the epidemiologic stage classifications by country and decade.
+```{r, warning = FALSE, class.source = "fold-show"}
+meta_raw <- import("https://raw.githubusercontent.com/kaplan-gi/4-stages-IBD/main/indicators_example_data.csv")
+meta_raw <- import("~/Desktop/indicators_example_data.csv")
+# for demo provided on GitHub please use the indicators_example_data.csv file which contains a 10% sample of regions in the dataset
+```
+
+
+#### 1.2 Data dictionary
+The five indicators that will be assessed are: <br>
+
+* <b>ahdi:</b> Augmented Human Development Index from Escosura 2021 (https://doi.org/10.1111/ehr.13064) - calculation is geometric mean of normalized life expectancy at birth (health), mean years of schooling (education), GDP per capita (well-being), and Varieties of Democracy's Liberal democracy index (freedom). Scale of 0–1. Available in 5 year increments; interpolated using na.approx from zoo (inner-linear).
+
+* <b>obesity:</b> Prevalence of obesity among adults defined as the percentage of the population with a body mass index (BMI) or 30kg/m2 or higher. Data is age-standardized. Extracted from WHO database.
+
+* <b>percent_urban:</b> Percentage of population at mid-year residing in urban areas (as defined by the region). Predicted values to 2050 are also available in the original dataset. Extracted from UN database.
+
+* <b>UHC_index:</b> Universal Health Coverage Service Coverage Index - measure of essential health services at the country level. Includes many indicators covering 4 categories of care: reproductive, newborn, maternal and child health, infectious diseases, noncommunicable diseases, and service capacity and access. See figure 1 in methods paper for complete list of features (http://dx.doi.org/10.1016/S2214-109X(17)30472-2).
+
+* <b>western_diet_index:</b> A rough indication of how similar the average diet in the country is to that of a standard western diet high in processed foods, animal product and added sugar. Conceptually similar to the Western Diet Similarity Index described in Azzam 2021 (http://dx.doi.org/10.1017/S136898002000350X). Calculated by dividing the sum of calories/capita/day available from meat, animal oils/fats, milk, eggs, plant oils/fats and sugar by the total calories/capita/day available. Food categories are based on the 12 categories in Azzam 2021, however available calories were not adjusted for food waste due to lack of temporal data for global food waste rates. Raw data on calories by food category were extracted from the Food Balance Sheets maintained by the Food and Agriculture Organization (FAO).
+<br><br>
+
+#### 1.3 Data manipulation
+```{r, class.source = "fold-show"}
+# Interpolate variables with missing values
+meta <- meta_raw %>% 
+  group_by(country) %>% 
+  arrange(country, year) %>% 
+  mutate(ahdi_int = na.approx(ahdi, na.rm = FALSE),
+         UHC_index_int = na.approx(UHC_index, na.rm = FALSE))
+
+# List indicators to assess
+indicators <- c("ahdi_int", "percent_urban", "western_diet_index", "obesity", "UHC_index_int")
+
+# Reshape data
+box_data <- meta[, c("year", indicators, "predicted_stage")] %>% 
+  gather(-year, -predicted_stage, key = "var", value = "value", na.rm = TRUE) %>% 
+  group_by(var, predicted_stage) %>% 
+  mutate(label = sprintf("%.2f", median(value)))
+```
+
+
+## Visualization
+#### 2.1 Boxplots
+```{r, include = FALSE}
+# colours
+pal = c("#7570B3", "#D95F02", "#1B9E77")
+grey = "#444"
+
+labels <- box_data %>% 
+  distinct(var, predicted_stage, label)
+
+# individual plots
+p_ahdi <- box_data %>% 
+  filter(var == "ahdi_int") %>% 
+  plot_ly(x = ~predicted_stage, color = ~predicted_stage, colors = pal) %>% 
+  add_boxplot(y = ~value, alpha = 0.6,
+              #marker = list(opacity = 0.6),
+              showlegend = FALSE) %>% 
+  layout(
+    annotations = list(
+      list(
+        x = 1,
+        y = 1.07,
+        text = "<b>AHDI</b>",
+        font = list(size = 16),
+        xref = "x", yref = "paper",
+        xanchor = 'center',
+        showarrow = FALSE
+      ),
+      list(
+        x = 0,
+        y = 0.015+as.numeric(labels[labels$var == "ahdi_int" & labels$predicted_stage == "Stage 1", ]$label),
+        text = labels[labels$var == "ahdi_int" & labels$predicted_stage == "Stage 1", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 1,
+        y = 0.015+as.numeric(labels[labels$var == "ahdi_int" & labels$predicted_stage == "Stage 2", ]$label),
+        text = labels[labels$var == "ahdi_int" & labels$predicted_stage == "Stage 2", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 2,
+        y = 0.015+as.numeric(labels[labels$var == "ahdi_int" & labels$predicted_stage == "Stage 3", ]$label),
+        text = labels[labels$var == "ahdi_int" & labels$predicted_stage == "Stage 3", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      )
+    )
+  )
+
+p_urban <- box_data %>% 
+  filter(var == "percent_urban") %>% 
+  plot_ly(x = ~predicted_stage, color = ~predicted_stage, colors = pal) %>% 
+  add_boxplot(y = ~value, alpha = 0.6,
+              #marker = list(opacity = 0.6),
+              showlegend = FALSE)%>% 
+  layout(
+    annotations = list(
+      list(
+        x = 1,
+        y = 1.07,
+        text = "<b>Urbanity Rate</b>",
+        font = list(size = 16),
+        xref = "x", yref = "paper",
+        xanchor = 'center',
+        showarrow = FALSE
+      ),
+      list(
+        x = 0,
+        y = 1.5+as.numeric(labels[labels$var == "percent_urban" & labels$predicted_stage == "Stage 1", ]$label),
+        text = labels[labels$var == "percent_urban" & labels$predicted_stage == "Stage 1", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 1,
+        y = 1.5+as.numeric(labels[labels$var == "percent_urban" & labels$predicted_stage == "Stage 2", ]$label),
+        text = labels[labels$var == "percent_urban" & labels$predicted_stage == "Stage 2", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 2,
+        y = 1.5+as.numeric(labels[labels$var == "percent_urban" & labels$predicted_stage == "Stage 3", ]$label),
+        text = labels[labels$var == "percent_urban" & labels$predicted_stage == "Stage 3", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      )
+    )
+  )
+
+p_uhc <- box_data %>% 
+  filter(var == "UHC_index_int") %>% 
+  plot_ly(x = ~predicted_stage, color = ~predicted_stage, colors = pal) %>% 
+  add_boxplot(y = ~value, alpha = 0.6,
+              #marker = list(opacity = 0.6),
+              showlegend = TRUE) %>% 
+  layout(
+    annotations = list(
+      list(
+        x = 1,
+        y = 1.07,
+        text = "<b>UHC Index</b>",
+        font = list(size = 16),
+        xref = "x", yref = "paper",
+        xanchor = 'center',
+        showarrow = FALSE
+      ),
+      list(
+        x = 0,
+        y = 1.5+as.numeric(labels[labels$var == "UHC_index_int" & labels$predicted_stage == "Stage 1", ]$label),
+        text = labels[labels$var == "UHC_index_int" & labels$predicted_stage == "Stage 1", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 1,
+        y = 1.5+as.numeric(labels[labels$var == "UHC_index_int" & labels$predicted_stage == "Stage 2", ]$label),
+        text = labels[labels$var == "UHC_index_int" & labels$predicted_stage == "Stage 2", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 2,
+        y = 1.5+as.numeric(labels[labels$var == "UHC_index_int" & labels$predicted_stage == "Stage 3", ]$label),
+        text = labels[labels$var == "UHC_index_int" & labels$predicted_stage == "Stage 3", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      )
+    )
+  )
+
+p_wdi <- box_data %>% 
+  filter(var == "western_diet_index") %>% 
+  plot_ly(x = ~predicted_stage, color = ~predicted_stage, colors = pal) %>% 
+  add_boxplot(y = ~value, alpha = 0.6,
+              #marker = list(opacity = 0.6),
+              showlegend = FALSE) %>% 
+  layout(
+    annotations = list(
+      list(
+        x = 1,
+        y = 1.07,
+        text = "<b>Western Diet Index</b>",
+        font = list(size = 16),
+        xref = "x", yref = "paper",
+        xanchor = 'center',
+        showarrow = FALSE
+      ),
+      list(
+        x = 0,
+        y = 0.015+as.numeric(labels[labels$var == "western_diet_index" & labels$predicted_stage == "Stage 1", ]$label),
+        text = labels[labels$var == "western_diet_index" & labels$predicted_stage == "Stage 1", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 1,
+        y = 0.015+as.numeric(labels[labels$var == "western_diet_index" & labels$predicted_stage == "Stage 2", ]$label),
+        text = labels[labels$var == "western_diet_index" & labels$predicted_stage == "Stage 2", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 2,
+        y = 0.015+as.numeric(labels[labels$var == "western_diet_index" & labels$predicted_stage == "Stage 3", ]$label),
+        text = labels[labels$var == "western_diet_index" & labels$predicted_stage == "Stage 3", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      )
+    )
+  )
+
+p_obesity <- box_data %>% 
+  filter(var == "obesity") %>% 
+  plot_ly(x = ~predicted_stage, color = ~predicted_stage, colors = pal) %>% 
+  add_boxplot(y = ~value, alpha = 0.6,
+              #marker = list(opacity = 0.6),
+              showlegend = FALSE) %>% 
+  layout(
+    annotations = list(
+      list(
+        x = 1,
+        y = 1.07,
+        text = "<b>Obesity Rate</b>",
+        font = list(size = 16),
+        xref = "x", yref = "paper",
+        xanchor = 'center',
+        showarrow = FALSE
+      ),
+      list(
+        x = 0,
+        y = 0.75+as.numeric(labels[labels$var == "obesity" & labels$predicted_stage == "Stage 1", ]$label),
+        text = labels[labels$var == "obesity" & labels$predicted_stage == "Stage 1", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 1,
+        y = 0.75+as.numeric(labels[labels$var == "obesity" & labels$predicted_stage == "Stage 2", ]$label),
+        text = labels[labels$var == "obesity" & labels$predicted_stage == "Stage 2", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      ),
+      list(
+        x = 2,
+        y = 0.75+as.numeric(labels[labels$var == "obesity" & labels$predicted_stage == "Stage 3", ]$label),
+        text = labels[labels$var == "obesity" & labels$predicted_stage == "Stage 3", ]$label,
+        xref = "x", yref = "y",
+        xanchor = 'center',
+        font = list(color = '#FFFFFF'),
+        showarrow = FALSE
+      )
+    )
+  )
+
+# combined plot
+plot <- subplot(p_ahdi, p_obesity, p_uhc, p_urban, p_wdi, 
+                nrows = 1,
+                widths = c(0.18, 0.20, 0.20, 0.20, 0.18),
+                margin = 0.02) %>% 
+  layout(legend = list(title = list(text = "Epidemiologic Stage"),
+                       x = 0.3,
+                       y = -0.05,
+                       orientation = "h",
+                       font = list(size = 16)),
+         #annotations = annotations, 
+         xaxis = list(
+           showline= T, linewidth=1, linecolor=grey,
+           showticklabels = FALSE),
+         xaxis2 = list(showline= T, linewidth=1, linecolor=grey,
+                       showticklabels = FALSE),
+         xaxis3 = list(showline= T, linewidth=1, linecolor=grey,
+                       showticklabels = FALSE),
+         xaxis4 = list(showline= T, linewidth=1, linecolor=grey,
+                       showticklabels = FALSE),
+         xaxis5 = list(showline= T, linewidth=1, linecolor=grey,
+                       showticklabels = FALSE),
+         yaxis = list(
+           title = "Indicator Value",
+           range = list(0, 1),
+           showline= T, linewidth=1, linecolor=grey),
+         yaxis2 = list(
+           range = list(0, 50),
+           ticksuffix = "%",
+           showline= T, linewidth=1, linecolor=grey),
+         yaxis3 = list(
+           range = list(0, 100),
+           showline= T, linewidth=1, linecolor=grey),
+         yaxis4 = list(
+           range = list(0, 100),
+           ticksuffix = "%",
+           showline= T, linewidth=1, linecolor=grey),
+         yaxis5 = list(
+           range = list(0, 1),
+           showline= T, linewidth=1, linecolor=grey),
+         boxgap = 0, 
+         boxgroupgap = 0.25,
+         margin = c(1, 1, 0, 0)) %>% 
+  config(
+    toImageButtonOptions = list(
+      format = "png",
+      filename = "indicator_boxes",
+      width = 1250, height = 750, scale = 5) #use this to generate .png from the tool bar
+  )
+plot
+```
