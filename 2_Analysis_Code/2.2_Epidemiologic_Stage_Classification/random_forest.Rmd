@@ -1,0 +1,741 @@
+---
+title: "Classifiers"
+author: "Lindsay Hracs"
+date: "2024-10-08"
+output: html_document
+---
+
+## Purpose
+
+This script contains code for a random forest classifier that is used to classify countries at a particular time period as IBD epidemiologic Stage 1, Stage 2, or Stage 3; code is for extension to novel data points.
+
+## Outline
+
+| 1. Script setup
+| 2. Install and load packages
+| 3. Load data
+| 4. Data prep
+| 5. Imputation
+| 6. Random forest
+|       a. Data split
+|       b. Training and validation
+|       c. Classify unlabelled data
+|       d. Output
+
+## 1. Script setup
+
+```{r setup, include = TRUE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+# Clear environment
+
+rm(list = ls(all = TRUE))
+```
+
+## 2. Installl and load packages
+
+```{r required packages}
+
+# Ensure pacman is installed
+
+if (!require("pacman")) install.packages("pacman")
+
+# Install and load packages
+
+pacman::p_load(
+      rio,                
+      openxlsx,
+      tidyverse,          
+      ggpubr,
+      plotly,
+      dplyr,
+      htmlwidgets,
+      manipulateWidget,
+      htmltools,
+      RColorBrewer,
+      stringr,
+      randomForest,
+      caret)
+         
+```
+
+## 3. Load data
+
+```{r load data, warning = FALSE}
+# Update file paths as needed
+
+# Incidence and prevalence data
+raw <- import("~/file/path/file_name.xlsx", guess_max = 3000) # can ignore warnings for unused cols
+ 
+# Labelled data output from kNN supported iterative data labelling
+labelled <- read.csv("~/file/path/file_name_labelled_data.csv")
+```
+
+## 4. Data prep
+
+```{r data prep}
+
+# Filter dataset
+
+data <- raw %>%
+    filter(age_cat == "All",
+           !is.na(CD_rate) | !is.na(UC_IBDu_rate)) %>% 
+    group_by(country, name, data_type, year_data) %>%
+    mutate(CD_collapsed = mean(CD_rate, na.rm = TRUE),
+           UC_collapsed = mean(UC_IBDu_rate, na.rm = TRUE)) %>%
+    mutate(IBD_rate = (CD_collapsed + UC_collapsed)) %>%
+    distinct(country, name, data_type, year_data, .keep_all = TRUE) %>%
+    dplyr::select(country, name, epi_stage2020, year_data, decade, data_type, CD = CD_collapsed, 
+                  UC = UC_collapsed, IBD = IBD_rate, study_id) %>%
+    ungroup() %>%
+    mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+    select(country, name, year_data, decade, data_type, CD, UC)
+
+# Format labelled dataset
+
+labelled <- labelled %>%
+    rename("stage" = "stage_manual_adj") %>% 
+    mutate(status = "labelled") %>%
+    select(country, name, year_data, decade, data_type, CD, UC, stage, status)
+
+# Join labelled data with complete dataset
+
+joined <- left_join(data, labelled, by = c("country", "name", "data_type", "year_data"))
+
+# Format joined dataframe
+
+joined <- joined %>%
+    rename(c("decade" = "decade.x", "CD" = "CD.x", "UC" = "UC.x", "stage_lab" = "stage", "status_lab" = "status")) %>%
+    mutate(stage = ifelse(is.na(stage_lab), "unclassified", stage_lab),
+           status = ifelse(is.na(status_lab), "unlabelled", status_lab)) %>%
+    select(-decade.y, -CD.y, -UC.y, -stage_lab, -status_lab)
+
+# Create incidence subset with rate of change calculations
+
+inc <- joined %>% 
+    filter(data_type == "Incidence") %>%
+    group_by(country, name, data_type) %>% # no year in group 
+    arrange(year_data, .by_group = TRUE) %>%
+    mutate(count = seq_len(n())) %>% # create variable with sequence per group for change calc
+    mutate(CD_change = ifelse(count > 1, (CD - lag(CD))/(year_data - lag(year_data)), NA),
+           UC_change = ifelse(count > 1, (UC - lag(UC))/(year_data - lag(year_data)), NA)) %>%
+    ungroup()
+
+# Create prevalence subset with rate of change calculations
+
+prev <- joined %>% 
+    filter(data_type == "Prevalence") %>%
+    group_by(country, name, data_type) %>% # no year in group
+    arrange(year_data, .by_group = TRUE) %>%
+    mutate(count = seq_len(n())) %>% # create variable with sequence per group for change calc
+    mutate(CD_change = ifelse(count > 1, (CD - lag(CD))/(year_data - lag(year_data)), NA),
+           UC_change = ifelse(count > 1, (UC - lag(UC))/(year_data - lag(year_data)), NA)) %>%
+    ungroup()
+
+# Format incidence data frame
+
+inc <- inc %>%
+    rename("CD_inc" = "CD", "UC_inc" = "UC", "CD_change_inc" = "CD_change", "UC_change_inc" = "UC_change", "stage_inc" = "stage", "status_inc" = "status") %>%
+    select(-data_type, -count)
+
+# Format incidence data frame
+
+prev <- prev %>%
+    rename("CD_prev" = "CD", "UC_prev" = "UC", "CD_change_prev" = "CD_change", "UC_change_prev" = "UC_change", "stage_prev" = "stage", "status_prev" = "status") %>%
+    select(-data_type, -count)
+
+
+# Create wide data set because classification is on the basis of inc and prev of CD and UC
+    # incidence and prevalence need to be on the same row
+
+wide <- merge(inc, prev, by = c("country", "name", "year_data"), all = TRUE)
+```
+
+## 5. Imputation
+```{r imputation, warning = FALSE, error = FALSE}
+
+# Create a single stage column and single decade column
+
+combined <- wide %>%
+    mutate(stage = coalesce(stage_inc, stage_prev),
+           status = coalesce(status_inc, status_prev),
+           decade = coalesce(decade.x, decade.y),
+           CD_inc = replace(CD_inc, CD_inc == 0, 0),
+           UC_inc = replace(UC_inc, UC_inc == 0, 0),
+           CD_prev = replace(CD_prev, CD_prev == 0, 0),
+           UC_prev = replace(UC_prev, UC_prev == 0, 0),
+           CD_change_inc = replace(CD_change_inc, CD_change_inc == 0, 0),
+           UC_change_inc = replace(UC_change_inc, UC_change_inc == 0, 0),
+           CD_change_prev = replace(CD_change_prev, CD_change_prev == 0, 0),
+           UC_change_prev = replace(UC_change_prev, UC_change_prev == 0, 0),
+           CD_inc_impute = NA,
+           UC_inc_impute = NA, 
+           CD_prev_impute = NA,
+           UC_prev_impute = NA,
+           CD_change_inc_impute = NA,
+           UC_change_inc_impute = NA, 
+           CD_change_prev_impute = NA,
+           UC_change_prev_impute = NA) %>%
+    select(-stage_inc, -stage_prev, -decade.x, -decade.y, -status_inc, -status_prev)
+
+# Split dataset into country-decade subsets for data imputation
+data_sp <- split(combined, combined$country) 
+
+# Create empty data frames for all disease x data type subsets for imputations
+# List of prefixes and suffixes for the data frames
+prefixes <- c("CDinc", "UCinc", "CDprev", "UCprev", "CDchange_inc", "UCchange_inc", "CDchange_prev", "UCchange_prev")
+suffixes <- 1:3 
+
+# Loop over each prefix + suffix combination
+for (prefix in prefixes) {
+  for (suffix in suffixes) {
+    data_frame_name <- paste0(prefix, suffix)
+    assign(data_frame_name, data.frame())
+  }
+}
+
+# Impute missing data so that there are no NA values for any disease x data-type subset
+    # incidence, prevalence, and rates of change are imputed
+# For loop to iterate over each country-decade split to impute missing values
+    # output of for loop is complete data frame
+# If possible, linear interpolation is used
+    # --> if linear interpolation conditions not met, mean imputation is used
+        # --> if no data available for mean calculation, zero imputation is used
+
+for (i in 1:length(data_sp)) {
+        
+    if (nrow(data_sp[[i]]) > 0) {
+        
+        # Create jittered year and order by year_data
+        set.seed(5678)
+        data_sp[[i]] <- data_sp[[i]] %>% 
+            complete(year_data = seq(min(year_data), max(year_data), by = 1)) %>%
+            mutate(year_jitter = jitter(year_data, factor = 1e-1)) %>%
+            arrange(year_data) # use year_data instead of year_jitter for ordering
+        
+        # CD inc impute
+        
+        # zero impute if all available data are NA
+        if (length(which(is.na(data_sp[[i]]$CD_inc))) == nrow(data_sp[[i]])){
+            
+            data_sp[[i]]$CD_inc_impute <- ifelse(is.na(data_sp[[i]]$CD_inc), 0, data_sp[[i]]$CD_inc)
+            CDinc1 <- rbind(CDinc1, data_sp[[i]])
+            
+        } else {
+            
+            # linear interpolate if there are more than 2 non-NA values
+            if (length(which(!is.na(data_sp[[i]]$CD_inc))) >= 2) {
+                
+                CDinc_lin_fun <- approxfun(x = data_sp[[i]]$year_jitter,
+                                           y = data_sp[[i]]$CD_inc,
+                                           method = "linear",
+                                           rule = 2) # extrapolate to remove NA
+                data_sp[[i]]$CD_inc_impute <- CDinc_lin_fun(data_sp[[i]]$year_jitter)
+                CDinc2 <- rbind(CDinc2, data_sp[[i]])
+                
+            # mean imputation elsewhere        
+            } else {
+                
+                data_sp[[i]]$CD_inc_impute <- ifelse(is.na(data_sp[[i]]$CD_inc), mean(data_sp[[i]]$CD_inc, na.rm = TRUE), data_sp[[i]]$CD_inc)
+                CDinc3 <- rbind(CDinc3, data_sp[[i]])
+                
+            }
+        }
+        
+        CDincimpute <- rbind(CDinc1, CDinc2, CDinc3)
+        
+        # UC inc impute
+        
+        # zero impute if all available data are NA
+        if (length(which(is.na(data_sp[[i]]$UC_inc))) == nrow(data_sp[[i]])){
+            
+            data_sp[[i]]$UC_inc_impute <- ifelse(is.na(data_sp[[i]]$UC_inc), 0, data_sp[[i]]$UC_inc)
+            UCinc1 <- rbind(UCinc1, data_sp[[i]])
+            
+        } else {
+            
+            # linear interpolate if there are more than 2 non-NA values
+            if (length(which(!is.na(data_sp[[i]]$UC_inc))) >= 2) {
+                
+                UCinc_lin_fun <- approxfun(x = data_sp[[i]]$year_jitter,
+                                           y = data_sp[[i]]$UC_inc,
+                                           method = "linear",
+                                           rule = 2) # extrapolate to remove NA
+                data_sp[[i]]$UC_inc_impute <- UCinc_lin_fun(data_sp[[i]]$year_jitter)
+                UCinc2 <- rbind(UCinc2, data_sp[[i]])
+            
+            # mean imputation elsewhere        
+            } else {
+                
+                data_sp[[i]]$UC_inc_impute <- ifelse(is.na(data_sp[[i]]$UC_inc), mean(data_sp[[i]]$UC_inc, na.rm = TRUE), data_sp[[i]]$UC_inc)
+                UCinc3 <- rbind(UCinc3, data_sp[[i]])
+                
+            }
+        }
+        
+        UCincimpute <- rbind(UCinc1, UCinc2, UCinc3)
+        
+        # CD prev impute
+        
+        # zero impute if all available data are NA
+        if (length(which(is.na(data_sp[[i]]$CD_prev))) == nrow(data_sp[[i]])){
+            
+            data_sp[[i]]$CD_prev_impute <- ifelse(is.na(data_sp[[i]]$CD_prev), 0, data_sp[[i]]$CD_prev)
+            CDprev1 <- rbind(CDprev1, data_sp[[i]])
+            
+        } else {
+            
+           # linear interpolate if there are more than 2 non-NA values
+            if (length(which(!is.na(data_sp[[i]]$CD_prev))) >= 2) {
+                
+                CDprev_lin_fun <- approxfun(x = data_sp[[i]]$year_jitter,
+                                            y = data_sp[[i]]$CD_prev,
+                                            method = "linear",
+                                            rule = 2) # extrapolate to remove NA
+                data_sp[[i]]$CD_prev_impute <- CDprev_lin_fun(data_sp[[i]]$year_jitter)
+                CDprev2 <- rbind(CDprev2, data_sp[[i]])
+            
+            # mean imputation elsewhere        
+            } else {
+                
+                data_sp[[i]]$CD_prev_impute <- ifelse(is.na(data_sp[[i]]$CD_prev), mean(data_sp[[i]]$CD_prev, na.rm = TRUE), data_sp[[i]]$CD_prev)
+                CDprev3 <- rbind(CDprev3, data_sp[[i]])
+                
+            }
+        }
+        
+        CDprevimpute <- rbind(CDprev1, CDprev2, CDprev3)
+        
+        # UC prev impute
+        
+        # zero impute if all available data are NA
+        if (length(which(is.na(data_sp[[i]]$UC_prev))) == nrow(data_sp[[i]])){
+            
+            data_sp[[i]]$UC_prev_impute <- ifelse(is.na(data_sp[[i]]$UC_prev), 0, data_sp[[i]]$UC_prev)
+            UCprev1 <- rbind(UCprev1, data_sp[[i]])
+            
+        } else {
+            
+            # linear interpolate if there are more than 2 non-NA values and year gaps of more than 10 years
+            if (length(which(!is.na(data_sp[[i]]$UC_prev))) >= 2) {
+                
+                UCprev_lin_fun <- approxfun(x = data_sp[[i]]$year_jitter,
+                                            y = data_sp[[i]]$UC_prev,
+                                            method = "linear",
+                                            rule = 2) # extrapolate to remove NA
+                data_sp[[i]]$UC_prev_impute <- UCprev_lin_fun(data_sp[[i]]$year_jitter)
+                UCprev2 <- rbind(UCprev2, data_sp[[i]])
+            
+            # mean imputation elsewhere        
+            } else {
+                
+                data_sp[[i]]$UC_prev_impute <- ifelse(is.na(data_sp[[i]]$UC_prev), mean(data_sp[[i]]$UC_prev, na.rm = TRUE), data_sp[[i]]$UC_prev)
+                UCprev3 <- rbind(UCprev3, data_sp[[i]])
+                
+            }
+        }
+        
+        UCprevimpute <- rbind(UCprev1, UCprev2, UCprev3)
+        
+        # CD change inc impute
+        
+        # zero impute if all available data are NA
+        if (length(which(is.na(data_sp[[i]]$CD_change_inc))) == nrow(data_sp[[i]])){
+            
+            data_sp[[i]]$CD_change_inc_impute <- ifelse(is.na(data_sp[[i]]$CD_change_inc), 0, data_sp[[i]]$CD_change_inc)
+            CDchange_inc1 <- rbind(CDchange_inc1, data_sp[[i]])
+            
+        } else {
+            
+            # linear interpolate if there are more than 2 non-NA values
+            if (length(which(!is.na(data_sp[[i]]$CD_change_inc))) >= 2) {
+                
+                CDchange_inc_lin_fun <- approxfun(x = data_sp[[i]]$year_jitter,
+                                                  y = data_sp[[i]]$CD_change_inc,
+                                                  method = "linear",
+                                                  rule = 2) # extrapolate to remove NA
+                data_sp[[i]]$CD_change_inc_impute <- CDchange_inc_lin_fun(data_sp[[i]]$year_jitter)
+                CDchange_inc2 <- rbind(CDchange_inc2, data_sp[[i]])
+            
+            # mean imputation elsewhere        
+            } else {
+                
+                data_sp[[i]]$CD_change_inc_impute <- ifelse(is.na(data_sp[[i]]$CD_change_inc), mean(data_sp[[i]]$CD_change_inc, na.rm = TRUE), data_sp[[i]]$CD_change_inc)
+                CDchange_inc3 <- rbind(CDchange_inc3, data_sp[[i]])
+                
+            }
+        }
+        
+        CDchange_inc_impute <- rbind(CDchange_inc1, CDchange_inc2, CDchange_inc3)
+        
+        # UC change inc impute
+        
+        # zero impute if all available data are NA
+        if (length(which(is.na(data_sp[[i]]$UC_change_inc))) == nrow(data_sp[[i]])){
+            
+            data_sp[[i]]$UC_change_inc_impute <- ifelse(is.na(data_sp[[i]]$UC_change_inc), 0, data_sp[[i]]$UC_change_inc)
+            UCchange_inc1 <- rbind(UCchange_inc1, data_sp[[i]])
+            
+        } else {
+            
+            # linear interpolate if there are more than 2 non-NA values
+            if (length(which(!is.na(data_sp[[i]]$UC_change_inc))) >= 2) {
+                
+                UCchange_inc_lin_fun <- approxfun(x = data_sp[[i]]$year_jitter,
+                                                  y = data_sp[[i]]$UC_change_inc,
+                                                  method = "linear",
+                                                  rule = 2) # extrapolate to remove NA
+                data_sp[[i]]$UC_change_inc_impute <- UCchange_inc_lin_fun(data_sp[[i]]$year_jitter)
+                UCchange_inc2 <- rbind(UCchange_inc2, data_sp[[i]])
+            
+            # mean imputation elsewhere        
+            } else {
+                
+                data_sp[[i]]$UC_change_inc_impute <- ifelse(is.na(data_sp[[i]]$UC_change_inc), mean(data_sp[[i]]$UC_change_inc, na.rm = TRUE), data_sp[[i]]$UC_change_inc)
+                UCchange_inc3 <- rbind(UCchange_inc3, data_sp[[i]])
+                
+            }
+        }
+        
+        UCchange_inc_impute <- rbind(UCchange_inc1, UCchange_inc2, UCchange_inc3)
+        
+        # CD change prev impute
+        
+        # zero impute if all available data are NA
+        if (length(which(is.na(data_sp[[i]]$CD_change_prev))) == nrow(data_sp[[i]])){
+            
+            data_sp[[i]]$CD_change_prev_impute <- ifelse(is.na(data_sp[[i]]$CD_change_prev), 0, data_sp[[i]]$CD_change_prev)
+            CDchange_prev1 <- rbind(CDchange_prev1, data_sp[[i]])
+            
+        } else {
+            
+            # linear interpolate if there are more than 2 non-NA values
+            if (length(which(!is.na(data_sp[[i]]$CD_change_prev))) >= 2) {
+                
+                CDchange_prev_lin_fun <- approxfun(x = data_sp[[i]]$year_jitter,
+                                                   y = data_sp[[i]]$CD_change_prev,
+                                                   method = "linear",
+                                                   rule = 2) # extrapolate to remove NA
+                data_sp[[i]]$CD_change_prev_impute <- CDchange_prev_lin_fun(data_sp[[i]]$year_jitter)
+                CDchange_prev2 <- rbind(CDchange_prev2, data_sp[[i]])
+            
+            # mean imputation elsewhere        
+            } else {
+                
+                data_sp[[i]]$CD_change_prev_impute <- ifelse(is.na(data_sp[[i]]$CD_change_prev), mean(data_sp[[i]]$CD_change_prev, na.rm = TRUE), data_sp[[i]]$CD_change_prev)
+                CDchange_prev3 <- rbind(CDchange_prev3, data_sp[[i]])
+                
+            }
+        }
+        
+        CDchange_prev_impute <- rbind(CDchange_prev1, CDchange_prev2, CDchange_prev3)
+        
+        # UC change prev impute
+        
+        # zero impute if all available data are NA
+        if (length(which(is.na(data_sp[[i]]$UC_change_prev))) == nrow(data_sp[[i]])){
+            
+            data_sp[[i]]$UC_change_prev_impute <- ifelse(is.na(data_sp[[i]]$UC_change_prev), 0, data_sp[[i]]$UC_change_prev)
+            UCchange_prev1 <- rbind(UCchange_prev1, data_sp[[i]])
+            
+        } else {
+            
+            # linear interpolate if there are more than 2 non-NA values
+            if (length(which(!is.na(data_sp[[i]]$UC_change_prev))) >= 2) {
+                
+                UCchange_prev_lin_fun <- approxfun(x = data_sp[[i]]$year_jitter,
+                                                   y = data_sp[[i]]$UC_change_prev,
+                                                   method = "linear",
+                                                   rule = 2) # extrapolate to remove NA
+                data_sp[[i]]$UC_change_prev_impute <- UCchange_prev_lin_fun(data_sp[[i]]$year_jitter)
+                UCchange_prev2 <- rbind(UCchange_prev2, data_sp[[i]])
+            
+            # mean imputation elsewhere        
+            } else {
+                
+                data_sp[[i]]$UC_change_prev_impute <- ifelse(is.na(data_sp[[i]]$UC_change_prev), mean(data_sp[[i]]$UC_change_prev, na.rm = TRUE), data_sp[[i]]$UC_change_prev)
+                UCchange_prev3 <- rbind(UCchange_prev3, data_sp[[i]])
+                
+            }
+        }
+        
+        UCchange_prev_impute <- rbind(UCchange_prev1, UCchange_prev2, UCchange_prev3)
+       
+    } else {
+    
+    }
+    
+} 
+
+# Create imputed data frame
+
+imputed_full <- as.data.frame(UCchange_prev_impute)
+row.names(imputed_full) <- paste0(rownames(imputed_full), "_", imputed_full$country, "_", imputed_full$name, "_", imputed_full$year_data) 
+
+# Zero-impute any remaining NAs in feature columns
+# Zero-impute any negative values for incidence and prevalence resulting from linear interpolation
+# Add imputed indicator columns
+
+imputed_full <- imputed_full %>%
+    mutate_at(c("CD_inc_impute", "UC_inc_impute", "CD_prev_impute", "UC_prev_impute", 
+                "CD_change_inc_impute", "UC_change_inc_impute", "CD_change_prev_impute", "UC_change_prev_impute"), 
+              ~replace_na(., 0)) %>%
+    mutate(across(c("CD_inc_impute", "UC_inc_impute", "CD_prev_impute", "UC_prev_impute"), # remove all negative imputed values from inc and prev
+                  ~ ifelse(. < 0, 0, .))) %>% 
+    mutate(CD_inc_ind = is.na(CD_inc),
+           UC_inc_ind = is.na(UC_inc),
+           CD_prev_ind = is.na(CD_prev),
+           UC_prev_ind = is.na(UC_prev),
+           CD_change_inc_ind = is.na(CD_change_inc),
+           UC_change_inc_ind = is.na(UC_change_inc),
+           CD_change_prev_ind = is.na(CD_change_prev),
+           UC_change_prev_ind = is.na(UC_change_prev)) %>%
+    filter(!is.na(country)) %>%
+    select(-year_jitter)
+
+```
+
+#### 5.1 Imputation Viz
+```{r, warning = FALSE}
+# split dataframe by country
+impute_sp <- split(imputed_full, imputed_full$country)
+
+for(i in 1:length(impute_sp)) {
+    
+    p1 <- ggplot(impute_sp[[i]]) +
+        geom_point(aes(year_data, CD_inc_impute), colour = "darkred") +
+        geom_point(aes(year_data, CD_inc), colour = "black")+ ggtitle(paste0("CD Incidence ", unique(impute_sp[[i]]$country)))+
+        ylim(0,NA) + theme_bw()
+    
+    p2 <- ggplot(impute_sp[[i]]) +
+        geom_point(aes(year_data, UC_inc_impute), colour = "darkred") +
+        geom_point(aes(year_data, UC_inc), colour = "black")+ ggtitle("UC Incidence")+
+        ylim(0,NA) + theme_bw()
+    
+    p3 <- ggplot(impute_sp[[i]]) +
+        geom_point(aes(year_data, CD_prev_impute), colour = "darkred") +
+        geom_point(aes(year_data, CD_prev), colour = "black")+ ggtitle("CD Prevalence")+
+        ylim(0,NA) + theme_bw()
+    
+    p4 <- ggplot(impute_sp[[i]]) +
+        geom_point(aes(year_data, UC_prev_impute), colour = "darkred") +
+        geom_point(aes(year_data, UC_prev), colour = "black")+ ggtitle("UC Prevalence")+
+        ylim(0,NA) + theme_bw()
+    
+    p <- ggarrange(p1, p2, p3, p4,
+             ncol=2, nrow = 2, common.legend = TRUE, legend="bottom")  
+    #annotate_figure(p, top = text_grob(data_sp[[i]]$country), face = "bold", size = 14))
+    print(p)
+    
+}
+```
+
+## 6. Random forest
+
+### 6a. Data split
+```{r rf data split}
+
+# Create training/validation data set
+
+train_validate <- imputed_full %>%
+    filter(status == "labelled")
+
+train_validate_labels <- train_validate %>% 
+    select(stage)
+
+train_validate_context <- train_validate %>%
+    select(-stage)
+
+# Create test (i.e., unclassified) data set
+# Stage classifications to be assigned with model fit using training and validation data
+
+test <- imputed_full %>%
+    filter(status == "unlabelled")
+test$stage <- as.factor(test$stage)
+
+test_labels <- test %>% 
+    select(stage)
+
+test_context <- test %>%
+    select(-stage)
+
+```
+
+### 6b. Training and validating
+```{r rf train and validate}
+
+# Create training and validation sets and train model
+
+set.seed(1234)
+
+sample_index <- sample(nrow(train_validate), round(nrow(train_validate)*.75), replace = FALSE)
+
+train <- train_validate[sample_index, ]
+train$stage <- as.factor(train$stage)
+
+validation <- train_validate[-sample_index, ] # all the rows not given a sample index
+validation$stage <- as.factor(validation$stage)
+
+train_labels <- train_validate_labels[sample_index, ] # may need to wrap in as.factor for non-dataframe
+validation_labels <- train_validate_labels[-sample_index, ]
+
+train_context <- train_validate_context[sample_index, ] # may need to wrap in as.factor for non-dataframe
+validation_context <- train_validate_context[-sample_index, ]
+
+# Hyperparameter tuning
+
+# Define the parameter grid
+mtry_values <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+ntree_values <- c(500, 1000, 1500, 2000)
+
+# Create a data frame to store results
+tune_results <- data.frame(mtry = integer(), ntree = integer(), Accuracy = numeric())
+
+set.seed(1234)
+
+# Loop through combinations
+for (mtry in mtry_values) {
+  for (ntree in ntree_values) {
+    rf_tune <- randomForest(formula = stage ~ CD_inc_impute + CD_prev_impute + UC_inc_impute + UC_prev_impute + CD_change_inc_impute + CD_change_prev_impute + UC_change_inc_impute + UC_change_prev_impute + CD_inc_ind + UC_inc_ind + CD_prev_ind + UC_prev_ind + CD_change_inc_ind + UC_change_inc_ind + CD_change_prev_ind + UC_change_prev_ind,
+                       data = train,
+                       ntree = ntree, # for imputed across geo and country all-time ntree = 1000
+                       na.action = na.omit,
+                       mtry = mtry, # for imputed across geo all-time mtry = 6, country all-time = 4
+                       importance = TRUE)
+    oob <- rf_tune$err.rate[ntree, "OOB"]
+    confusion <- rf_tune$confusion
+    class_error <- confusion[, "class.error"]
+    pred <- predict(rf_tune, validation[,15:30])
+    acc <- mean(pred == validation$stage)
+    tune_results <- rbind(tune_results, data.frame(mtry = mtry, ntree = ntree, accuracy = acc, OOB = oob, err_stage1 = class_error[1], err_stage2 = class_error[2], err_stage3 = class_error[3]))
+  }
+}
+
+# Display results
+print(tune_results)
+
+OOB_check <- tune_results %>%
+    slice(which.min(OOB))
+
+acc_check <- tune_results %>%
+    slice(which.max(accuracy))
+
+# Create object rf with final random forest model
+# mtry and ntree values determined by above hyperparameter tuning
+# final model ntree = 1000, mtry = 5
+set.seed(1234)
+rf <- randomForest(formula = stage ~ CD_inc_impute + CD_prev_impute + UC_inc_impute + UC_prev_impute + CD_change_inc_impute + CD_change_prev_impute + UC_change_inc_impute + UC_change_prev_impute + CD_inc_ind + UC_inc_ind + CD_prev_ind + UC_prev_ind + CD_change_inc_ind + UC_change_inc_ind + CD_change_prev_ind + UC_change_prev_ind, 
+                   data = train, 
+                   ntree = 1000, 
+                   na.action = na.omit, 
+                   mtry = 5, 
+                   importance = TRUE)
+rf
+
+# Extract feature importance measures from model
+rf_imp <- as.data.frame(rf$importance)
+rf_imp$measure <- row.names(rf_imp)
+imp_inc_prev <- rf_imp[1:4,]
+
+rf_imp_plot <- plot_ly(data = imp_inc_prev, 
+                           x = ~measure) %>%
+    add_trace(y = ~stage1,
+              name = "Stage 1",
+              type = "bar",
+              marker = list(color = "#7570B3")) %>%
+    add_trace(y = ~stage2,
+              name = "Stage 2",
+              type = "bar",
+              marker = list(color = "#D95F02")) %>%
+    add_trace(y = ~stage3,
+              name = "Stage 3",
+              type = "bar",
+              marker = list(color = "#1B9E77")) %>%
+    layout(xaxis = list(title = list(text = "Incidence or prevalence feature type",
+                                     standoff = 30),
+                        categoryorder = "array",
+                        categoryarray = c("CD_inc_impute", "UC_inc_impute", "CD_prev_impute", "UC_prev_impute"),
+                        tickvals = c("CD_inc_impute", "UC_inc_impute", "CD_prev_impute", "UC_prev_impute"),
+                        ticktext = c("CD\nincidence", "UC\nincidence", "CD\nprevalence", "UC\nprevalence"), 
+                        tickangle = 0,
+                        titlefont = list(size = 35),
+                        tickfont = list(size = 30)),
+           yaxis = list(title = list(text = "Mean decrease in accuracy (%)",
+                                     standoff = 30),
+                        tickvals = c(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5),
+                        ticktext = c("0", "0.05", "0.10", "0.15", "0.20", "0.25", "0.30", "0.35", "0.40", "0.45", "0.50"),
+                        titlefont = list(size = 35),
+                        tickfont = list(size = 30)), 
+           barmode = 'group',
+           legend = list(x = 1.01, y = 0.5,
+                         font = list(size = 35)))
+
+# rf_imp_plot %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 1750, height: 2000, filename: 'rf_importance_2024-10-10', scale: 5});
+#   }"
+#  )
+
+# Random forest model stage prediction for validation data
+validation_prediction <- predict(rf, validation[,15:30])
+validation_rf_results <- confusionMatrix(data = validation_prediction, reference = as.factor(validation$stage)) # model accuracy here
+validation_tabulation <- table(validation_prediction, as.factor(validation$stage))
+
+```
+
+### 6c. Classify unlabelled data
+
+```{r rf test}
+
+# Random forest model stage prediction for test (i.e., unlabelled) data
+set.seed(1234)
+test_prediction <- data.frame(predict(rf, test[,15:30]))
+
+# Create dataframe with test data and corresponding stage predictions
+
+test_complete <- data.frame(test, test_prediction)
+
+names(test_complete)[31] <- "predicted_stage" # rename predicted stage column
+
+train_validate <- train_validate %>%
+    mutate("predicted_stage" = stage)
+
+```
+
+### 6d. Output
+```{r rf output}
+
+# Function to calculate the mode
+get_mode <- function(x) {
+  unique_x <- unique(x)
+  unique_x[which.max(tabulate(match(x, unique_x)))]
+}
+
+# Combine training,  validation, and test data
+
+output <- rbind(train_validate, test_complete)
+
+output_annual <- output %>%
+    arrange(country) %>%
+    select(country, name, year_data, decade, CD_inc, UC_inc, CD_prev, UC_prev, predicted_stage, status)
+
+output_decade <- output %>%
+    group_by(country, decade) %>%
+    summarize(predicted_stage = get_mode(predicted_stage))
+
+output_org <- output %>%
+    group_by(country, decade) %>%
+    summarize(collapsed = get_mode(predicted_stage)) %>%
+    mutate(stage_val = case_when(collapsed == "stage1" ~ 1, collapsed == "stage2" ~ 2, collapsed == "stage3" ~ 3),
+           sequence = seq_along(row_number())) %>%
+    mutate(stage_val_final = ifelse(sequence > 1 & stage_val < cummax(stage_val), cummax(stage_val), stage_val),
+           greater = stage_val < cummax(stage_val)) %>%
+    mutate(predicted_stage = case_when(stage_val_final == 1 ~ "stage1", stage_val_final == 2 ~ "stage2", stage_val_final == 3 ~ "stage3")) %>%
+    select(country, decade, predicted_stage)
+
+# Write random forest output to CSV
+# write.csv(output_annual, "~/file/path/your_output.csv", row.names = FALSE) # leave line commented out when finished with script
+
+```
