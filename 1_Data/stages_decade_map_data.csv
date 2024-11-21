@@ -1,0 +1,291 @@
+figure,country,decade,predicted_stage
+3F,Algeria,2000-2009,stage2
+3D,Argentina,1980-1989,stage2
+3E,Argentina,1990-1999,stage2
+3G,Argentina,2010-2019,stage2
+3H,Argentina,2020-2024,stage2
+3D,Australia,1980-1989,stage3
+3E,Australia,1990-1999,stage3
+3F,Australia,2000-2009,stage3
+3G_H,Australia,2010-2019,stage3
+3E,Austria,1990-1999,stage2
+3F,Austria,2000-2009,stage3
+3E,Bahrain,1990-1999,stage2
+3F,Bahrain,2000-2009,stage2
+3G,Bahrain,2010-2019,stage2
+3D,Barbados,1980-1989,stage2
+3E,Barbados,1990-1999,stage2
+3F,Barbados,2000-2009,stage2
+3E,Belgium,1990-1999,stage2
+3E,Bosnia and Herzegovina,1990-1999,stage2
+3F,Bosnia and Herzegovina,2000-2009,stage2
+3D,Brazil,1980-1989,stage1
+3E,Brazil,1990-1999,stage1
+3F,Brazil,2000-2009,stage2
+3G,Brazil,2010-2019,stage2
+3H,Brazil,2020-2024,stage2
+3F,Brunei,2000-2009,stage1
+3G,Brunei,2010-2019,stage1
+3H,Brunei,2020-2024,stage1
+3B,Canada,1960-1969,stage2
+3C,Canada,1970-1979,stage2
+3D,Canada,1980-1989,stage3
+3E,Canada,1990-1999,stage3
+3F,Canada,2000-2009,stage3
+3G_H,Canada,2010-2019,stage3
+3C,Catalonia,1970-1979,stage2
+3D,Catalonia,1980-1989,stage2
+3G_H,Catalonia,2010-2019,stage3
+3H,Catalonia,2020-2024,stage3
+3C,China,1970-1979,stage1
+3E,China,1990-1999,stage1
+3F,China,2000-2009,stage1
+3G,China,2010-2019,stage2
+3H,China,2020-2024,stage2
+3F,Colombia,2000-2009,stage2
+3G,Colombia,2010-2019,stage2
+3B,Croatia,1960-1969,stage1
+3C,Croatia,1970-1979,stage1
+3D,Croatia,1980-1989,stage1
+3E,Croatia,1990-1999,stage2
+3F,Croatia,2000-2009,stage2
+3G,Croatia,2010-2019,stage2
+3G,Cyprus,2010-2019,stage2
+3B,Czech Republic,1960-1969,stage1
+3C,Czech Republic,1970-1979,stage2
+3F,Czech Republic,2000-2009,stage3
+3G_H,Czech Republic,2010-2019,stage3
+3B,Denmark,1960-1969,stage2
+3C,Denmark,1970-1979,stage2
+3D,Denmark,1980-1989,stage2
+3E,Denmark,1990-1999,stage3
+3F,Denmark,2000-2009,stage3
+3G_H,Denmark,2010-2019,stage3
+3H,Denmark,2020-2024,stage3
+3H,Egypt,2020-2024,stage1
+3A,England,1950-1959,stage2
+3B,England,1960-1969,stage2
+3C,England,1970-1979,stage2
+3D,England,1980-1989,stage2
+3E,England,1990-1999,stage3
+3F,England,2000-2009,stage3
+3G_H,England,2010-2019,stage3
+3D,Estonia,1980-1989,stage1
+3E,Estonia,1990-1999,stage2
+3G,Estonia,2010-2019,stage2
+3B,Faroe Islands,1960-1969,stage2
+3C,Faroe Islands,1970-1979,stage2
+3D,Faroe Islands,1980-1989,stage3
+3E,Faroe Islands,1990-1999,stage3
+3F,Faroe Islands,2000-2009,stage3
+3G_H,Faroe Islands,2010-2019,stage3
+3H,Faroe Islands,2020-2024,stage3
+3B,Finland,1960-1969,stage2
+3C,Finland,1970-1979,stage2
+3D,Finland,1980-1989,stage2
+3E,Finland,1990-1999,stage3
+3F,Finland,2000-2009,stage3
+3G_H,Finland,2010-2019,stage3
+3H,Finland,2020-2024,stage3
+3D,France,1980-1989,stage2
+3E,France,1990-1999,stage2
+3F,France,2000-2009,stage3
+3G_H,France,2010-2019,stage3
+3H,France,2020-2024,stage3
+3B,Germany,1960-1969,stage2
+3C,Germany,1970-1979,stage2
+3D,Germany,1980-1989,stage2
+3E,Germany,1990-1999,stage2
+3F,Germany,2000-2009,stage2
+3G_H,Germany,2010-2019,stage3
+3D,Greece,1980-1989,stage2
+3E,Greece,1990-1999,stage2
+3F,Greece,2000-2009,stage2
+3G,Greece,2010-2019,stage2
+3G,Greenland,2010-2019,stage2
+3H,Greenland,2020-2024,stage2
+3E,Guadeloupe and Martinique,1990-1999,stage2
+3D,Hong Kong,1980-1989,stage1
+3E,Hong Kong,1990-1999,stage1
+3F,Hong Kong,2000-2009,stage1
+3G,Hong Kong,2010-2019,stage2
+3H,Hong Kong,2020-2024,stage2
+3C,Hungary,1970-1979,stage2
+3D,Hungary,1980-1989,stage2
+3E,Hungary,1990-1999,stage2
+3F,Hungary,2000-2009,stage3
+3G_H,Hungary,2010-2019,stage3
+3A,Iceland,1950-1959,stage2
+3B,Iceland,1960-1969,stage2
+3C,Iceland,1970-1979,stage2
+3D,Iceland,1980-1989,stage3
+3E,Iceland,1990-1999,stage3
+3F,Iceland,2000-2009,stage3
+3G_H,Iceland,2010-2019,stage3
+3D,India,1980-1989,stage2
+3E,India,1990-1999,stage2
+3F,India,2000-2009,stage2
+3G,India,2010-2019,stage2
+3G,Indonesia,2010-2019,stage1
+3H,Indonesia,2020-2024,stage2
+3F,Iran,2000-2009,stage2
+3G,Iran,2010-2019,stage2
+3H,Iran,2020-2024,stage2
+3E,Ireland,1990-1999,stage2
+3G,Ireland,2010-2019,stage2
+3B,Israel,1960-1969,stage2
+3C,Israel,1970-1979,stage2
+3D,Israel,1980-1989,stage2
+3E,Israel,1990-1999,stage2
+3F,Israel,2000-2009,stage3
+3G_H,Israel,2010-2019,stage3
+3H,Israel,2020-2024,stage3
+3C,Italy,1970-1979,stage2
+3D,Italy,1980-1989,stage2
+3E,Italy,1990-1999,stage2
+3F,Italy,2000-2009,stage3
+3G_H,Italy,2010-2019,stage3
+3H,Italy,2020-2024,stage3
+3A,Japan,1950-1959,stage1
+3B,Japan,1960-1969,stage1
+3C,Japan,1970-1979,stage1
+3D,Japan,1980-1989,stage1
+3E,Japan,1990-1999,stage2
+3F,Japan,2000-2009,stage2
+3G,Japan,2010-2019,stage2
+3G,Kazakhstan,2010-2019,stage1
+3H,Kazakhstan,2020-2024,stage1
+3D,Kuwait,1980-1989,stage2
+3E,Kuwait,1990-1999,stage2
+3G,Lebanon,2010-2019,stage2
+3H,Lebanon,2020-2024,stage2
+3F,Lithuania,2000-2009,stage2
+3G,Lithuania,2010-2019,stage2
+3H,Lithuania,2020-2024,stage2
+3G,Macao,2010-2019,stage2
+3H,Macao,2020-2024,stage2
+3D,Malaysia,1980-1989,stage1
+3E,Malaysia,1990-1999,stage1
+3F,Malaysia,2000-2009,stage1
+3G,Malaysia,2010-2019,stage1
+3H,Malaysia,2020-2024,stage2
+3F,Mexico,2000-2009,stage1
+3G,Mexico,2010-2019,stage1
+3H,Mexico,2020-2024,stage2
+3G,Moldova,2010-2019,stage2
+3H,Nepal,2020-2024,stage2
+3C,Netherlands,1970-1979,stage2
+3D,Netherlands,1980-1989,stage2
+3E,Netherlands,1990-1999,stage3
+3F,Netherlands,2000-2009,stage3
+3G_H,Netherlands,2010-2019,stage3
+3A,New Zealand,1950-1959,stage2
+3C,New Zealand,1970-1979,stage2
+3E,New Zealand,1990-1999,stage2
+3F,New Zealand,2000-2009,stage3
+3G_H,New Zealand,2010-2019,stage3
+3H,New Zealand,2020-2024,stage3
+3B,Northern Ireland,1960-1969,stage2
+3C,Northern Ireland,1970-1979,stage2
+3D,Northern Ireland,1980-1989,stage2
+3F,Northern Ireland,2000-2009,stage3
+3B,Norway,1960-1969,stage2
+3D,Norway,1980-1989,stage3
+3E,Norway,1990-1999,stage3
+3F,Norway,2000-2009,stage3
+3G_H,Norway,2010-2019,stage3
+3D,Oman,1980-1989,stage1
+3E,Oman,1990-1999,stage1
+3D,Panama,1980-1989,stage1
+3E,Panama,1990-1999,stage1
+3G,Philippines,2010-2019,stage1
+3G,Poland,2010-2019,stage2
+3E,Portugal,1990-1999,stage2
+3F,Portugal,2000-2009,stage2
+3G,Portugal,2010-2019,stage2
+3E,Puerto Rico,1990-1999,stage2
+3F,Puerto Rico,2000-2009,stage2
+3G,Puerto Rico,2010-2019,stage2
+3F,Romania,2000-2009,stage1
+3G,Romania,2010-2019,stage2
+3F,Russia,2000-2009,stage2
+3G,Russia,2010-2019,stage2
+3H,Russia,2020-2024,stage2
+3D,San Marino,1980-1989,stage2
+3E,San Marino,1990-1999,stage3
+3F,San Marino,2000-2009,stage3
+3G_H,San Marino,2010-2019,stage3
+3E,Saudi Arabia,1990-1999,stage2
+3G,Saudi Arabia,2010-2019,stage2
+3H,Saudi Arabia,2020-2024,stage2
+3A,Scotland,1950-1959,stage2
+3B,Scotland,1960-1969,stage2
+3C,Scotland,1970-1979,stage2
+3D,Scotland,1980-1989,stage2
+3E,Scotland,1990-1999,stage3
+3F,Scotland,2000-2009,stage3
+3G_H,Scotland,2010-2019,stage3
+3E,Serbia,1990-1999,stage2
+3E,Singapore,1990-1999,stage1
+3G,Singapore,2010-2019,stage1
+3E,Slovakia,1990-1999,stage2
+3C,South Africa,1970-1979,stage2
+3D,South Africa,1980-1989,stage2
+3D,South Korea,1980-1989,stage1
+3E,South Korea,1990-1999,stage1
+3F,South Korea,2000-2009,stage2
+3G,South Korea,2010-2019,stage2
+3A,Spain,1950-1959,stage1
+3B,Spain,1960-1969,stage1
+3C,Spain,1970-1979,stage2
+3D,Spain,1980-1989,stage2
+3E,Spain,1990-1999,stage2
+3F,Spain,2000-2009,stage3
+3G_H,Spain,2010-2019,stage3
+3F,Sri Lanka,2000-2009,stage1
+3G,Sri Lanka,2010-2019,stage1
+3A,Sweden,1950-1959,stage2
+3B,Sweden,1960-1969,stage2
+3C,Sweden,1970-1979,stage3
+3D,Sweden,1980-1989,stage3
+3E,Sweden,1990-1999,stage3
+3F,Sweden,2000-2009,stage3
+3G_H,Sweden,2010-2019,stage3
+3H,Sweden,2020-2024,stage3
+3B,Switzerland,1960-1969,stage2
+3E,Taiwan,1990-1999,stage1
+3F,Taiwan,2000-2009,stage1
+3G,Taiwan,2010-2019,stage1
+3H,Taiwan,2020-2024,stage2
+3G,Tanzania,2010-2019,stage1
+3G,Thailand,2010-2019,stage1
+3H,Thailand,2020-2024,stage1
+3E,Turkiye,1990-1999,stage2
+3F,Turkiye,2000-2009,stage2
+3G,Turkiye,2010-2019,stage2
+3A,United Kingdom,1950-1959,stage2
+3B,United Kingdom,1960-1969,stage2
+3C,United Kingdom,1970-1979,stage2
+3E,United Kingdom,1990-1999,stage3
+3F,United Kingdom,2000-2009,stage3
+3G_H,United Kingdom,2010-2019,stage3
+3A,United States,1950-1959,stage2
+3B,United States,1960-1969,stage2
+3C,United States,1970-1979,stage3
+3D,United States,1980-1989,stage3
+3E,United States,1990-1999,stage3
+3F,United States,2000-2009,stage3
+3G_H,United States,2010-2019,stage3
+3H,United States,2020-2024,stage3
+3F,Uruguay,2000-2009,stage2
+3G,Uruguay,2010-2019,stage2
+3H,Uruguay,2020-2024,stage2
+3H,Vietnam,2020-2024,stage1
+3A,Wales,1950-1959,stage2
+3B,Wales,1960-1969,stage2
+3C,Wales,1970-1979,stage2
+3D,Wales,1980-1989,stage2
+3E,Wales,1990-1999,stage3
+3F,Wales,2000-2009,stage3
+3G_H,Wales,2010-2019,stage3
+3H,Zambia,2020-2024,stage1

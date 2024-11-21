@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    198038,       4400]
-NotebookOptionsPosition[    190572,       4285]
-NotebookOutlinePosition[    190973,       4301]
-CellTagsIndexPosition[    190930,       4298]
+NotebookDataLength[    235361,       5175]
+NotebookOptionsPosition[    225981,       5029]
+NotebookOutlinePosition[    226377,       5045]
+CellTagsIndexPosition[    226334,       5042]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -248,7 +248,8 @@ Cell[TextData[{
 and age to create rough predictions of the final two stages of the evolution \
 of chronic disease prevalence as a function of age and time. First, let\
 \[CloseCurlyQuote]s start with the simplified PDE for prevalence (this \
-mortality, recover rate, and migration set to zero)\n\n(2)\t\t\t\t\t\t\t\t\t ",
+mortality, recover rate, and migration set to zero)\n\n(2)\t\t\t\t\t\t\t\t\t \
+\t\t",
  Cell[BoxData[
   FormBox[
    RowBox[{
@@ -277,7 +278,8 @@ set ",
    RowBox[{"u", "=", 
     RowBox[{"1", "-", "p"}]}], TraditionalForm]],ExpressionUUID->
   "5b27b640-b602-4560-81aa-95fba54cce71"],
- " to yield the McKendrick-von Foerster equation\n\n(3)\t\t\t\t\t\t\t\t\t\t",
+ " to yield the McKendrick-von Foerster equation\n\n(3)\t\t\t\t\t\t\t\t\t\t\t\
+\t",
  Cell[BoxData[
   FormBox[
    RowBox[{
@@ -351,7 +353,7 @@ Group), 2001). \n\nIn the region ",
     RowBox[{"u", "(", 
      RowBox[{"0", ",", "a"}], ")"}], ","}], TraditionalForm]],ExpressionUUID->
   "85a65edc-3390-44d0-88b2-b4353e9f2d03"],
- " must be used to generate the solution\n\n(4)\t\t\t \t\t\t\t\t",
+ " must be used to generate the solution\n\n(4)\t\t\t \t\t\t\t\t\t\t",
  Cell[BoxData[
   FormBox[
    RowBox[{
@@ -387,7 +389,7 @@ Group), 2001). \n\nIn the region ",
    RowBox[{"u", "(", 
     RowBox[{"t", ",", "0"}], ")"}], TraditionalForm]],ExpressionUUID->
   "52215215-5f39-440e-8685-6aefe90cfcb3"],
- ", must be used to yield\n\n(5)\t\t\t\t\t\t\t\t\t",
+ ", must be used to yield\n\n(5)\t\t\t\t\t\t\t\t\t\t",
  Cell[BoxData[
   FormBox[
    RowBox[{
@@ -419,7 +421,43 @@ Group), 2001). \n\nIn the region ",
    RowBox[{"a", "=", "t"}], TraditionalForm]],ExpressionUUID->
   "dd0ef0c7-c5e0-4f91-94f4-d623fce92c75"],
  ", we will use an average over points equidistantly displaced a very small \
-distance on either side of that line."
+distance on either side of that line.\n\nThe age-independent prevalence at \
+any time can be calculated where there exists age-structured population data. \
+To do this, we multiply the the prevalence as a function of time and age, ",
+ StyleBox["p",
+  FontSlant->"Italic"],
+ "(",
+ StyleBox["t",
+  FontSlant->"Italic"],
+ ", ",
+ StyleBox["a",
+  FontSlant->"Italic"],
+ "), by the normalised population age-distribution at time ",
+ StyleBox["t",
+  FontSlant->"Italic"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox["q", "t"], "(", "a", ")"}], TraditionalForm]],ExpressionUUID->
+  "3927d030-c9c4-4426-b4b4-5005a6c5053a"],
+ ", as per\n\n(6)\t\t\t \t\t\t\t\t\t\t\t\t",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{"p", "(", "t", ")"}], "=", 
+    RowBox[{
+     SubsuperscriptBox["\[Integral]", "0", "\[Infinity]"], 
+     RowBox[{
+      RowBox[{"p", "(", 
+       RowBox[{"t", ",", "a"}], ")"}], 
+      RowBox[{
+       SubscriptBox["q", "t"], "(", "a", ")"}], 
+      RowBox[{"\[DifferentialD]", "a"}]}]}]}], TraditionalForm]],
+  InitializationCell->True,ExpressionUUID->
+  "338496e9-1ce8-45d8-ab92-ca5326e5ad50"],
+ ".\n\nThe result depends on time only and can be used to extrapolate the \
+prevalence into the future."
 }], "Text",
  CellChangeTimes->{{3.872775122160392*^9, 3.8727754873393087`*^9}, {
    3.872779238039228*^9, 3.8727793450092916`*^9}, {3.872779487133151*^9, 
@@ -444,45 +482,47 @@ distance on either side of that line."
    3.890042424411811*^9, 3.890042518728842*^9}, {3.890042559564855*^9, 
    3.890042620066716*^9}, {3.9138911311885777`*^9, 3.913891323541279*^9}, {
    3.913891369441003*^9, 3.913891392650632*^9}, {3.913891507547017*^9, 
-   3.913891546089971*^9}},ExpressionUUID->"8e7fecf3-81af-4c99-91cd-\
+   3.913891546089971*^9}, {3.917006631053534*^9, 3.917007137030571*^9}, {
+   3.9170071871135397`*^9, 3.917007310698243*^9}, {3.917007341491538*^9, 
+   3.917007388955068*^9}, {3.921231208481086*^9, 
+   3.921231248597891*^9}},ExpressionUUID->"8e7fecf3-81af-4c99-91cd-\
 c5c999a09c19"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell["Loading the data", "Section",
- CellChangeTimes->{{3.901983250294942*^9, 
-  3.901983261926572*^9}},ExpressionUUID->"b2dbf604-abce-4337-9fc1-\
-b443afbda1d8"],
+Cell["Country-Dependent Variables for Simulations", "Section",
+ CellChangeTimes->{{3.8872192195265017`*^9, 3.8872192204394073`*^9}, {
+  3.887219325881373*^9, 3.887219330876498*^9}, {3.9022272541329412`*^9, 
+  3.9022272725603113`*^9}},ExpressionUUID->"2befff29-4607-43ee-b123-\
+d9cc4ba1f79d"],
 
 Cell[TextData[{
- "The rest of the notebook will require the following variables be set\n\n1) \
-the initial start date for the projection (suggestion: last date of \
-prevalence data),\n2) years for which incidence data will be loaded (for \
-average initial incidence), and \n3) years on which the population \
-age-structure is known.\n\nOne also needs to set the root directories from \
-which the data will be loaded and to which data will be saved. Here, the \
-country name is part of the directory tree.\n\n",
- StyleBox["Note 1",
+ "The listed variables are required to simulate the time-dependent prevalence \
+for the countries below.\n\nNote that often the incidence and prevalence data \
+for 2020 differ from expectations based on the previous few years of data. \
+This could be an effect of under-reporting due to COVID-19. As such, all \
+projections will start in 2019 or earlier unless the data are clearly \
+consistent with that from earlier years.\n\n",
+ StyleBox["NOTE",
   FontWeight->"Bold"],
- ". The incidence data is currently averaged to produce a mean incidence and \
-95% confidence intervals. It is not used to create an age- and time-dependent \
-incidence, although with some straightforward modification, it could be.\n",
- StyleBox["Note 2",
-  FontWeight->"Bold"],
- ". The incidenceYears, prevalenceYears, and populationYears are used to load \
-specific data sets for the following calculations, as each type of data is to \
-be located in its own directory with each file name simply being \
-<data_years>.csv. \n\nVariables required for loading of the data."
+ ": For countries in IBD Epidemiological Stage 3, all incidence averages will \
+use up to the eight most recent years of data."
 }], "Text",
- CellChangeTimes->{{3.901983274681876*^9, 3.901983285862118*^9}, 
-   3.901983335386366*^9, {3.9022272486364098`*^9, 3.902227250172907*^9}, {
-   3.9138916065339518`*^9, 3.91389171275604*^9}, {3.913892790026762*^9, 
-   3.913892821875222*^9}, {3.913892940305894*^9, 3.913893051287549*^9}, {
-   3.913977940236021*^9, 3.913978007291174*^9}, 3.913978050310717*^9, {
-   3.9139894741162653`*^9, 
-   3.913989474317669*^9}},ExpressionUUID->"90a716b0-6034-4129-a192-\
-046569864003"],
+ CellChangeTimes->{{3.887274557200183*^9, 3.887274580531761*^9}, {
+   3.8872748089835052`*^9, 3.887274866605139*^9}, {3.890043163982441*^9, 
+   3.8900432184794283`*^9}, {3.890043275426342*^9, 3.8900432959256077`*^9}, 
+   3.9022272447759323`*^9, {3.9022272753068943`*^9, 3.902227320441353*^9}, {
+   3.920450119640329*^9, 3.920450248109309*^9}, {3.920980948861041*^9, 
+   3.920981055736229*^9}},ExpressionUUID->"f1f05168-c25b-4119-932b-\
+dc60df1c1edc"],
+
+Cell[CellGroupData[{
+
+Cell["Canada", "Subsubsection",
+ CellChangeTimes->{{3.901983036405815*^9, 
+  3.901983049028824*^9}},ExpressionUUID->"579eb7ff-cc38-456b-9e23-\
+2900d76ac18e"],
 
 Cell[BoxData[{
  RowBox[{
@@ -520,6 +560,318 @@ Cell[BoxData[{
     RowBox[{"Length", "[", "prevalenceYears", "]"}], 
     "\[RightDoubleBracket]"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
+  RowBox[{"projectionEndYear", "=", "2043"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.90198307468703*^9, 3.9019830963955517`*^9}, {
+   3.901983126856586*^9, 3.901983161687944*^9}, {3.90198332335846*^9, 
+   3.901983323537815*^9}, {3.902220815495474*^9, 3.9022208158785667`*^9}, {
+   3.902227399597664*^9, 3.902227412895335*^9}, {3.902227470595296*^9, 
+   3.902227471866489*^9}, 3.902661408847064*^9, {3.9086233497040977`*^9, 
+   3.908623355143009*^9}, 3.9139746060976763`*^9, 3.913974662872924*^9, {
+   3.9139754188308992`*^9, 3.913975419640411*^9}, {3.920448569988717*^9, 
+   3.92044861058906*^9}, 3.920448678132271*^9, {3.9204490416989107`*^9, 
+   3.920449057246427*^9}, {3.920887813195368*^9, 3.9208878180113173`*^9}, 
+   3.920887872296856*^9, {3.929196118630452*^9, 3.929196124293407*^9}, {
+   3.929431527613659*^9, 3.929431554174246*^9}, 
+   3.9387773703078737`*^9},ExpressionUUID->"95366923-800c-4510-bbca-\
+c99dce6b2b3a"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Denmark", "Subsubsection",
+ CellChangeTimes->{{3.901983166838369*^9, 
+  3.9019831699872913`*^9}},ExpressionUUID->"cda8a5c9-65a1-4d8a-a948-\
+017a5c9f8634"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"country", "=", "\"\<Denmark\>\""}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"incidenceYears", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"2010", "+", "i"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "0", ",", "7"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"prevalenceYears", " ", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"2010", "+", "i"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "0", ",", "7"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"populationYears", "=", 
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"2010", " ", "+", "i"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "0", ",", "33"}], "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"projectionStartYear", "=", 
+   RowBox[{"prevalenceYears", "\[LeftDoubleBracket]", 
+    RowBox[{"Length", "[", "prevalenceYears", "]"}], 
+    "\[RightDoubleBracket]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"projectionEndYear", "=", "2043"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.90198307468703*^9, 3.9019830963955517`*^9}, {
+   3.901983126856586*^9, 3.901983197913259*^9}, {3.901983325689535*^9, 
+   3.901983325913652*^9}, {3.9019833959343348`*^9, 3.9019834341129093`*^9}, {
+   3.902220811500951*^9, 3.902220812153638*^9}, {3.902227415054207*^9, 
+   3.902227425360694*^9}, {3.902227464712845*^9, 3.90222746766003*^9}, {
+   3.902242777885796*^9, 3.902242806169161*^9}, 3.9026614069355392`*^9, {
+   3.9088899719187307`*^9, 3.908889978354851*^9}, {3.908976072402714*^9, 
+   3.908976072503455*^9}, {3.9139745989342813`*^9, 3.913974601361971*^9}, 
+   3.913974660110531*^9, {3.913975422005239*^9, 3.913975422386827*^9}, {
+   3.920448576363605*^9, 3.920448614146913*^9}, 3.920448683736968*^9, {
+   3.920449060259179*^9, 3.9204490633459187`*^9}, {3.9208878237494183`*^9, 
+   3.92088782434907*^9}, 
+   3.920887867210552*^9},ExpressionUUID->"62e2124d-bb5b-490d-ae13-\
+5c501600d4f0"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Scotland - Lothian", "Subsubsection",
+ CellChangeTimes->{{3.901983166838369*^9, 3.9019831699872913`*^9}, {
+   3.9019832162023687`*^9, 3.901983220051197*^9}, {3.902227336370977*^9, 
+   3.902227337900536*^9}, {3.920543871618223*^9, 3.9205438738452253`*^9}, {
+   3.923652026363592*^9, 3.923652031379023*^9}, 
+   3.9387766509122963`*^9},ExpressionUUID->"755412ed-7b01-492a-b3e6-\
+5e44fcd37f2e"],
+
+Cell[TextData[{
+ StyleBox["Note",
+  FontWeight->"Bold"],
+ ": The 2018-2020 prevalence data is incomplete (missing data for specific \
+age ranges) or inconsistent with previous years, so it will not be used in \
+the model."
+}], "Text",
+ CellChangeTimes->{{3.9024998619605417`*^9, 3.902499908791205*^9}, {
+  3.902499958965201*^9, 3.9024999894976*^9}, {3.909057407686255*^9, 
+  3.909057425898179*^9}, {3.909218084558601*^9, 3.909218097618326*^9}, {
+  3.913893134115988*^9, 3.913893138874411*^9}, {3.913974671337483*^9, 
+  3.913974730343216*^9}},ExpressionUUID->"fbcc6daa-7dd3-4746-9b19-\
+0d37b4ff1117"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"country", "=", "\"\<Scotland_Lothian\>\""}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"incidenceYears", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"2010", "+", "i"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "0", ",", "7"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"prevalenceYears", " ", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"2009", "+", "i"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "0", ",", "8"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"populationYears", "=", 
+    RowBox[{"Table", "[", " ", 
+     RowBox[{
+      RowBox[{"2009", "+", "i"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "0", ",", "34"}], "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"projectionStartYear", "=", 
+   RowBox[{"prevalenceYears", "\[LeftDoubleBracket]", 
+    RowBox[{"Length", "[", "prevalenceYears", "]"}], 
+    "\[RightDoubleBracket]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"projectionEndYear", "=", "2043"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.90198307468703*^9, 3.9019830963955517`*^9}, {
+   3.901983126856586*^9, 3.901983197913259*^9}, {3.901983239313559*^9, 
+   3.901983240209059*^9}, 3.9019833298175507`*^9, {3.9019833648415623`*^9, 
+   3.90198339384203*^9}, {3.902220804539918*^9, 3.9022208065130463`*^9}, {
+   3.902227427474429*^9, 3.9022274343596907`*^9}, {3.902227475164345*^9, 
+   3.9022274764560328`*^9}, {3.902497439718102*^9, 3.902497535612887*^9}, {
+   3.902499858533345*^9, 3.902499859495058*^9}, {3.90888336220862*^9, 
+   3.908883368840219*^9}, {3.9088899905936403`*^9, 3.908889990666841*^9}, 
+   3.909056288438673*^9, {3.909057382421177*^9, 3.9090573956140137`*^9}, 
+   3.9139746095466223`*^9, {3.913974747861877*^9, 3.913974759223606*^9}, {
+   3.917282075905533*^9, 3.9172820804614773`*^9}, {3.920448578831975*^9, 
+   3.920448580718602*^9}, {3.920448616152748*^9, 3.920448616674654*^9}, 
+   3.9204486873256702`*^9, {3.920449065301154*^9, 3.920449068498019*^9}, {
+   3.920543853866679*^9, 3.920543856654941*^9}, {3.92088783193925*^9, 
+   3.92088786013314*^9}},ExpressionUUID->"abe92b34-73aa-4c67-992e-\
+eaa963301146"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Loading the data", "Section",
+ CellChangeTimes->{{3.901983250294942*^9, 
+  3.901983261926572*^9}},ExpressionUUID->"b2dbf604-abce-4337-9fc1-\
+b443afbda1d8"],
+
+Cell[TextData[{
+ "The rest of the notebook will require the following variables be set.\n\n1) \
+",
+ StyleBox["subType",
+  FontWeight->"Bold"],
+ ". The disease-specific and/or sex-specific data sub-type to load.\n2) ",
+ StyleBox["country",
+  FontWeight->"Bold"],
+ ". The country\[CloseCurlyQuote]s data that should be loaded.\n3) ",
+ StyleBox["incidenceYears",
+  FontWeight->"Bold"],
+ ". Years for which incidence data will be loaded (for average initial \
+incidence).\n4) ",
+ StyleBox["populationYears",
+  FontWeight->"Bold"],
+ ". Years on which the population age-structure is known.\n5) ",
+ StyleBox["projectionStartYear",
+  FontWeight->"Bold"],
+ ". The start year for the projection.\n6) ",
+ StyleBox["projectionEndYear",
+  FontWeight->"Bold"],
+ ". The end year for the projection.\n\nOne also needs to set the root \
+directories from which the data will be loaded and to which data will be \
+saved. Here, the country name is part of the directory tree.\n\n",
+ StyleBox["Note 1",
+  FontWeight->"Bold"],
+ ". The incidence data is currently averaged to produce a mean incidence and \
+95% confidence intervals. It is not used to create an age- and time-dependent \
+incidence, although with some straightforward modification, it could be.\n",
+ StyleBox["Note 2",
+  FontWeight->"Bold"],
+ ". The incidenceYears, prevalenceYears, and populationYears variables allow \
+loading of specific data sets. Each type of data (incidence rate, prevalence, \
+population distributions) is located in its own directory, and the \
+age-distributions for each year are found in file named <data_years>.csv. "
+}], "Text",
+ CellChangeTimes->{{3.901983274681876*^9, 3.901983285862118*^9}, 
+   3.901983335386366*^9, {3.9022272486364098`*^9, 3.902227250172907*^9}, {
+   3.9138916065339518`*^9, 3.91389171275604*^9}, {3.913892790026762*^9, 
+   3.913892821875222*^9}, {3.913892940305894*^9, 3.913893051287549*^9}, {
+   3.913977940236021*^9, 3.913978007291174*^9}, 3.913978050310717*^9, {
+   3.9139894741162653`*^9, 3.913989474317669*^9}, {3.928248695583815*^9, 
+   3.92824894213122*^9}, {3.928249644952962*^9, 3.928249651980661*^9}, 
+   3.928249704208323*^9, {3.928250340289784*^9, 3.928250341368742*^9}, {
+   3.9282508263712463`*^9, 3.928250896326831*^9}, {3.9387768337738543`*^9, 
+   3.938776967657525*^9}},ExpressionUUID->"90a716b0-6034-4129-a192-\
+046569864003"],
+
+Cell[CellGroupData[{
+
+Cell["Sub-Types", "Subsubsection",
+ CellChangeTimes->{{3.928250750234852*^9, 
+  3.928250753485586*^9}},ExpressionUUID->"72ad302b-a21c-4f1a-9793-\
+fb8412f55a94"],
+
+Cell["\<\
+These are the possible sub-types of disease and sex, and correspond to \
+directory names where the yearly age-distributed incidence rate, prevalence, \
+and population distributions are stored. Note that we typically combine the \
+ulcerative colitis and unknown IBD type data in pre-processing, so the \
+\[OpenCurlyDoubleQuote]ibdu\[CloseCurlyDoubleQuote] (and similar) variables \
+are not often used.\
+\>", "Text",
+ CellChangeTimes->{{3.9282506473859377`*^9, 3.928250696354968*^9}, {
+  3.9282507306708107`*^9, 3.928250743666312*^9}, {3.938776994533803*^9, 
+  3.9387771382278757`*^9}},ExpressionUUID->"d8762fda-d5f7-4226-a04f-\
+787e3bc081b5"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"subTypes", "=", 
+   RowBox[{"{", "\[IndentingNewLine]", 
+    RowBox[{
+    "\"\<cd\>\"", ",", "\[IndentingNewLine]", "\"\<cd-in-females-only\>\"", 
+     ",", "\"\<cd-in-males-only\>\"", ",", "\[IndentingNewLine]", 
+     "\"\<cd-females-in-total\>\"", ",", "\"\<cd-males-in-total\>\"", ",", 
+     "\[IndentingNewLine]", "\"\<uc\>\"", ",", "\[IndentingNewLine]", 
+     "\"\<uc-in-females-only\>\"", ",", "\"\<uc-in-males-only\>\"", ",", 
+     "\[IndentingNewLine]", "\"\<uc-females-in-total\>\"", ",", 
+     "\"\<uc-males-in-total\>\"", ",", "\[IndentingNewLine]", "\"\<ibdu\>\"", 
+     ",", "\[IndentingNewLine]", "\"\<ibdu-in-females-only\>\"", ",", 
+     "\"\<ibdu-in-males-only\>\"", ",", "\[IndentingNewLine]", 
+     "\"\<ibdu-females-in-total\>\"", ",", "\"\<ibdu-males-in-total\>\"", ",",
+      "\[IndentingNewLine]", "\"\<in-females-only\>\"", ",", 
+     "\"\<in-males-only\>\"", ",", "\[IndentingNewLine]", 
+     "\"\<females-in-total\>\"", ",", "\"\<males-in-total\>\"", ",", 
+     "\[IndentingNewLine]", "\"\<total\>\""}], "\[IndentingNewLine]", "}"}]}],
+   ";"}]], "Input",
+ CellChangeTimes->{
+  3.928250318710949*^9},ExpressionUUID->"d75a6f22-ab2b-4fb8-acac-\
+95f22676a355"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Variables", "Subsubsection",
+ CellChangeTimes->{{3.9282507639299917`*^9, 
+  3.9282507648861103`*^9}},ExpressionUUID->"14631489-77a5-476d-9529-\
+294c77a7f26c"],
+
+Cell["Variables required for loading of the data.", "Text",
+ CellChangeTimes->{{3.928250345784198*^9, 
+  3.9282503569607964`*^9}},ExpressionUUID->"5c8305e4-8cdf-4bd3-a986-\
+dd65d9c462e6"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"subType", "=", "\"\<total\>\""}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"country", "=", "\"\<Canada_5_yr_washout\>\""}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"incidenceYears", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"2007", "+", "i"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "0", ",", "7"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"prevalenceYears", " ", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"2002", "+", "i"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "0", ",", "12"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"populationYears", "=", 
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"2002", " ", "+", "i"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "0", ",", "41"}], "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"projectionStartYear", "=", 
+   RowBox[{"prevalenceYears", "\[LeftDoubleBracket]", 
+    RowBox[{"Length", "[", "prevalenceYears", "]"}], 
+    "\[RightDoubleBracket]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"projectionEndYear", "=", "2043"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
   RowBox[{
    RowBox[{"saveInitialData", "=", "True"}], ";"}], " ", 
   RowBox[{"(*", 
@@ -529,6 +881,31 @@ Cell[BoxData[{
     "be", " ", "saved", " ", "to", " ", "the", " ", "output", " ", 
     RowBox[{"directory", "?"}]}], "*)"}], "\[IndentingNewLine]", 
   "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "Setting", " ", "the", " ", "interpolation", " ", "order", " ", "to", " ",
+      "unity"}], ",", " ", 
+    RowBox[{
+    "so", " ", "that", " ", "all", " ", "data", " ", "are", " ", "treated", 
+     " ", "the", " ", "same", " ", 
+     RowBox[{"way", "."}]}]}], "*)"}], " ", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Linear", " ", "interpolation", " ", "should", " ", "also", " ", "enable", 
+    " ", "slightly", " ", "faster", " ", "calculation", " ", "than", " ", 
+    "the", " ", "quadratic", " ", "or", " ", "cubic", " ", 
+    RowBox[{"forms", "."}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"incidenceInterpolationOrder", "=", "1"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"prevalenceInterpolationOrder", "=", "1"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"populationInterpolationOrder", "=", "1"}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
   RowBox[{"(*", 
    RowBox[{
     RowBox[{
@@ -542,12 +919,12 @@ Cell[BoxData[{
    "*)"}]}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"rootInputDir", "=", 
-   RowBox[{"\"\</INSERT/ROOT/INPUT/PATH/HERE/\>\"", "<>", 
+   RowBox[{"\"\</input/path/here/\>\"", "<>", 
     RowBox[{"ToLowerCase", "[", "country", "]"}], "<>", "\"\</\>\""}]}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"rootOutputDir", "=", 
-   RowBox[{"\"\</INSERT/ROOT/OUTPUT/PATH/HERE/\>\"", "<>", 
+   RowBox[{"\"\</output/path/here/\>\"", "<>", 
     RowBox[{"ToLowerCase", "[", "country", "]"}], "<>", "\"\</\>\""}]}], 
   ";"}]}], "Input",
  CellChangeTimes->{{3.887274013618046*^9, 3.8872740437894917`*^9}, {
@@ -605,8 +982,140 @@ Cell[BoxData[{
    3.9139893292743263`*^9, 3.913989347915597*^9}, {3.9139894073152523`*^9, 
    3.913989413276758*^9}, {3.913989464645995*^9, 3.913989464883808*^9}, {
    3.913990127850395*^9, 3.9139901552598333`*^9}, {3.913991820587178*^9, 
-   3.913991911135557*^9}},ExpressionUUID->"82f4fafa-4f2f-4091-a9ad-\
+   3.913991911135557*^9}, {3.917005982802311*^9, 3.9170059951505957`*^9}, 
+   3.9170141495515003`*^9, {3.9172799940507917`*^9, 3.9172799960278597`*^9}, 
+   3.9172800434612303`*^9, {3.917282062907999*^9, 3.917282069668284*^9}, {
+   3.920379753191259*^9, 3.920379754242251*^9}, 3.920380463333696*^9, 
+   3.920380620606286*^9, {3.9203819754726353`*^9, 3.920381977163823*^9}, {
+   3.9204485478012857`*^9, 3.920448561459222*^9}, {3.9204485939946947`*^9, 
+   3.92044859986537*^9}, 3.920448704203348*^9, {3.92044907430884*^9, 
+   3.9204491545147867`*^9}, {3.920449549838997*^9, 3.9204495859763737`*^9}, {
+   3.920449624136208*^9, 3.9204496291503*^9}, 3.920543987871867*^9, {
+   3.92054447404436*^9, 3.9205444798247004`*^9}, 3.920544842358665*^9, 
+   3.9205482398805447`*^9, 3.920549590730083*^9, {3.920633433494679*^9, 
+   3.92063346555695*^9}, {3.920633848764202*^9, 3.920633862675119*^9}, {
+   3.920716974081781*^9, 3.920716976047391*^9}, {3.920717236697798*^9, 
+   3.92071723784584*^9}, 3.920717585005537*^9, {3.92073897232067*^9, 
+   3.920738975204178*^9}, {3.920797040322639*^9, 3.920797040545701*^9}, 
+   3.920799917940547*^9, 3.920801703126184*^9, 3.9208036724806967`*^9, {
+   3.920803986404593*^9, 3.920803993259449*^9}, {3.920804127920081*^9, 
+   3.9208041295892*^9}, 3.920805339117996*^9, 3.920805414896448*^9, 
+   3.9208268662712917`*^9, 3.9208819768435993`*^9, 3.920885298610972*^9, {
+   3.920887844722266*^9, 3.920887847825158*^9}, 3.920890227594612*^9, {
+   3.92089126419499*^9, 3.920891298504013*^9}, 3.920896464506584*^9, {
+   3.920922433562592*^9, 3.9209224429215803`*^9}, 3.92092648249492*^9, {
+   3.920967300454241*^9, 3.9209673155019073`*^9}, 3.9209817923153143`*^9, 
+   3.921003266338797*^9, 3.921004935578973*^9, 3.921053604876544*^9, 
+   3.921055185276166*^9, 3.921055942264111*^9, 3.9210628345863934`*^9, {
+   3.9210794329316998`*^9, 3.921079433949028*^9}, {3.921080063556224*^9, 
+   3.921080075313538*^9}, {3.921080112886951*^9, 3.921080164434453*^9}, {
+   3.921080272676387*^9, 3.921080293830245*^9}, {3.921081038434271*^9, 
+   3.921081038753039*^9}, 3.921144979299024*^9, {3.921145207854115*^9, 
+   3.921145219419858*^9}, 3.921145451376253*^9, {3.921145563899654*^9, 
+   3.92114558789333*^9}, 3.921145786040916*^9, 3.921145915283595*^9, 
+   3.921156617957439*^9, {3.92115742698035*^9, 3.9211574280386333`*^9}, 
+   3.921157526313136*^9, 3.9211576659316874`*^9, 3.921157765061912*^9, 
+   3.921157873177253*^9, 3.921158053334708*^9, 3.9213190094018497`*^9, {
+   3.923066389069909*^9, 3.923066392845254*^9}, 3.923066637713044*^9, 
+   3.923066945187883*^9, {3.9230687739212837`*^9, 3.923068774967617*^9}, 
+   3.923129683196229*^9, 3.9231376672908897`*^9, 3.923663823223106*^9, 
+   3.923671405102042*^9, {3.923674536509143*^9, 3.9236745388454733`*^9}, 
+   3.923676355265319*^9, 3.9236818394475718`*^9, 3.923683398533682*^9, 
+   3.9236837674391127`*^9, {3.9282487792909193`*^9, 3.9282487859717073`*^9}, {
+   3.928248944724783*^9, 3.928248961398275*^9}, {3.9282490565859737`*^9, 
+   3.928249086079775*^9}, 3.928249364850212*^9, {3.928249633261058*^9, 
+   3.928249662400223*^9}, {3.928249706993354*^9, 3.928249731607359*^9}, {
+   3.928249866194686*^9, 3.9282498988503227`*^9}, {3.9282499708582172`*^9, 
+   3.9282501940757*^9}, {3.928250303700951*^9, 3.928250308494972*^9}, {
+   3.928250782690422*^9, 3.9282508191454372`*^9}, {3.928250923821411*^9, 
+   3.928251123180847*^9}, {3.928253663245098*^9, 3.928253710435975*^9}, {
+   3.928253768755084*^9, 3.928253818605082*^9}, {3.928253861307692*^9, 
+   3.928253862143219*^9}, {3.928253957253034*^9, 3.9282539608480186`*^9}, {
+   3.928254070277822*^9, 3.928254082913973*^9}, {3.929199204846814*^9, 
+   3.929199206860611*^9}, {3.9292000867602654`*^9, 3.929200086812436*^9}, {
+   3.929200206759384*^9, 3.929200206801194*^9}, {3.929200520166877*^9, 
+   3.929200523346169*^9}, {3.9294314987068377`*^9, 3.9294315107839203`*^9}, {
+   3.92943212144623*^9, 3.9294321215236673`*^9}, {3.9294329939143667`*^9, 
+   3.929432993978372*^9}, 3.9294334711176558`*^9, {3.9294344660548487`*^9, 
+   3.929434466260641*^9}, {3.929436433307933*^9, 3.9294364333548527`*^9}, {
+   3.929439486478386*^9, 3.9294394869640837`*^9}, 3.9294408828391733`*^9, {
+   3.9294421669481773`*^9, 3.92944216707479*^9}, {3.929444135319539*^9, 
+   3.929444135506545*^9}, {3.929625875363227*^9, 3.92962588284127*^9}, {
+   3.9296262103094788`*^9, 3.929626210416986*^9}, {3.9296264527018967`*^9, 
+   3.929626452800645*^9}, {3.929626500755487*^9, 3.929626503321618*^9}, 
+   3.9297831294165983`*^9, {3.9297832882333813`*^9, 3.929783288367763*^9}, {
+   3.929783327133568*^9, 3.929783327274623*^9}, 3.9297833821051083`*^9, {
+   3.929783434950177*^9, 3.9297834350283422`*^9}, {3.929783469337669*^9, 
+   3.929783469831526*^9}, {3.9297835102630453`*^9, 3.929783514525182*^9}, {
+   3.9297835590287437`*^9, 3.929783559100916*^9}, {3.9297835921324577`*^9, 
+   3.929783592202291*^9}, {3.929783622346361*^9, 3.929783622481226*^9}, {
+   3.9298023873355303`*^9, 3.929802387412957*^9}, 3.929805381938691*^9, 
+   3.9298078927459106`*^9, {3.9298079363212233`*^9, 3.9298079368138638`*^9}, {
+   3.938777166438918*^9, 
+   3.938777184310601*^9}},ExpressionUUID->"82f4fafa-4f2f-4091-a9ad-\
 cbd08216daa1"],
+
+Cell["\<\
+The population sub-type can only depend on sex (the population data includes \
+all people, not just those with IBD), and we can derive it from the subType \
+variable.\
+\>", "Text",
+ CellChangeTimes->{{3.928253864198209*^9, 3.928253903766958*^9}, {
+  3.938777198144618*^9, 
+  3.938777227436048*^9}},ExpressionUUID->"d8de29b1-3f47-40fe-8538-\
+f82f205b9ac0"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"subType", "=", 
+   RowBox[{"ToLowerCase", "[", "subType", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"If", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"subType", "==", "\"\<uc\>\""}], "||", 
+     RowBox[{"subType", "==", "\"\<cd\>\""}], "||", 
+     RowBox[{"subType", "==", "\"\<ibdu\>\""}], "||", 
+     RowBox[{"subType", "==", "\"\<total\>\""}]}], ",", "\[IndentingNewLine]",
+     "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"popSubType", "=", "\"\<total\>\""}], ";"}], ",", 
+    "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"subTypePieces", "=", 
+      RowBox[{"StringSplit", "[", 
+       RowBox[{"subType", ",", "\"\<-\>\""}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"popSubType", "=", "\"\<\>\""}], ";", "\[IndentingNewLine]", 
+     RowBox[{"For", "[", 
+      RowBox[{
+       RowBox[{"i", "=", "2"}], ",", 
+       RowBox[{"i", "<=", 
+        RowBox[{"Length", "[", "subTypePieces", "]"}]}], ",", 
+       RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"i", "==", "2"}], ",", "\[IndentingNewLine]", 
+          RowBox[{
+           RowBox[{"popSubType", "=", 
+            RowBox[{
+            "subTypePieces", "\[LeftDoubleBracket]", "i", 
+             "\[RightDoubleBracket]"}]}], ";"}], ",", "\[IndentingNewLine]", 
+          RowBox[{
+           RowBox[{"popSubType", "=", 
+            RowBox[{"popSubType", "<>", "\"\<-\>\"", "<>", 
+             RowBox[{
+             "subTypePieces", "\[LeftDoubleBracket]", "i", 
+              "\[RightDoubleBracket]"}]}]}], ";"}]}], "\[IndentingNewLine]", 
+         "]"}], ";"}]}], "\[IndentingNewLine]", "]"}], ";"}]}], 
+   "\[IndentingNewLine]", "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.9282539090080633`*^9, 3.928253944742846*^9}, {
+  3.928253987266724*^9, 3.9282540519207067`*^9}, {3.928254089874867*^9, 
+  3.9282541095205097`*^9}, {3.9282542091863728`*^9, 3.9282542207129593`*^9}},
+ CellLabel->"In[14]:=",ExpressionUUID->"494ba29f-5b85-4fe9-8963-163ce1c6a0ab"]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -637,7 +1146,9 @@ Cell[BoxData[{
     RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
     RowBox[{
      RowBox[{"prevalencePath", "=", 
-      RowBox[{"rootInputDir", "<>", "\"\<initial_prevalence/\>\"", "<>", 
+      RowBox[{
+      "rootInputDir", "<>", "\"\<prevalence/\>\"", "<>", "subType", "<>", 
+       "\"\</\>\"", "<>", 
        RowBox[{"ToString", "[", 
         RowBox[{
         "prevalenceYears", "\[LeftDoubleBracket]", "i", 
@@ -689,8 +1200,10 @@ Cell[BoxData[{
    3.8901341846463213`*^9, 3.89013430551175*^9}, {3.890143375478508*^9, 
    3.890143376252678*^9}, {3.891687503012898*^9, 3.89168750377166*^9}, {
    3.901982924064885*^9, 3.9019829291275997`*^9}, 3.90198310176412*^9, {
-   3.913975430093933*^9, 3.9139754310725946`*^9}, 3.9139894196484613`*^9},
- CellLabel->"In[9]:=",ExpressionUUID->"bfc140f6-6b51-45eb-8d93-2f442c5a7070"]
+   3.913975430093933*^9, 3.9139754310725946`*^9}, 3.9139894196484613`*^9, 
+   3.9203805803328876`*^9, {3.928249741663993*^9, 3.9282497639023447`*^9}, {
+   3.928254198007494*^9, 3.928254199762895*^9}},
+ CellLabel->"In[16]:=",ExpressionUUID->"bfc140f6-6b51-45eb-8d93-2f442c5a7070"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -727,7 +1240,9 @@ Cell[BoxData[{
     RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
     RowBox[{
      RowBox[{"incidencePath", "=", 
-      RowBox[{"rootInputDir", "<>", "\"\<incidence/\>\"", "<>", 
+      RowBox[{
+      "rootInputDir", "<>", "\"\<incidence/\>\"", "<>", "subType", "<>", 
+       "\"\</\>\"", "<>", 
        RowBox[{"ToString", "[", 
         RowBox[{
         "incidenceYears", "\[LeftDoubleBracket]", "i", 
@@ -771,8 +1286,10 @@ Cell[BoxData[{
    3.887283402088677*^9, 3.887283405743444*^9}, {3.8896112796376333`*^9, 
    3.8896113178042507`*^9}, {3.889611353815877*^9, 3.889611380036048*^9}, {
    3.889611425970376*^9, 3.889611437184133*^9}, {3.89177467986207*^9, 
-   3.891774682259631*^9}, 3.89177471694802*^9, 3.913989423385769*^9},
- CellLabel->"In[11]:=",ExpressionUUID->"1e3e5f02-afe2-41f2-afdc-d6f221602c77"],
+   3.891774682259631*^9}, 3.89177471694802*^9, 3.913989423385769*^9, {
+   3.9210678236096983`*^9, 3.921067824463649*^9}, 3.9282497784547997`*^9, {
+   3.928254191800414*^9, 3.9282541936481953`*^9}},
+ CellLabel->"In[18]:=",ExpressionUUID->"1e3e5f02-afe2-41f2-afdc-d6f221602c77"],
 
 Cell[TextData[{
  "Now, calculate the mean incidence, and the 95 % upper and lower confidence \
@@ -785,7 +1302,7 @@ bounds. The bounds are determined from the ",
    RowBox[{"n", "=", 
     RowBox[{"DOF", "-", "1"}]}], TraditionalForm]],ExpressionUUID->
   "c14a7450-ad3f-4e94-b7ae-4a4ae5dd4898"],
- " degrees of freedom and ",
+ " degrees of freedom \[LineSeparator]and ",
  Cell[BoxData[
   FormBox[
    RowBox[{"\[Alpha]", "=", "0.95"}], TraditionalForm]],ExpressionUUID->
@@ -794,16 +1311,17 @@ bounds. The bounds are determined from the ",
 data sets that we are averaging (for ",
  Cell[BoxData[
   FormBox[
-   RowBox[{"dof", ">", "25"}], TraditionalForm]],ExpressionUUID->
+   RowBox[{"DOF", ">", "25"}], TraditionalForm]],ExpressionUUID->
   "4edf5829-c5d5-435f-89b3-462ca3a7702c"],
- " this converges to the normal approximation)."
+ " this converges to the normal distribution CIs)."
 }], "Text",
  CellChangeTimes->{{3.889613240138949*^9, 3.889613269961887*^9}, {
    3.8900448675536737`*^9, 3.890044872233333*^9}, {3.891774614308858*^9, 
    3.8917746711023817`*^9}, {3.907759909440481*^9, 3.90775990968458*^9}, {
    3.908627106604985*^9, 3.908627180338725*^9}, 3.9138932073781433`*^9, {
    3.913896195279201*^9, 3.913896243666706*^9}, {3.913896350319461*^9, 
-   3.9138963913817596`*^9}},ExpressionUUID->"2588b0dc-243e-47cd-a0a8-\
+   3.9138963913817596`*^9}, 3.920897487424876*^9, {3.938777268388163*^9, 
+   3.938777288770979*^9}},ExpressionUUID->"2588b0dc-243e-47cd-a0a8-\
 d928233055a9"],
 
 Cell[BoxData[{
@@ -949,7 +1467,7 @@ Cell[BoxData[{
    3.907760148387165*^9}, {3.908285180667951*^9, 3.908285186045104*^9}, {
    3.9086271659421673`*^9, 3.908627183711876*^9}, 3.913896203285734*^9, {
    3.913896249485404*^9, 3.913896342340323*^9}},
- CellLabel->"In[13]:=",ExpressionUUID->"eb4cafcb-5fdf-4c75-91ec-16376a08aa09"]
+ CellLabel->"In[20]:=",ExpressionUUID->"eb4cafcb-5fdf-4c75-91ec-16376a08aa09"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -982,7 +1500,9 @@ Cell[BoxData[{
     RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
     RowBox[{
      RowBox[{"populationPath", "=", 
-      RowBox[{"rootInputDir", "<>", "\"\<population/\>\"", "<>", 
+      RowBox[{
+      "rootInputDir", "<>", "\"\<population/\>\"", "<>", "popSubType", "<>", 
+       "\"\</\>\"", "<>", 
        RowBox[{"ToString", "[", 
         RowBox[{
         "populationYears", "\[LeftDoubleBracket]", "i", 
@@ -1024,8 +1544,10 @@ Cell[BoxData[{
    3.887283308633436*^9}, {3.8872834093183804`*^9, 3.887283411604768*^9}, {
    3.887283598018445*^9, 3.8872836081068277`*^9}, {3.9031836646647177`*^9, 
    3.903183665414885*^9}, {3.905349104998761*^9, 3.905349106350767*^9}, 
-   3.9139894300325117`*^9},
- CellLabel->"In[16]:=",ExpressionUUID->"5060bf67-bb44-477e-9415-125a92f223aa"]
+   3.9139894300325117`*^9, 3.9172654507811623`*^9, {3.920805349809081*^9, 
+   3.9208053508242493`*^9}, 3.9282497889376917`*^9, 3.928249828351698*^9, {
+   3.928253730311035*^9, 3.928253742267763*^9}},
+ CellLabel->"In[23]:=",ExpressionUUID->"5060bf67-bb44-477e-9415-125a92f223aa"]
 }, Open  ]]
 }, Open  ]],
 
@@ -1089,9 +1611,9 @@ Cell[BoxData[{
            RowBox[{"j", ",", "1", ",", 
             RowBox[{"Length", "[", 
              RowBox[{
-             "prevalences", "\[LeftDoubleBracket]", "1", 
+             "prevalences", "\[LeftDoubleBracket]", "i", 
               "\[RightDoubleBracket]"}], "]"}]}], "}"}]}], "]"}], "]"}]}], 
-      ";", "\[IndentingNewLine]", 
+      ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
       RowBox[{"AppendTo", "[", 
        RowBox[{"prevalenceAgeMaxes", ",", "prevalenceAgeMax"}], "]"}], ";", 
       "\[IndentingNewLine]", "\[IndentingNewLine]", 
@@ -1100,10 +1622,11 @@ Cell[BoxData[{
         RowBox[{
          RowBox[{"prevalences", "[", 
           RowBox[{"[", "i", "]"}], "]"}], ",", 
-         RowBox[{"InterpolationOrder", "->", "3"}]}], "]"}]}], ";", 
-      "\[IndentingNewLine]", 
+         RowBox[{
+         "InterpolationOrder", "->", "prevalenceInterpolationOrder"}]}], 
+        "]"}]}], ";", "\[IndentingNewLine]", 
       RowBox[{
-       RowBox[{"prevalenceInterp", "[", "a_", "]"}], "=", 
+       RowBox[{"prevalenceInterp", "[", "a_", "]"}], ":=", 
        RowBox[{"Piecewise", "[", "\[IndentingNewLine]", 
         RowBox[{"{", 
          RowBox[{
@@ -1131,13 +1654,11 @@ Cell[BoxData[{
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"prevIndexes", "=", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", 
-     RowBox[{"Floor", "[", 
-      RowBox[{
-       RowBox[{"Length", "[", "prevalenceInterps", "]"}], "/", "2.0"}], "]"}],
-      ",", 
-     RowBox[{"Length", "[", "prevalenceInterps", "]"}]}], "}"}]}], 
+   RowBox[{"Table", "[", 
+    RowBox[{"i", ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "1", ",", 
+       RowBox[{"Length", "[", "prevalenceInterps", "]"}]}], "}"}]}], "]"}]}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
@@ -1176,8 +1697,10 @@ Cell[BoxData[{
     RowBox[{"{", 
      RowBox[{
       RowBox[{"FontSize", "->", "18"}], ",", 
-      RowBox[{"FontFamily", "->", "\"\<Times\>\""}], ",", "Black"}], 
-     "}"}]}]}], "\[IndentingNewLine]", "]"}]}], "Input",
+      RowBox[{"FontFamily", "->", "\"\<Times\>\""}], ",", "Black"}], "}"}]}], 
+   ",", 
+   RowBox[{"PlotRange", "->", "All"}]}], "\[IndentingNewLine]", 
+  "]"}]}], "Input",
  CellChangeTimes->{{3.887283057579887*^9, 3.887283058820381*^9}, {
    3.8872831030812473`*^9, 3.887283109254694*^9}, {3.8872834191556*^9, 
    3.8872834326472387`*^9}, {3.887283616387024*^9, 3.887283734105216*^9}, {
@@ -1238,8 +1761,34 @@ Cell[BoxData[{
    3.913897089617577*^9}, {3.91389727854751*^9, 3.9138973070217237`*^9}, {
    3.9138983785086317`*^9, 3.913898384560937*^9}, {3.913898849340845*^9, 
    3.913898887310967*^9}, {3.9138993206919413`*^9, 3.913899321896666*^9}, {
-   3.913974523089963*^9, 3.91397452342413*^9}, 
-   3.913991952389072*^9},ExpressionUUID->"5b11d0d0-8689-477d-84e9-\
+   3.913974523089963*^9, 3.91397452342413*^9}, 3.913991952389072*^9, 
+   3.917006104588249*^9, {3.917265459643738*^9, 3.917265553388176*^9}, 
+   3.917265745720242*^9, 3.91727085669786*^9, {3.920381880774622*^9, 
+   3.9203818963363247`*^9}, {3.920382254779026*^9, 3.9203822562735157`*^9}, {
+   3.920448649328299*^9, 3.920448656340632*^9}, {3.920448806364105*^9, 
+   3.920448850450803*^9}, 3.920541649274935*^9, {3.9205440438167973`*^9, 
+   3.920544120197506*^9}, {3.920717615355336*^9, 3.920717789596833*^9}, {
+   3.920717824895108*^9, 3.92071804766676*^9}, 3.920718153987831*^9, {
+   3.9207181887039843`*^9, 3.920718455288562*^9}, {3.920718762852479*^9, 
+   3.920718812845056*^9}, {3.920719029275277*^9, 3.920719031202352*^9}, {
+   3.9207223808313437`*^9, 3.920722484629325*^9}, {3.920739015955021*^9, 
+   3.9207390257170897`*^9}, {3.920797860498611*^9, 3.920797913321108*^9}, 
+   3.920798318469668*^9, {3.9207983726010027`*^9, 3.920798375454426*^9}, {
+   3.920798464688699*^9, 3.9207984777892437`*^9}, 3.920801226352314*^9, {
+   3.920801462101603*^9, 3.9208014682360973`*^9}, {3.9208821265253963`*^9, 
+   3.92088215325546*^9}, {3.920882274643457*^9, 3.920882277735012*^9}, 
+   3.920890250763606*^9, 3.9208964902344513`*^9, {3.9211392305424013`*^9, 
+   3.921139259084725*^9}, {3.921156650682809*^9, 3.9211567225027237`*^9}, {
+   3.921156789090469*^9, 3.9211568835607033`*^9}, {3.921157686778645*^9, 
+   3.921157709887847*^9}, {3.92115778394728*^9, 3.921157797768045*^9}, {
+   3.921157890748715*^9, 3.9211579093371553`*^9}, {3.923066477145176*^9, 
+   3.923066549742185*^9}, {3.9230667540781727`*^9, 3.923066786608349*^9}, {
+   3.923068798564644*^9, 3.923068805856812*^9}, {3.923129710215613*^9, 
+   3.923129721061274*^9}, 3.923129753541727*^9, {3.923137691768078*^9, 
+   3.92313770212251*^9}, 3.923663848311311*^9, {3.929783195675918*^9, 
+   3.9297831981570673`*^9}, 3.9387773498420467`*^9, {3.938777395416595*^9, 
+   3.93877744800343*^9}, {3.938777677098695*^9, 
+   3.9387777142786694`*^9}},ExpressionUUID->"5b11d0d0-8689-477d-84e9-\
 d04e97fc58dc"],
 
 Cell["\<\
@@ -1288,6 +1837,7 @@ Cell[BoxData[
         RowBox[{"filePath", "=", 
          RowBox[{
          "rootOutputDir", "<>", "\"\<initial_prevalences/\>\"", "<>", 
+          "subType", "<>", "\"\</\>\"", "<>", 
           RowBox[{"ToString", "[", 
            RowBox[{"years", "[", 
             RowBox[{"[", "i", "]"}], "]"}], "]"}], "<>", "\"\<.csv\>\""}]}], 
@@ -1326,7 +1876,9 @@ Cell[BoxData[
       "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
      "\[IndentingNewLine]", 
      RowBox[{"filePath", "=", 
-      RowBox[{"rootOutputDir", "<>", "\"\<initial_prevalences/\>\"", "<>", 
+      RowBox[{
+      "rootOutputDir", "<>", "\"\<initial_prevalences/\>\"", "<>", "subType", 
+       "<>", "\"\</\>\"", "<>", 
        RowBox[{"ToString", "[", 
         RowBox[{"Length", "[", "years", "]"}], "]"}], "<>", 
        "\"\<_examples.csv\>\""}]}], ";", "\[IndentingNewLine]", 
@@ -1415,8 +1967,9 @@ Cell[BoxData[
    3.913990754065621*^9, 3.913990762570676*^9}, {3.913990826048382*^9, 
    3.91399086463345*^9}, {3.9139910684684*^9, 3.913991082146307*^9}, {
    3.913991239487214*^9, 3.9139912958679323`*^9}, {3.913991342079537*^9, 
-   3.913991395790667*^9}},
- CellLabel->"In[31]:=",ExpressionUUID->"ef859127-62e2-4200-a0a8-1ae6d0d338c5"]
+   3.913991395790667*^9}, {3.92825416599298*^9, 3.928254180968934*^9}, {
+   3.9282542355028954`*^9, 3.928254273564179*^9}},
+ CellLabel->"In[32]:=",ExpressionUUID->"ef859127-62e2-4200-a0a8-1ae6d0d338c5"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1439,7 +1992,15 @@ plotting.\
 f646ea240d67"],
 
 Cell[BoxData[
- RowBox[{"\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"To", " ", "plot", " ", "more", " ", "incidence", " ", "rates"}], 
+    ",", " ", 
+    RowBox[{
+    "increase", " ", "the", " ", "number", " ", "of", " ", "elements", " ", 
+     "in", " ", "the", " ", "incidenceIndexes", " ", "list"}]}], "*)"}], 
+  "\[IndentingNewLine]", 
   RowBox[{
    RowBox[{
     RowBox[{"incidenceIndexes", "=", 
@@ -1449,7 +2010,7 @@ Cell[BoxData[
         RowBox[{
          RowBox[{"Length", "[", "incidences", "]"}], "/", "2.0"}], "]"}], ",", 
        RowBox[{"Length", "[", "incidences", "]"}]}], "}"}]}], ";"}], 
-   "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{"incidenceInterpolations", "=", 
      RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", 
@@ -1490,11 +2051,14 @@ Cell[BoxData[
        "\[IndentingNewLine]", "\[IndentingNewLine]", 
        RowBox[{"incidenceInterp", "=", 
         RowBox[{"Interpolation", "[", 
-         RowBox[{"incidences", "\[LeftDoubleBracket]", 
+         RowBox[{
+          RowBox[{"incidences", "\[LeftDoubleBracket]", 
+           RowBox[{
+           "incidenceIndexes", "\[LeftDoubleBracket]", "i", 
+            "\[RightDoubleBracket]"}], "\[RightDoubleBracket]"}], ",", 
           RowBox[{
-          "incidenceIndexes", "\[LeftDoubleBracket]", "i", 
-           "\[RightDoubleBracket]"}], "\[RightDoubleBracket]"}], "]"}]}], ";",
-        "\[IndentingNewLine]", 
+          "InterpolationOrder", "->", "incidenceInterpolationOrder"}]}], 
+         "]"}]}], ";", "\[IndentingNewLine]", 
        RowBox[{
         RowBox[{"incidenceInterpolation", "[", "a_", "]"}], "=", 
         RowBox[{"Piecewise", "[", "\[IndentingNewLine]", 
@@ -1512,6 +2076,7 @@ Cell[BoxData[
             RowBox[{"0", ",", 
              RowBox[{"a", ">", "incidenceAgeMax"}]}], "}"}]}], "}"}], 
          "\[IndentingNewLine]", "]"}]}], ";", "\[IndentingNewLine]", 
+       "\[IndentingNewLine]", 
        RowBox[{"AppendTo", "[", 
         RowBox[{"incidenceInterpolations", ",", 
          RowBox[{
@@ -1585,8 +2150,23 @@ Cell[BoxData[
    3.913898037596517*^9}, {3.913898072620075*^9, 3.9138981739973927`*^9}, {
    3.913898217271625*^9, 3.913898269466667*^9}, {3.9138983277986317`*^9, 
    3.913898368292201*^9}, {3.913898402241517*^9, 3.913898458945786*^9}, {
-   3.913899314560597*^9, 3.913899316106326*^9}, 
-   3.913991960671278*^9},ExpressionUUID->"7c5bfbb3-b2a2-47bd-9269-\
+   3.913899314560597*^9, 3.913899316106326*^9}, 3.913991960671278*^9, {
+   3.9170061175963182`*^9, 3.917006122150083*^9}, {3.91708651294549*^9, 
+   3.9170865227643957`*^9}, 3.917086626265278*^9, 3.91726581421692*^9, 
+   3.91727086423328*^9, {3.9203807098246727`*^9, 3.920380820452877*^9}, {
+   3.920380893492476*^9, 3.9203810570860023`*^9}, {3.920381101615881*^9, 
+   3.920381190218706*^9}, {3.920381255430419*^9, 3.920381359171915*^9}, {
+   3.920448430498665*^9, 3.9204484427710247`*^9}, {3.920448957011621*^9, 
+   3.920448962227798*^9}, {3.920449002073372*^9, 3.9204490103568983`*^9}, {
+   3.920544141450858*^9, 3.9205443604325447`*^9}, {3.920544404697528*^9, 
+   3.920544412793919*^9}, {3.920549689488242*^9, 3.9205497161698513`*^9}, {
+   3.920549757905787*^9, 3.9205498508223352`*^9}, {3.9206450738671217`*^9, 
+   3.9206450958287277`*^9}, {3.920722513133765*^9, 3.92072251497845*^9}, {
+   3.920804155667988*^9, 3.9208041570393057`*^9}, {3.920884813984889*^9, 
+   3.920884823671247*^9}, {3.920884860168168*^9, 3.9208848950973587`*^9}, 
+   3.921064863505094*^9, {3.921156773033805*^9, 3.921156773361092*^9}, {
+   3.921156914438877*^9, 3.921157086869487*^9}, {3.938777481647416*^9, 
+   3.938777511487214*^9}},ExpressionUUID->"7c5bfbb3-b2a2-47bd-9269-\
 9671b5f29115"]
 }, Open  ]],
 
@@ -1613,24 +2193,24 @@ will be identical.\
 
 Cell[BoxData[{
  RowBox[{
-  RowBox[{
-   RowBox[{"color", "=", 
-    RowBox[{"{", 
-     RowBox[{"Black", ",", "Blue", ",", "Cyan"}], "}"}]}], ";"}], 
-  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
- RowBox[{
   RowBox[{"aveInterp", "=", 
-   RowBox[{"Interpolation", "[", "aveIncidence", "]"}]}], 
-  ";"}], "\[IndentingNewLine]", 
+   RowBox[{"Interpolation", "[", 
+    RowBox[{"aveIncidence", ",", 
+     RowBox[{"InterpolationOrder", "->", "incidenceInterpolationOrder"}]}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"lowerInterp", "=", 
-   RowBox[{"Interpolation", "[", "lowerIncidence", "]"}]}], 
-  ";"}], "\[IndentingNewLine]", 
+   RowBox[{"Interpolation", "[", 
+    RowBox[{"lowerIncidence", ",", 
+     RowBox[{"InterpolationOrder", "->", "incidenceInterpolationOrder"}]}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
    RowBox[{"upperInterp", "=", 
-    RowBox[{"Interpolation", "[", "upperIncidence", "]"}]}], ";"}], 
-  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+    RowBox[{"Interpolation", "[", 
+     RowBox[{"upperIncidence", ",", 
+      RowBox[{"InterpolationOrder", "->", "incidenceInterpolationOrder"}]}], 
+     "]"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
    RowBox[{"aveIncidenceInterp", "[", "a_", "]"}], "=", 
@@ -1762,8 +2342,15 @@ Cell[BoxData[{
    3.908991188739946*^9}, {3.908992231619865*^9, 3.90899223498619*^9}, 
    3.9092205935041924`*^9, 3.909224539258978*^9, {3.913898494644392*^9, 
    3.913898526631723*^9}, 3.9138987234982557`*^9, {3.9138993094318657`*^9, 
-   3.913899311254217*^9}},
- CellLabel->"In[39]:=",ExpressionUUID->"24600e74-4327-4629-9932-37dae216260c"],
+   3.913899311254217*^9}, {3.9170061321296177`*^9, 3.917006142313696*^9}, {
+   3.9170865327973833`*^9, 3.9170865372180233`*^9}, {3.917086632290453*^9, 
+   3.9170866345268583`*^9}, {3.917270870058716*^9, 3.9172708860213633`*^9}, {
+   3.917348352907248*^9, 3.9173484337015543`*^9}, {3.917348624523554*^9, 
+   3.917348632263088*^9}, {3.9204484841733503`*^9, 3.920448527600247*^9}, {
+   3.920448968643242*^9, 3.92044898083086*^9}, {3.921157100803911*^9, 
+   3.9211571395748863`*^9}, 
+   3.9387775368079863`*^9},ExpressionUUID->"24600e74-4327-4629-9932-\
+37dae216260c"],
 
 Cell["Save the average incidence age structure to a file.", "Text",
  CellChangeTimes->{
@@ -1780,9 +2367,9 @@ Cell[BoxData[
     RowBox[{
      RowBox[{"filePath", "=", 
       RowBox[{
-      "rootOutputDir", "<>", 
-       "\"\<averaged_incidence/AverageIncidence.csv\>\""}]}], ";", 
-     "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      "rootOutputDir", "<>", "\"\<averaged_incidence/\>\"", "<>", "subType", 
+       "<>", "\"\</AverageIncidence.csv\>\""}]}], ";", "\[IndentingNewLine]", 
+     "\[IndentingNewLine]", 
      RowBox[{"popAges", "=", 
       RowBox[{"Table", "[", 
        RowBox[{"i", ",", 
@@ -1849,8 +2436,18 @@ Cell[BoxData[
    3.8918876982883787`*^9, 3.8918877048041286`*^9}, {3.8918877620884943`*^9, 
    3.891887798280225*^9}, {3.901962672262924*^9, 3.901962672694665*^9}, {
    3.904813724738777*^9, 3.904813736759001*^9}, {3.913990087444313*^9, 
-   3.913990089147287*^9}, {3.9139914221159782`*^9, 3.913991424376678*^9}},
- CellLabel->"In[47]:=",ExpressionUUID->"6708ad2c-014e-4037-b05b-bba618212cc7"],
+   3.913990089147287*^9}, {3.9139914221159782`*^9, 3.913991424376678*^9}, {
+   3.920803837377792*^9, 3.9208038394922657`*^9}, {3.92825429393673*^9, 
+   3.9282543063619747`*^9}},
+ CellLabel->"In[47]:=",ExpressionUUID->"6708ad2c-014e-4037-b05b-bba618212cc7"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Population", "Subsection",
+ CellChangeTimes->{{3.93877759397999*^9, 
+  3.93877760133923*^9}},ExpressionUUID->"82bd3dba-17ab-45cb-b0e8-\
+392c22ae7655"],
 
 Cell[TextData[{
  "Create interpolating polynomials of the population fractions.\n\n",
@@ -1859,7 +2456,7 @@ Cell[TextData[{
  ": For the Canadian data, using a linear interpolation here seems most \
 prudent. Higher order interpolations (second and third) seem to produce a \
 greatly exaggerated peak in population density at age greater than 80. For \
-countries with yearly data, this will not be a concern (nor will higher-order \
+countries with yearly data, this is not a concern (nor will higher-order \
 interpolations be necessary)."
 }], "Text",
  CellChangeTimes->{{3.887282965070787*^9, 3.887282994957725*^9}, {
@@ -1867,8 +2464,8 @@ interpolations be necessary)."
   3.887284296884962*^9}, {3.8872843565396214`*^9, 3.887284365888502*^9}, {
   3.887286316051178*^9, 3.887286336953795*^9}, {3.890043457880514*^9, 
   3.890043503093624*^9}, {3.890043574635191*^9, 3.890043627888826*^9}, {
-  3.9086275942037687`*^9, 
-  3.9086276401247663`*^9}},ExpressionUUID->"03fb0196-ee28-48c6-ac29-\
+  3.9086275942037687`*^9, 3.9086276401247663`*^9}, {3.93877758618721*^9, 
+  3.938777589079362*^9}},ExpressionUUID->"03fb0196-ee28-48c6-ac29-\
 a2aa223904fd"],
 
 Cell[BoxData[{
@@ -1878,8 +2475,6 @@ Cell[BoxData[{
  RowBox[{
   RowBox[{"populationInterps", "=", 
    RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"interpolationOrder", "=", "1"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
    RowBox[{"For", "[", 
@@ -1937,7 +2532,8 @@ Cell[BoxData[{
       RowBox[{"interp", "=", 
        RowBox[{"Interpolation", "[", 
         RowBox[{"pop", ",", 
-         RowBox[{"InterpolationOrder", "->", "interpolationOrder"}]}], 
+         RowBox[{
+         "InterpolationOrder", "->", "populationInterpolationOrder"}]}], 
         "]"}]}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
       RowBox[{
        RowBox[{"populationInterp", "[", "a_", "]"}], "=", 
@@ -1977,18 +2573,17 @@ Cell[BoxData[{
     "\[IndentingNewLine]", "]"}], ";"}], 
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"populationAgeMax", "=", 
-   RowBox[{"Max", "[", "populationAgeMaxes", "]"}]}], 
-  ";"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"populationAgeMax", "=", 
+    RowBox[{"Max", "[", "populationAgeMaxes", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"populationIndexes", "=", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", 
-     RowBox[{"Floor", "[", 
-      RowBox[{
-       RowBox[{"Length", "[", "populationInterps", "]"}], "/", "2.0"}], "]"}],
-      ",", 
-     RowBox[{"Length", "[", "populationInterps", "]"}]}], "}"}]}], 
+   RowBox[{"Table", "[", 
+    RowBox[{"i", ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "1", ",", 
+       RowBox[{"Length", "[", "populationInterps", "]"}]}], "}"}]}], "]"}]}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
@@ -2072,8 +2667,16 @@ Cell[BoxData[{
    3.909483385481703*^9, 3.909483419187224*^9}, {3.913898738568375*^9, 
    3.913898831980714*^9}, {3.913898897010192*^9, 3.9138990678616734`*^9}, {
    3.913899098610099*^9, 3.913899172444888*^9}, {3.9138992154335823`*^9, 
-   3.9138992336325197`*^9}, {3.9138992787630663`*^9, 3.913899302243181*^9}},
- CellLabel->"In[48]:=",ExpressionUUID->"83107b97-5082-4d63-b879-5d3186dcc0cb"],
+   3.9138992336325197`*^9}, {3.9138992787630663`*^9, 3.913899302243181*^9}, 
+   3.917086558662023*^9, 3.917086646210309*^9, {3.920448752212031*^9, 
+   3.920448764987802*^9}, 3.9204510340406513`*^9, {3.920544925217311*^9, 
+   3.920544938152031*^9}, 3.920545067190901*^9, {3.9207391024640207`*^9, 
+   3.920739119771297*^9}, {3.920739201520258*^9, 3.920739201658785*^9}, {
+   3.9208034706266527`*^9, 3.92080353573773*^9}, {3.9208035831451283`*^9, 
+   3.920803599837605*^9}, {3.920885358722948*^9, 3.920885359894949*^9}, {
+   3.929783220836589*^9, 3.9297832703565607`*^9}, {3.938777633541149*^9, 
+   3.938777651372806*^9}},ExpressionUUID->"83107b97-5082-4d63-b879-\
+5d3186dcc0cb"],
 
 Cell["\<\
 Save the population age structure for the data plotted above into individual \
@@ -2108,7 +2711,9 @@ Cell[BoxData[
        RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
        RowBox[{
         RowBox[{"filePath", "=", 
-         RowBox[{"rootOutputDir", "<>", "\"\<pop_age_structure/\>\"", "<>", 
+         RowBox[{
+         "rootOutputDir", "<>", "\"\<pop_age_structure/\>\"", "<>", "subType",
+           "<>", "\"\</\>\"", "<>", 
           RowBox[{"ToString", "[", 
            RowBox[{"populationYears", "\[LeftDoubleBracket]", 
             RowBox[{"populationIndexes", "[", 
@@ -2157,7 +2762,9 @@ Cell[BoxData[
       RowBox[{"The", " ", "combined", " ", "data", " ", "set"}], "*)"}], 
      "\[IndentingNewLine]", 
      RowBox[{"filePath", "=", 
-      RowBox[{"rootOutputDir", "<>", "\"\<pop_age_structure/\>\"", "<>", 
+      RowBox[{
+      "rootOutputDir", "<>", "\"\<pop_age_structure/\>\"", "<>", "subType", 
+       "<>", "\"\</\>\"", "<>", 
        RowBox[{"ToString", "[", 
         RowBox[{"Length", "[", "populationIndexes", "]"}], "]"}], "<>", 
        "\"\<_examples.csv\>\""}]}], ";", "\[IndentingNewLine]", 
@@ -2244,8 +2851,9 @@ Cell[BoxData[
    3.913899517874961*^9, 3.913899619207522*^9}, {3.913989514735565*^9, 
    3.913989515949403*^9}, {3.913989594467573*^9, 3.9139895964468193`*^9}, {
    3.9139900738046427`*^9, 3.913990077159274*^9}, {3.9139914545140877`*^9, 
-   3.913991462618416*^9}},
- CellLabel->"In[56]:=",ExpressionUUID->"05a14298-f712-4ff1-9651-6e339341b8e4"]
+   3.913991462618416*^9}, {3.921056437060137*^9, 3.921056438959777*^9}, {
+   3.928254320239843*^9, 3.928254342926166*^9}},
+ CellLabel->"In[55]:=",ExpressionUUID->"05a14298-f712-4ff1-9651-6e339341b8e4"]
 }, Open  ]]
 }, Open  ]],
 
@@ -2253,8 +2861,8 @@ Cell[CellGroupData[{
 
 Cell["Age- and Time-Dependent Prevalence", "Section",
  CellChangeTimes->{{3.887287520703251*^9, 
-  3.887287545767766*^9}},ExpressionUUID->"433bcac7-ac4b-4e4b-9e5d-\
-0aca0907e9dd"],
+  3.887287545767766*^9}},ExpressionUUID->"e9928256-1700-4915-945d-\
+168cfe1e3dac"],
 
 Cell[TextData[{
  "This section calculates the prevalence as a function of age and time from \
@@ -2276,7 +2884,7 @@ exponential growth/decay rate (see ",
    SuperscriptBox["g", 
     RowBox[{"t", "-", 
      SubscriptBox["t", "0"]}]], TraditionalForm]],ExpressionUUID->
-  "ffc10ca8-8292-4230-8d58-283691046b4a"],
+  "678fecb9-ffe2-483e-acd0-a53343912ccc"],
  ")",
  " and will be a number near unity (i.e., ",
  Cell[BoxData[
@@ -2287,7 +2895,7 @@ exponential growth/decay rate (see ",
       RowBox[{"1", "+", "\[Epsilon]"}], ")"}]}], ",", " ", 
     RowBox[{"|", "\[Epsilon]", "|", 
      RowBox[{"<<", "1"}]}]}], TraditionalForm]],ExpressionUUID->
-  "6270fa8f-46b3-4982-84e6-c87eb187c64f"],
+  "376fb1e9-854e-4859-b97c-53497859658d"],
  ")",
  ".",
  "\n\nNote that the calculation is broken up into three parts, in order to \
@@ -2307,8 +2915,8 @@ and to provide a solution to the prevalence where ",
    3.913899636606886*^9, 3.9138996424189177`*^9}, {3.913903703700513*^9, 
    3.9139037078890553`*^9}, {3.9139039445091963`*^9, 3.913904024003437*^9}, {
    3.913907199622168*^9, 3.913907397552828*^9}, {3.9139086404056*^9, 
-   3.9139088063430843`*^9}},ExpressionUUID->"e51bfba3-2629-4bc2-aaad-\
-040d6ac70e7b"],
+   3.9139088063430843`*^9}},ExpressionUUID->"6677d032-c05b-48e9-8bb7-\
+9efc61a6c380"],
 
 Cell[BoxData[{
  RowBox[{
@@ -2505,8 +3113,7 @@ Cell[BoxData[{
         RowBox[{
          RowBox[{"0", "<=", "t", "<", "a"}], "&&", 
          RowBox[{"beginYear", "<=", "t", "<=", "endYear"}]}]}], "}"}]}], 
-     "\[IndentingNewLine]", "}"}], "]"}]}], 
-  ";"}], "\[IndentingNewLine]"}], "Input",
+     "\[IndentingNewLine]", "}"}], "]"}]}], ";"}]}], "Input",
  CellChangeTimes->{{3.887299259850396*^9, 3.887299321044408*^9}, {
    3.887299423879355*^9, 3.887299657959144*^9}, {3.88730155093342*^9, 
    3.88730157971056*^9}, {3.8873111278178368`*^9, 3.887311325394731*^9}, {
@@ -2558,60 +3165,10 @@ Cell[BoxData[{
    3.913910761320826*^9}, 3.9139114956508217`*^9, {3.913911538983994*^9, 
    3.9139116439584713`*^9}, {3.9139747868793488`*^9, 3.913974852688738*^9}, 
    3.9139748861417437`*^9, {3.9139753963346977`*^9, 3.913975399921713*^9}, {
-   3.9139770899193993`*^9, 3.9139770937990227`*^9}},
- CellLabel->"In[57]:=",ExpressionUUID->"9a0dc165-b8ba-4796-aa21-59decc3b0142"],
-
-Cell["\<\
-Plot the prevalence as a function of age and time (a surface in 3D), with \
-growth factor set to unity.\
-\>", "Text",
- CellChangeTimes->{{3.887466532401772*^9, 3.8874665741795053`*^9}, {
-  3.8900449151401987`*^9, 3.890044920236453*^9}, {3.913992040790556*^9, 
-  3.913992051993555*^9}},ExpressionUUID->"488a2422-f6d1-4d70-8bc7-\
-6a30d4ba505b"],
-
-Cell[BoxData[{
- RowBox[{
-  RowBox[{"tPlotMin", "=", "0"}], ";", 
-  RowBox[{"tPlotMax", "=", "40"}], ";", 
-  RowBox[{"growthFactor", "=", "1"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{"Plot3D", "[", "\[IndentingNewLine]", 
-  RowBox[{
-   RowBox[{
-    RowBox[{"avePrevalences", "[", 
-     RowBox[{"t", ",", "a", ",", "growthFactor"}], "]"}], "\[Times]", "100"}],
-    ",", "\[IndentingNewLine]", 
-   RowBox[{"{", 
-    RowBox[{"t", ",", "tPlotMin", ",", "tPlotMax"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{"a", ",", "0", ",", "120"}], "}"}], ",", "\[IndentingNewLine]", 
-   RowBox[{"ImageSize", "->", "450"}], ",", 
-   RowBox[{"PlotPoints", "->", "50"}], ",", "\[IndentingNewLine]", 
-   RowBox[{"AxesLabel", "->", 
-    RowBox[{"{", 
-     RowBox[{
-      RowBox[{"Style", "[", 
-       RowBox[{"\"\<Time [Years]\>\"", ",", "\"\<Text\>\"", ",", 
-        RowBox[{"Background", "->", "White"}]}], "]"}], ",", 
-      RowBox[{"Style", "[", 
-       RowBox[{"\"\<Age [Years]\>\"", ",", "\"\<Text\>\"", ",", 
-        RowBox[{"Background", "->", "White"}]}], "]"}], ",", 
-      RowBox[{"Style", "[", 
-       RowBox[{"\"\<Prevalence [%]\>\"", ",", "\"\<Text\>\"", ",", 
-        RowBox[{"Background", "->", "White"}]}], "]"}]}], "}"}]}], ",", 
-   "\[IndentingNewLine]", 
-   RowBox[{"LabelStyle", "->", 
-    RowBox[{"{", 
-     RowBox[{
-      RowBox[{"FontSize", "->", "18"}], ",", 
-      RowBox[{"FontFamily", "->", "\"\<Times\>\""}], ",", "Black"}], 
-     "}"}]}]}], "\[IndentingNewLine]", "]"}]}], "Input",
- CellChangeTimes->{{3.887466580098366*^9, 3.887466581278709*^9}, {
-  3.889622518672779*^9, 3.889622519060216*^9}, {3.8896227751927547`*^9, 
-  3.88962279245674*^9}, {3.8900449584346848`*^9, 3.890044968668375*^9}, {
-  3.890147498486273*^9, 3.890147525079905*^9}, {3.91399198893219*^9, 
-  3.913992113285449*^9}},ExpressionUUID->"e239870d-93ec-4c7a-bcbf-\
-dcf82cf76442"]
+   3.9139770899193993`*^9, 3.9139770937990227`*^9}, 3.920633360254353*^9, {
+   3.9208040121870747`*^9, 3.9208040129028893`*^9}, {3.923683008063056*^9, 
+   3.9236830088976307`*^9}},
+ CellLabel->"In[56]:=",ExpressionUUID->"ff4a715e-abe5-44d8-933d-02eeef04241d"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -2623,8 +3180,8 @@ Time-Dependent Prevalence: Increasing/Decreasing Incidence (1% & 2% per Year)\
  CellChangeTimes->{{3.887314023986989*^9, 3.887314029296854*^9}, {
    3.889714389611265*^9, 3.889714406971233*^9}, {3.889715075827804*^9, 
    3.889715083031666*^9}, {3.889887608902398*^9, 3.889887619431911*^9}, 
-   3.890046384476453*^9},ExpressionUUID->"8caca48b-421a-4425-94ae-\
-d52ded01bf76"],
+   3.890046384476453*^9},ExpressionUUID->"fbeb8a4c-3e11-4d46-9b20-\
+15f23a9f2eae"],
 
 Cell[TextData[{
  "Calculate the age-independent prevalence at all times for which there \
@@ -2646,7 +3203,7 @@ prevalence as a function of time and age, ",
   FormBox[
    RowBox[{
     SubscriptBox["q", "t"], "(", "a", ")"}], TraditionalForm]],ExpressionUUID->
-  "b10977f5-d31c-4c2b-83ff-c833b2d6d083"],
+  "84fabf6d-78ba-4651-a8e5-fa5e0798c3d1"],
  ", as per\n\n(6)\t\t\t \t\t\t\t\t",
  Cell[BoxData[
   FormBox[
@@ -2661,7 +3218,7 @@ prevalence as a function of time and age, ",
        SubscriptBox["q", "t"], "(", "a", ")"}], 
       RowBox[{"\[DifferentialD]", "a"}]}]}]}], TraditionalForm]],
   InitializationCell->True,ExpressionUUID->
-  "82bf9bf0-995e-45dd-b84e-c5bdd4c23300"],
+  "8db4be80-a394-4887-ac36-e0b15e6778ca"],
  ".\n\nWe use growth rates on the average incidence of -2%, -1%, 0%, 1%, and \
 2% per year to model five different scenarios for the overall prevalence as a \
 function of time. These growth rates correspond to ",
@@ -2671,11 +3228,11 @@ function of time. These growth rates correspond to ",
     RowBox[{"{", 
      RowBox[{"0.98", ",", "0.99", ",", "1", ",", "1.01", ",", "1.02"}], 
      "}"}]}], TraditionalForm]],ExpressionUUID->
-  "cedc06d2-d732-413f-8a83-d0006f9fd109"],
+  "0a556393-2c19-4b97-97e4-6fafd235008e"],
  ".\n\nThe following portions of the notebook will calculate the projected \
 prevalence as a function of time for five different incidence growth \
 scenarios, compare the zero-growth scenario to available historical \
-prevalence data, plot the five different prevalence scenarios and save the \
+prevalence data, plot the five different prevalence scenarios, and save the \
 data to a file."
 }], "Text",
  CellChangeTimes->{{3.887314032517355*^9, 3.887314061514039*^9}, {
@@ -2689,9 +3246,9 @@ data to a file."
    3.91391080301082*^9, 3.913910871025497*^9}, {3.913910901306077*^9, 
    3.913910949390726*^9}, {3.913910985652532*^9, 3.913911275597364*^9}, {
    3.913911660523245*^9, 3.913911791182376*^9}, {3.913911959441916*^9, 
-   3.9139119604425*^9}, {3.913975068549625*^9, 
-   3.913975068549675*^9}},ExpressionUUID->"3d69506e-3a2c-4851-b179-\
-a8c837fe65ce"],
+   3.9139119604425*^9}, {3.913975068549625*^9, 3.913975068549675*^9}, 
+   3.938777815084642*^9},ExpressionUUID->"9f121b8c-4a3f-4e9c-80d1-\
+1ca7b3f2483e"],
 
 Cell[CellGroupData[{
 
@@ -2699,140 +3256,118 @@ Cell["Projected Prevalence Versus Time", "Subsubsection",
  CellChangeTimes->{{3.904228102689445*^9, 3.904228117230076*^9}, 
    3.904813904064292*^9, {3.913911281444809*^9, 3.91391129749647*^9}, {
    3.913911827881501*^9, 
-   3.913911844710024*^9}},ExpressionUUID->"dcdf2e97-e16c-4680-91bd-\
-19e9a00e4eb4"],
+   3.913911844710024*^9}},ExpressionUUID->"e5e3e6d1-7790-4db6-bad8-\
+8ea213257423"],
 
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"projectionEndYear", "=", "2043"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"projectionEndEpoch", "=", 
+   RowBox[{"projectionEndYear", "-", "projectionStartYear"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"incidenceGrowthRates", "=", 
+   RowBox[{"{", 
+    RowBox[{"0.98", ",", "0.99", ",", "1.00", ",", "1.01", ",", "1.02"}], 
+    "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pTsAll", "=", 
+   RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
-   RowBox[{"projectionEndEpoch", "=", 
-    RowBox[{"projectionEndYear", "-", "projectionStartYear"}]}], ";"}], 
+   RowBox[{"For", "[", 
+    RowBox[{
+     RowBox[{"j", "=", "1"}], ",", 
+     RowBox[{"j", "<=", 
+      RowBox[{"Length", "[", "incidenceGrowthRates", "]"}]}], ",", 
+     RowBox[{"j", "++"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"growth", "=", 
+       RowBox[{
+       "incidenceGrowthRates", "\[LeftDoubleBracket]", "j", 
+        "\[RightDoubleBracket]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"Print", "[", 
+       RowBox[{"Now", ",", "\"\< Growth = \>\"", ",", "growth"}], "]"}], ";", 
+      "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{"pTs", "=", 
+       RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"Do", "[", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{
+           "projectionStartYear", "<=", "year", "<=", "projectionEndYear"}], 
+           ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"Mod", "[", 
+                RowBox[{"year", ",", "5"}], "]"}], "==", "0"}], ",", 
+              "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{"Print", "[", 
+                RowBox[{"Now", ",", "\"\<    Year = \>\"", ",", "year"}], 
+                "]"}], ";"}]}], "\[IndentingNewLine]", "]"}], ";", 
+            "\[IndentingNewLine]", "\[IndentingNewLine]", 
+            RowBox[{"epoch", "=", 
+             RowBox[{"year", "-", "projectionStartYear"}]}], ";", 
+            "\[IndentingNewLine]", 
+            RowBox[{"i", " ", "=", 
+             RowBox[{
+              RowBox[{"Position", "[", 
+               RowBox[{"populationYears", ",", "year"}], "]"}], 
+              "\[LeftDoubleBracket]", 
+              RowBox[{"1", ",", "1"}], "\[RightDoubleBracket]"}]}], ";", 
+            "\[IndentingNewLine]", "\[IndentingNewLine]", 
+            RowBox[{"p", "=", 
+             RowBox[{"NIntegrate", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"avePrevalences", "[", 
+                 RowBox[{"epoch", ",", "a", ",", "growth"}], "]"}], 
+                RowBox[{
+                "populationInterps", "\[LeftDoubleBracket]", "i", 
+                 "\[RightDoubleBracket]"}]}], ",", 
+               RowBox[{"{", 
+                RowBox[{"a", ",", "0", ",", 
+                 RowBox[{"1.2", "populationAgeMax"}]}], "}"}]}], "]"}]}], ";",
+             "\[IndentingNewLine]", 
+            RowBox[{"AppendTo", "[", 
+             RowBox[{"pTs", ",", 
+              RowBox[{"{", 
+               RowBox[{"year", ",", "p"}], "}"}]}], "]"}], ";"}]}], 
+          "\[IndentingNewLine]", "]"}], ";"}], "\[IndentingNewLine]", ",", 
+        RowBox[{"{", 
+         RowBox[{"year", ",", "populationYears"}], "}"}]}], 
+       "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"AppendTo", "[", 
+       RowBox[{"pTsAll", ",", "pTs"}], "]"}], ";"}]}], "\[IndentingNewLine]", 
+    "\[IndentingNewLine]", "]"}], ";"}], 
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"startIdx", "=", 
-   RowBox[{"projectionStartYear", "-", 
-    RowBox[{
-    "populationYears", "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}],
-     "+", "1"}]}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"pTsInterps", "=", 
+   RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"If", "[", 
-   RowBox[{
-    RowBox[{"startIdx", "<", "1"}], ",", "\[IndentingNewLine]", 
-    "\[IndentingNewLine]", 
-    RowBox[{"Print", "[", 
-     RowBox[{"Style", "[", 
-      RowBox[{
-       RowBox[{"\"\<ERROR: startIdx = \>\"", "<>", 
-        RowBox[{"ToString", "[", "startIdx", "]"}], "<>", 
-        "\"\< must be greater than zero.\>\""}], ",", "Red", ",", "Bold", ",",
-        "18"}], "]"}], "]"}], ",", "\[IndentingNewLine]", 
-    "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"For", "[", 
     RowBox[{
-     RowBox[{"incidenceGrowthRates", "=", 
-      RowBox[{"{", 
-       RowBox[{"0.98", ",", "0.99", ",", "1.00", ",", "1.01", ",", "1.02"}], 
-       "}"}]}], ";", "\[IndentingNewLine]", 
-     RowBox[{"pTsAll", "=", 
-      RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
-     RowBox[{"For", "[", 
-      RowBox[{
-       RowBox[{"j", "=", "1"}], ",", 
-       RowBox[{"j", "<=", 
-        RowBox[{"Length", "[", "incidenceGrowthRates", "]"}]}], ",", 
-       RowBox[{"j", "++"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
-       RowBox[{
-        RowBox[{"growth", "=", 
-         RowBox[{
-         "incidenceGrowthRates", "\[LeftDoubleBracket]", "j", 
-          "\[RightDoubleBracket]"}]}], ";", "\[IndentingNewLine]", 
-        RowBox[{"Print", "[", 
-         RowBox[{"Now", ",", "\"\< Growth = \>\"", ",", "growth"}], "]"}], 
-        ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
-        RowBox[{"pTs", "=", 
-         RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
-        RowBox[{"epoch", "=", "0"}], ";", "\[IndentingNewLine]", 
-        RowBox[{"While", "[", 
-         RowBox[{
-          RowBox[{"epoch", "<=", "projectionEndEpoch"}], ",", 
-          "\[IndentingNewLine]", "\[IndentingNewLine]", 
-          RowBox[{
-           RowBox[{"year", " ", "=", 
-            RowBox[{"projectionStartYear", "+", "epoch"}]}], ";", 
-           "\[IndentingNewLine]", 
-           RowBox[{"If", "[", 
-            RowBox[{
-             RowBox[{
-              RowBox[{"Mod", "[", 
-               RowBox[{"year", ",", "10"}], "]"}], "==", "0"}], ",", 
-             "\[IndentingNewLine]", 
-             RowBox[{
-              RowBox[{"Print", "[", 
-               RowBox[{"Now", ",", "\"\<    Year = \>\"", ",", "year"}], 
-               "]"}], ";"}]}], "\[IndentingNewLine]", "]"}], ";", 
-           "\[IndentingNewLine]", "\[IndentingNewLine]", 
-           RowBox[{"i", "=", 
-            RowBox[{"startIdx", "+", "epoch"}]}], ";", "\[IndentingNewLine]", 
-           "\[IndentingNewLine]", 
-           RowBox[{"(*", 
-            RowBox[{
-             RowBox[{
-              RowBox[{
-              "Where", " ", "the", " ", "prevalence", " ", "projection", " ", 
-               "extends", " ", "beyond", " ", "the", " ", "available", " ", 
-               "population", " ", "age"}], "-", 
-              RowBox[{"distribution", " ", "data"}]}], ",", " ", 
-             RowBox[{
-             "use", " ", "the", " ", "last", " ", "year", " ", "of", " ", 
-              "the", " ", "population", " ", "projection"}]}], "*)"}], 
-           "\[IndentingNewLine]", 
-           RowBox[{"If", "[", 
-            RowBox[{
-             RowBox[{"i", ">", 
-              RowBox[{"Length", "[", "populationYears", "]"}]}], ",", 
-             RowBox[{"i", "=", 
-              RowBox[{"Length", "[", "populationYears", "]"}]}]}], "]"}], ";",
-            "\[IndentingNewLine]", "\[IndentingNewLine]", 
-           RowBox[{"p", "=", 
-            RowBox[{"NIntegrate", "[", 
-             RowBox[{
-              RowBox[{
-               RowBox[{"avePrevalences", "[", 
-                RowBox[{"epoch", ",", "a", ",", "growth"}], "]"}], 
-               RowBox[{
-               "populationInterps", "\[LeftDoubleBracket]", "i", 
-                "\[RightDoubleBracket]"}]}], ",", 
-              RowBox[{"{", 
-               RowBox[{"a", ",", "0", ",", 
-                RowBox[{"1.2", "populationAgeMax"}]}], "}"}]}], "]"}]}], ";", 
-           "\[IndentingNewLine]", 
-           RowBox[{"AppendTo", "[", 
-            RowBox[{"pTs", ",", 
-             RowBox[{"{", 
-              RowBox[{"year", ",", "p"}], "}"}]}], "]"}], ";", 
-           "\[IndentingNewLine]", "\[IndentingNewLine]", 
-           RowBox[{"epoch", "+=", "1"}], ";"}]}], "\[IndentingNewLine]", 
-         "]"}], ";", "\[IndentingNewLine]", 
-        RowBox[{"AppendTo", "[", 
-         RowBox[{"pTsAll", ",", "pTs"}], "]"}], ";"}]}], 
-      "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
-     RowBox[{"pTsInterps", "=", 
-      RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
-     RowBox[{"For", "[", 
-      RowBox[{
-       RowBox[{"i", "=", "1"}], ",", 
-       RowBox[{"i", "<=", 
-        RowBox[{"Length", "[", "pTsAll", "]"}]}], ",", 
-       RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
-       RowBox[{
-        RowBox[{"AppendTo", "[", 
-         RowBox[{"pTsInterps", ",", 
-          RowBox[{"Interpolation", "[", 
-           RowBox[{"pTsAll", "[", 
-            RowBox[{"[", "i", "]"}], "]"}], "]"}]}], "]"}], ";"}]}], 
-      "\[IndentingNewLine]", "]"}], ";"}]}], "\[IndentingNewLine]", "]"}], 
-  ";"}]}], "Input",
+     RowBox[{"i", "=", "1"}], ",", 
+     RowBox[{"i", "<=", 
+      RowBox[{"Length", "[", "pTsAll", "]"}]}], ",", 
+     RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"AppendTo", "[", 
+       RowBox[{"pTsInterps", ",", 
+        RowBox[{"Interpolation", "[", 
+         RowBox[{"pTsAll", "[", 
+          RowBox[{"[", "i", "]"}], "]"}], "]"}]}], "]"}], ";"}]}], 
+    "\[IndentingNewLine]", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"Now", ",", "\"\< Done\>\""}], "]"}], 
+  ";"}], "\[IndentingNewLine]"}], "Input",
  CellChangeTimes->{{3.887358331130344*^9, 3.887358337545207*^9}, {
    3.8873583726415157`*^9, 3.887358385012588*^9}, {3.887358451025672*^9, 
    3.887358518512269*^9}, 3.8873586547808332`*^9, {3.887358691259654*^9, 
@@ -2939,43 +3474,217 @@ Cell[BoxData[{
    3.9090652787444*^9}, {3.909066564195928*^9, 3.909066567819397*^9}, {
    3.913911317965678*^9, 3.913911485930731*^9}, {3.913912169771937*^9, 
    3.913912180195875*^9}, 3.913912531124661*^9, {3.91397489703887*^9, 
-   3.91397492602711*^9}, 
-   3.9139917780140877`*^9},ExpressionUUID->"0aed58d4-3d25-4831-a883-\
-1dee7391a801"]
+   3.91397492602711*^9}, 3.9139917780140877`*^9, {3.9207997394860897`*^9, 
+   3.920799752259955*^9}, {3.920801258276257*^9, 3.9208012641400347`*^9}, {
+   3.920804170671294*^9, 3.9208041749727383`*^9}, {3.920804545596672*^9, 
+   3.920804590821498*^9}, {3.920804632402306*^9, 3.9208046336173143`*^9}, {
+   3.9208047119120483`*^9, 3.9208047246997633`*^9}, {3.9208047563278503`*^9, 
+   3.920804906257156*^9}, {3.920805182983073*^9, 3.9208051950652103`*^9}, {
+   3.920805250418247*^9, 3.9208052523449507`*^9}, {3.920805454809127*^9, 
+   3.92080545598738*^9}, {3.920886467312077*^9, 3.920886477197301*^9}, {
+   3.920886510841175*^9, 3.920886529412421*^9}, 3.920886579062643*^9, {
+   3.9208866147222853`*^9, 3.920886652321651*^9}, {3.920886695116722*^9, 
+   3.920886733915365*^9}, {3.920886774230947*^9, 3.920886916543051*^9}, {
+   3.920887038203006*^9, 3.920887159448744*^9}, {3.9208872023593893`*^9, 
+   3.920887267249817*^9}, {3.920887453585658*^9, 3.920887678917878*^9}, {
+   3.9208877170603123`*^9, 3.920887790337964*^9}, {3.920888492639924*^9, 
+   3.920888513586689*^9}, {3.920888544595613*^9, 3.920888566397378*^9}, {
+   3.9208886272571383`*^9, 3.920888809902721*^9}, {3.9208888413608303`*^9, 
+   3.920888879152117*^9}, {3.9208892679211073`*^9, 3.9208893287329493`*^9}, {
+   3.92088937087888*^9, 3.920889375603409*^9}, {3.920889451136065*^9, 
+   3.9208894512553387`*^9}, {3.920890605682536*^9, 3.920890622804483*^9}, {
+   3.920896537702293*^9, 3.920896541426743*^9}, 3.921053624119195*^9, {
+   3.923663993095131*^9, 3.923664011748763*^9}, {3.923674034953587*^9, 
+   3.923674036202199*^9}, {3.923674589127747*^9, 3.923674594749584*^9}, {
+   3.9236746538847322`*^9, 3.923674655357437*^9}, {3.9236818787704268`*^9, 
+   3.923681887530403*^9}, {3.928254639083548*^9, 3.928254704194941*^9}, {
+   3.9283296332062674`*^9, 3.928329850375524*^9}, {3.9291992520206947`*^9, 
+   3.9291992539525757`*^9}, {3.9296261737694263`*^9, 3.929626176917452*^9}, {
+   3.929808021028496*^9, 3.929808024377898*^9}},
+ CellLabel->"In[76]:=",ExpressionUUID->"b6a8e162-346e-4023-95b9-d27e4bfb1ff7"],
+
+Cell["\<\
+Save the prevalence projections as a function of age for all incidence growth \
+rates and for the years 2023, 2033, and 2043.\
+\>", "Text",
+ CellChangeTimes->{{3.9283298984044933`*^9, 3.928329925552355*^9}, {
+  3.928330239036028*^9, 
+  3.928330253024625*^9}},ExpressionUUID->"014b0d2b-3888-4781-858f-\
+fadb9eb110dc"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"projectionDir", "=", 
+   RowBox[{
+   "rootOutputDir", "<>", "\"\<model_prevalence_vs_age/\>\"", "<>", 
+    "subType"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"growthRatePercents", "=", 
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"Round", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+           "incidenceGrowthRates", "\[LeftDoubleBracket]", "i", 
+            "\[RightDoubleBracket]"}], "-", "1"}], ")"}], "\[Times]", "100"}],
+         ",", "1"}], "]"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "1", ",", 
+        RowBox[{"Length", "[", "incidenceGrowthRates", "]"}]}], "}"}]}], 
+     "]"}]}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "Change", " ", "the", " ", "following", " ", "list", " ", "to", " ", 
+     "save", " ", "the", " ", "age"}], "-", 
+    RowBox[{
+    "dependent", " ", "prevalence", " ", "projections", " ", "for", " ", 
+     "different", " ", "years"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"saveYears", "=", 
+    RowBox[{"{", 
+     RowBox[{"2024", ",", "2034", ",", "2043"}], "}"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"epochs", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+      "saveYears", "\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}], 
+      "-", "projectionStartYear"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "1", ",", 
+       RowBox[{"Length", "[", "saveYears", "]"}]}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"modelAges", "=", 
+    RowBox[{"Table", "[", 
+     RowBox[{"i", ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "0", ",", "110"}], "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"header", "=", 
+   RowBox[{"{", 
+    RowBox[{"\"\<Age\>\"", ",", "\"\<Prevalence [%]\>\""}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"For", "[", 
+   RowBox[{
+    RowBox[{"i", "=", "1"}], ",", 
+    RowBox[{"i", "<=", 
+     RowBox[{"Length", "[", "epochs", "]"}]}], ",", 
+    RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"For", "[", 
+      RowBox[{
+       RowBox[{"j", "=", "1"}], ",", 
+       RowBox[{"j", "<=", 
+        RowBox[{"Length", "[", "incidenceGrowthRates", "]"}]}], " ", ",", 
+       RowBox[{"j", "++"}], ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"filePath", "=", 
+         RowBox[{"projectionDir", "<>", "\"\</\>\"", "<>", 
+          RowBox[{"ToString", "[", 
+           RowBox[{
+           "saveYears", "\[LeftDoubleBracket]", "i", 
+            "\[RightDoubleBracket]"}], "]"}], "<>", "\"\</\>\"", "<>", 
+          RowBox[{"ToString", "[", 
+           RowBox[{
+           "growthRatePercents", "\[LeftDoubleBracket]", "j", 
+            "\[RightDoubleBracket]"}], "]"}], "<>", 
+          "\"\<PctIncidenceGrowth.csv\>\""}]}], ";", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{"data", "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{
+             "modelAges", "\[LeftDoubleBracket]", "k", 
+              "\[RightDoubleBracket]"}], ",", 
+             RowBox[{
+              RowBox[{"avePrevalences", "[", 
+               RowBox[{
+                RowBox[{
+                "epochs", "\[LeftDoubleBracket]", "i", 
+                 "\[RightDoubleBracket]"}], ",", 
+                RowBox[{
+                "modelAges", "\[LeftDoubleBracket]", "k", 
+                 "\[RightDoubleBracket]"}], ",", 
+                RowBox[{
+                "incidenceGrowthRates", "\[LeftDoubleBracket]", "j", 
+                 "\[RightDoubleBracket]"}]}], "]"}], "\[Times]", "100"}]}], 
+            "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"k", ",", "1", ",", 
+             RowBox[{"Length", "[", "modelAges", "]"}]}], "}"}]}], "]"}]}], 
+        ";", "\[IndentingNewLine]", 
+        RowBox[{"data", "=", 
+         RowBox[{"Prepend", "[", 
+          RowBox[{"data", ",", "header"}], "]"}]}], ";", 
+        "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{"Export", "[", 
+         RowBox[{"filePath", ",", "data", ",", "\"\<CSV\>\""}], "]"}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Print", "[", 
+         RowBox[{"\"\<Saving to: \>\"", "<>", "filePath"}], "]"}], ";"}]}], 
+      "\[IndentingNewLine]", "]"}], ";"}]}], "\[IndentingNewLine]", "]"}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{{3.928329853707904*^9, 3.928329861494314*^9}, {
+  3.9283299396818447`*^9, 3.928330008429851*^9}, {3.928330039178774*^9, 
+  3.928330530703196*^9}, {3.928330566889443*^9, 3.928330663259851*^9}, {
+  3.928330695322467*^9, 3.928330720075941*^9}, {3.928330755669757*^9, 
+  3.928330774151547*^9}, {3.928330810834262*^9, 3.928330811358005*^9}, {
+  3.928330851918585*^9, 3.928330853694583*^9}, {3.9283309856354*^9, 
+  3.92833100669584*^9}, {3.929199617689273*^9, 3.9291996188806*^9}, {
+  3.929434390602803*^9, 3.929434398414*^9}, {3.929626259073558*^9, 
+  3.929626270012166*^9}, {3.938777837338654*^9, 
+  3.9387778695473633`*^9}},ExpressionUUID->"b1351623-ca0c-441f-acea-\
+82291465911e"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
 Cell["Comparison to Historical Data", "Subsubsection",
  CellChangeTimes->{{3.913911813415332*^9, 
-  3.91391182134643*^9}},ExpressionUUID->"f1518fd6-28c7-4187-8861-\
-6a7f2f4e8132"],
+  3.91391182134643*^9}},ExpressionUUID->"a8a23944-c731-40fa-b766-\
+6a56e741f114"],
 
-Cell["\<\
-Now, calculate the historical prevalence from the interpolated prevalence \
+Cell[TextData[{
+ "Now, calculate the historical prevalence from the interpolated prevalence \
 data and the population interpolation. This is done instead of using the more \
-accurate numerator over denominator approach, as it ensures that the \
+accurate numerator over denominator approach because it ensures that the \
 historical data and projection are calculated in the same way; hence, will be \
 continuous at the transition between the final date of the historical \
-prevalence data and initial date of the projection.\
-\>", "Text",
+prevalence data and initial date of the projection. For the data tested, the ",
+ StyleBox["relative",
+  FontWeight->"Bold"],
+ " difference is no more than ",
+ StyleBox["\[PlusMinus]",
+  FontSize->16],
+ "3% (the absolute difference being less than \[PlusMinus]0.05%)."
+}], "Text",
  CellChangeTimes->{{3.908632116856941*^9, 3.9086321448137608`*^9}, {
-  3.908632364023018*^9, 3.908632365393383*^9}, {3.908632580067493*^9, 
-  3.908632596343666*^9}, {3.908635125502268*^9, 3.908635235057509*^9}, {
-  3.913911872839671*^9, 3.913911945735744*^9}, {3.913978346602833*^9, 
-  3.91397835555825*^9}},ExpressionUUID->"2b7eeb1d-f04d-4775-b354-\
-da2983189ad7"],
+   3.908632364023018*^9, 3.908632365393383*^9}, {3.908632580067493*^9, 
+   3.908632596343666*^9}, {3.908635125502268*^9, 3.908635235057509*^9}, {
+   3.913911872839671*^9, 3.913911945735744*^9}, {3.913978346602833*^9, 
+   3.91397835555825*^9}, 3.938777889483348*^9, {3.938777931987146*^9, 
+   3.93877808402387*^9}},ExpressionUUID->"f92edd6a-e5ec-4479-90cf-\
+20e9fab188ae"],
 
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"Clear", "[", 
-   RowBox[{"p", ",", "rawPrevs"}], "]"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
   RowBox[{
-   RowBox[{"startRawPrevs", "=", 
-    RowBox[{
-    "prevalenceYears", "\[LeftDoubleBracket]", "1", 
-     "\[RightDoubleBracket]"}]}], ";"}], 
+   RowBox[{"Clear", "[", 
+    RowBox[{"p", ",", "rawPrevs"}], "]"}], ";"}], 
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"rawPrevs", "=", 
@@ -2986,8 +3695,22 @@ Cell[BoxData[{
     RowBox[{"i", "=", "1"}], ",", 
     RowBox[{"i", "<=", 
      RowBox[{"Length", "[", "prevalenceYears", "]"}]}], ",", 
-    RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
     RowBox[{
+     RowBox[{"popYear", "=", 
+      RowBox[{
+       RowBox[{"Nearest", "[", 
+        RowBox[{"populationYears", ",", 
+         RowBox[{"prevalenceYears", "[", 
+          RowBox[{"[", "i", "]"}], "]"}]}], "]"}], "\[LeftDoubleBracket]", 
+       "1", "\[RightDoubleBracket]"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"popIndex", "=", 
+      RowBox[{
+       RowBox[{"Position", "[", 
+        RowBox[{"populationYears", ",", "popYear"}], "]"}], 
+       "\[LeftDoubleBracket]", 
+       RowBox[{"1", ",", "1"}], "\[RightDoubleBracket]"}]}], ";", 
+     "\[IndentingNewLine]", "\[IndentingNewLine]", 
      RowBox[{"p", "=", 
       RowBox[{"NIntegrate", "[", 
        RowBox[{
@@ -2996,7 +3719,7 @@ Cell[BoxData[{
          "prevalenceInterps", "\[LeftDoubleBracket]", "i", 
           "\[RightDoubleBracket]"}], "\[Times]", 
          RowBox[{
-         "populationInterps", "\[LeftDoubleBracket]", "i", 
+         "populationInterps", "\[LeftDoubleBracket]", "popIndex", 
           "\[RightDoubleBracket]"}]}], ",", 
         RowBox[{"{", 
          RowBox[{"a", ",", "0", ",", 
@@ -3006,24 +3729,29 @@ Cell[BoxData[{
       RowBox[{"rawPrevs", ",", 
        RowBox[{"{", 
         RowBox[{
-         RowBox[{"startRawPrevs", "+", "i", "-", "1"}], ",", "p"}], "}"}]}], 
-      "]"}]}]}], "\[IndentingNewLine]", "]"}], ";"}]}], "Input",
+         RowBox[{
+         "prevalenceYears", "\[LeftDoubleBracket]", "i", 
+          "\[RightDoubleBracket]"}], ",", "p"}], "}"}]}], "]"}]}]}], 
+   "\[IndentingNewLine]", "]"}], ";"}]}], "Input",
  CellChangeTimes->{{3.908632180131007*^9, 3.9086321815898314`*^9}, {
    3.90863221511762*^9, 3.9086322404530563`*^9}, {3.908632273878216*^9, 
    3.908632344044526*^9}, {3.908632376149143*^9, 3.908632574518248*^9}, {
    3.908632720580513*^9, 3.90863283851145*^9}, {3.908633113597474*^9, 
    3.908633132506979*^9}, {3.90863316475601*^9, 3.908633206185231*^9}, 
-   3.909225581369754*^9},
- CellLabel->"In[72]:=",ExpressionUUID->"d41d43b5-22d9-408f-b009-dedf2679d916"],
+   3.909225581369754*^9, {3.920885701229433*^9, 3.920885726338313*^9}, {
+   3.920889512312746*^9, 3.920889623239415*^9}, {3.920889689938281*^9, 
+   3.9208896909432163`*^9}},
+ CellLabel->"In[90]:=",ExpressionUUID->"a9725832-e0db-413a-9a88-744f022cddf6"],
 
 Cell["\<\
 Plot the historical prevalence time-series and the projection for zero growth \
 on the same plot.\
 \>", "Text",
  CellChangeTimes->{{3.90863258705354*^9, 3.908632588682941*^9}, {
-  3.9139119516998453`*^9, 
-  3.913911953061613*^9}},ExpressionUUID->"b443c939-67ba-4e26-89b0-\
-75124856b32a"],
+  3.9139119516998453`*^9, 3.913911953061613*^9}, {3.920926504703579*^9, 
+  3.920926505739197*^9}, {3.9292004086693907`*^9, 
+  3.929200415929337*^9}},ExpressionUUID->"638380bc-437d-4754-9081-\
+b970a2bf9cdb"],
 
 Cell[BoxData[{
  RowBox[{
@@ -3048,7 +3776,6 @@ Cell[BoxData[{
         RowBox[{"i", ",", "1", ",", 
          RowBox[{"Length", "[", "rawPrevs", "]"}]}], "}"}]}], "]"}], ",", 
      "\[IndentingNewLine]", 
-     RowBox[{"Joined", "->", "True"}], ",", 
      RowBox[{"PlotStyle", "->", 
       RowBox[{"{", "Blue", "}"}]}], ",", "\[IndentingNewLine]", 
      RowBox[{"Frame", "->", "True"}], ",", 
@@ -3115,23 +3842,35 @@ Cell[BoxData[{
    3.913911970935047*^9, 3.913912065886003*^9}, {3.913912390386877*^9, 
    3.91391239535994*^9}, {3.913974957365893*^9, 3.913974987188816*^9}, {
    3.9139751921248007`*^9, 3.913975198131693*^9}, {3.9139752546873627`*^9, 
-   3.913975270597245*^9}, {3.913975664694065*^9, 3.913975675517796*^9}},
- CellLabel->"In[76]:=",ExpressionUUID->"dd87b337-d46b-496f-8806-266400ce1649"],
+   3.913975270597245*^9}, {3.913975664694065*^9, 3.913975675517796*^9}, {
+   3.920801272447133*^9, 3.92080127835323*^9}, 3.920801410682597*^9, 
+   3.9208033657763653`*^9, {3.920803877559374*^9, 3.920803877917647*^9}, 
+   3.920804181670315*^9, 3.920805262918283*^9, 3.920805462900487*^9, 
+   3.920889711691844*^9, {3.921065208027083*^9, 3.921065214033814*^9}, {
+   3.921080463696042*^9, 3.921080502828155*^9}, {3.921080541470487*^9, 
+   3.921080565304439*^9}, {3.923664027650807*^9, 3.92366403667284*^9}, 
+   3.923671380024323*^9, 3.923674026584539*^9, {3.9236744814028673`*^9, 
+   3.923674491707178*^9}, {3.9236746358635187`*^9, 3.9236746420455303`*^9}, {
+   3.923682212520545*^9, 3.9236822408806353`*^9}, 3.923683020512135*^9, 
+   3.923748953377987*^9, {3.928254547586565*^9, 3.9282545517619257`*^9}, 
+   3.929626301029831*^9, {3.929626827284721*^9, 3.929626827366824*^9}, {
+   3.9298082821649513`*^9, 3.9298082891743507`*^9}},
+ CellLabel->"In[93]:=",ExpressionUUID->"b9340c8b-0ab7-41e9-93de-4884b21e9c2c"],
 
 Cell["\<\
 Save the interpolated historical prevalence and projected prevalence. \
 \>", "Text",
  CellChangeTimes->{{3.9086356554052677`*^9, 3.908635680951721*^9}, {
   3.91398966394385*^9, 
-  3.9139896738092003`*^9}},ExpressionUUID->"c1846efd-1a6f-41e1-876e-\
-3682fc43f850"],
+  3.9139896738092003`*^9}},ExpressionUUID->"22d8a929-1444-4f13-89d4-\
+fabec27bd83d"],
 
 Cell[BoxData[{
  RowBox[{
   RowBox[{"filePath", "=", 
    RowBox[{
-   "rootOutputDir", "<>", 
-    "\"\<prevalence/raw_and_model_plots/PseudoRawPrevalence.csv\>\""}]}], 
+   "rootOutputDir", "<>", "\"\<prevalence/raw_and_model_plots/\>\"", "<>", 
+    "subType", "<>", "\"\</PseudoRawPrevalence.csv\>\""}]}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
@@ -3178,8 +3917,8 @@ Cell[BoxData[{
   RowBox[{
    RowBox[{"filePath", "=", 
     RowBox[{
-    "rootOutputDir", "<>", 
-     "\"\<prevalence/raw_and_model_plots/ModelPrevalence.csv\>\""}]}], ";"}], 
+    "rootOutputDir", "<>", "\"\<prevalence/raw_and_model_plots/\>\"", "<>", 
+     "subType", "<>", "\"\</ModelPrevalence.csv\>\""}]}], ";"}], 
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"modelPrevYears", "=", 
@@ -3231,22 +3970,27 @@ Cell[BoxData[{
    3.9093994031401787`*^9}, {3.913912148687621*^9, 3.913912155114471*^9}, 
    3.913912195800088*^9, {3.913989548054274*^9, 3.913989561974657*^9}, {
    3.913989621984226*^9, 3.9139896550570383`*^9}, {3.9139915255632753`*^9, 
-   3.913991530198606*^9}},
- CellLabel->"In[79]:=",ExpressionUUID->"145510a8-1167-4f24-8219-2d1fa565589c"]
+   3.913991530198606*^9}, {3.920633525074711*^9, 3.920633527769206*^9}, {
+   3.9236740193617496`*^9, 3.923674022783697*^9}, {3.923682231007134*^9, 
+   3.923682234863002*^9}, 3.9236830273862457`*^9, 3.9237489455760393`*^9, {
+   3.928254364350251*^9, 3.928254371290072*^9}, {3.9282545378522387`*^9, 
+   3.928254564673847*^9}, 3.929626295518311*^9, {3.9296268354059687`*^9, 
+   3.9296268354670362`*^9}},
+ CellLabel->"In[96]:=",ExpressionUUID->"0af02396-70b6-4088-922b-0637e952ae1c"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
 Cell["Five Growth Scenarios", "Subsubsection",
  CellChangeTimes->{{3.913912125759651*^9, 
-  3.913912132014736*^9}},ExpressionUUID->"a1f35d81-4e3a-48ba-912f-\
-c1293fe96842"],
+  3.913912132014736*^9}},ExpressionUUID->"dd283d07-236d-43b2-a72a-\
+0993793bbfc2"],
 
 Cell["Plotting the prevalence as a function of time .", "Text",
  CellChangeTimes->{{3.887368355200468*^9, 3.8873683627683973`*^9}, {
   3.887368396822844*^9, 
-  3.8873684012902107`*^9}},ExpressionUUID->"964a9c71-f927-48fc-a8b7-\
-8e75ae98068a"],
+  3.8873684012902107`*^9}},ExpressionUUID->"e5f7125a-48bd-4cd9-903e-\
+815709ca6aa3"],
 
 Cell[BoxData[{
  RowBox[{
@@ -3313,13 +4057,7 @@ Cell[BoxData[{
     "]"}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{"Show", "[", 
   RowBox[{"plots", ",", 
-   RowBox[{"PlotRange", "->", 
-    RowBox[{"{", 
-     RowBox[{
-      RowBox[{"{", 
-       RowBox[{"tMin", ",", "tMax"}], "}"}], ",", 
-      RowBox[{"{", 
-       RowBox[{"0.65", ",", "1.15"}], "}"}]}], "}"}]}]}], "]"}]}], "Input",
+   RowBox[{"PlotRange", "->", "All"}]}], "]"}]}], "Input",
  CellChangeTimes->{{3.887374452974875*^9, 3.887374562367646*^9}, {
    3.8873746006258707`*^9, 3.887374631857692*^9}, {3.887374690108712*^9, 
    3.887374733739263*^9}, 3.887374867072234*^9, {3.887376093844734*^9, 
@@ -3381,8 +4119,10 @@ Cell[BoxData[{
    3.909220410884984*^9, 3.909220422353303*^9}, {3.9092270018888807`*^9, 
    3.909227003820945*^9}, {3.9139122155891867`*^9, 3.9139123841548357`*^9}, {
    3.913912418898278*^9, 3.9139124390537777`*^9}, {3.913975500077683*^9, 
-   3.913975519932617*^9}, {3.913975776345374*^9, 3.9139758205012913`*^9}},
- CellLabel->"In[91]:=",ExpressionUUID->"a3e5375d-e7a9-4df4-a730-c6bafe1d5a81"],
+   3.913975519932617*^9}, {3.913975776345374*^9, 3.9139758205012913`*^9}, {
+   3.920799791964275*^9, 3.920799792307743*^9}},
+ CellLabel->
+  "In[108]:=",ExpressionUUID->"56ff3fa0-94e4-4f75-bfbf-ca841e9c369c"],
 
 Cell["\<\
 Save the five prevalence scenarios as a function of time, separately and \
@@ -3392,8 +4132,8 @@ together in a single file.\
   3.891713721280713*^9, 3.8917159428978767`*^9, {3.891774757295362*^9, 
    3.891774791809289*^9}, {3.913912470419383*^9, 3.9139124797541656`*^9}, {
    3.9139762824778137`*^9, 
-   3.9139762902052517`*^9}},ExpressionUUID->"24ea77a8-7a03-4896-9673-\
-2dca5f96b627"],
+   3.9139762902052517`*^9}},ExpressionUUID->"3d667c12-9b6c-4fd1-bf78-\
+bc9f29a2c94c"],
 
 Cell[BoxData[{
  RowBox[{
@@ -3434,7 +4174,9 @@ Cell[BoxData[{
     RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
     RowBox[{
      RowBox[{"filePath", "=", 
-      RowBox[{"rootOutputDir", "<>", "\"\<prevalence/full_incidence/\>\"", "<>", 
+      RowBox[{
+      "rootOutputDir", "<>", "\"\<prevalence/full_incidence/\>\"", "<>", 
+       "subType", "<>", "\"\</\>\"", "<>", 
        RowBox[{"ToString", "[", 
         RowBox[{
         "growthRatePercents", "\[LeftDoubleBracket]", "i", 
@@ -3480,8 +4222,8 @@ Cell[BoxData[{
   RowBox[{
    RowBox[{"filePath", "=", 
     RowBox[{
-    "rootOutputDir", "<>", 
-     "\"\<prevalence/full_incidence/AllGrowthRates.csv\>\""}]}], ";"}], 
+    "rootOutputDir", "<>", "\"\<prevalence/full_incidence/\>\"", "<>", 
+     "subType", "<>", "\"\</AllGrowthRates.csv\>\""}]}], ";"}], 
   "\[IndentingNewLine]", "\[IndentingNewLine]", 
   RowBox[{"(*", 
    RowBox[{
@@ -3566,9 +4308,11 @@ Cell[BoxData[{
    3.9139761536211777`*^9}, {3.9139761924811077`*^9, 3.913976244269339*^9}, {
    3.9139784169667177`*^9, 3.9139784213293*^9}, {3.91398969416663*^9, 
    3.9139897183988037`*^9}, {3.9139900032313013`*^9, 
-   3.9139900155981913`*^9}, {3.9139915394914093`*^9, 3.9139915511910133`*^9}},
+   3.9139900155981913`*^9}, {3.9139915394914093`*^9, 
+   3.9139915511910133`*^9}, {3.9282543973914757`*^9, 3.9282544107785482`*^9}},
  
- CellLabel->"In[96]:=",ExpressionUUID->"7c6cbb6b-515f-43c8-82f5-17a8cc7a2a43"]
+ CellLabel->
+  "In[113]:=",ExpressionUUID->"6e197265-86f4-497a-bc2d-a7a6c1592001"]
 }, Open  ]]
 }, Open  ]],
 
@@ -3580,8 +4324,8 @@ Cell["Age-Dependent Prevalence: Comparing the Model to Reality", "Section",
    3.889715083031666*^9}, {3.889887608902398*^9, 3.889887619431911*^9}, 
    3.890046384476453*^9, {3.8917670920931053`*^9, 3.891767118316515*^9}, {
    3.902242559768258*^9, 3.902242561398855*^9}, 
-   3.9088820090752773`*^9},ExpressionUUID->"5f861b8b-54c3-406d-b959-\
-fa2ea31e47f4"],
+   3.9088820090752773`*^9},ExpressionUUID->"e8ecc4a9-291c-46d7-93ad-\
+80d2683ba3d8"],
 
 Cell["\<\
 To check the effect of neglecting the mortality and migration terms on the \
@@ -3601,22 +4345,19 @@ falls within these two date bounds. \
   3.8917673651755247`*^9}, {3.891767576486353*^9, 3.891767604307404*^9}, {
   3.908882063687623*^9, 3.908882210748048*^9}, {3.913912582160453*^9, 
   3.913912588972929*^9}, {3.9139763073408213`*^9, 
-  3.913976319668779*^9}},ExpressionUUID->"1128e561-33b0-40e5-a06c-\
-8d22370eab0f"],
+  3.913976319668779*^9}},ExpressionUUID->"c86db1ce-675f-4cd9-a39d-\
+ccfe3a1e68da"],
 
 Cell[TextData[{
- "The model needs to be updated, as the original model for the five growth \
-scenarios has an initial condition at the last date of the prevalence data. \
-We want the initial condition to be at the first date of prevalence data. As \
-before, the calculation is broken up into three parts, in order to properly \
-determine the bounds of the piecewise continuous functions involved, and to \
-provide a solution to the prevalence where ",
+ "As before, the calculation is broken up into three parts, in order to \
+properly determine the bounds of the piecewise continuous functions involved, \
+and to provide a solution to the prevalence where ",
  StyleBox["a",
   FontSlant->"Italic"],
  " = ",
  StyleBox["t",
   FontSlant->"Italic"],
- ". We remove the grow term, as it is not required."
+ ". We remove the growth term, as it is not required."
 }], "Text",
  CellChangeTimes->{{3.8872875545089293`*^9, 3.887287601285473*^9}, {
    3.887298935926903*^9, 3.887298967482923*^9}, 3.887299002325294*^9, {
@@ -3625,9 +4366,10 @@ provide a solution to the prevalence where ",
    3.913899636606886*^9, 3.9138996424189177`*^9}, {3.913903703700513*^9, 
    3.9139037078890553`*^9}, {3.9139039445091963`*^9, 3.913904024003437*^9}, {
    3.913907199622168*^9, 3.913907397552828*^9}, {3.9139086404056*^9, 
-   3.9139088063430843`*^9}, {3.9139769371196613`*^9, 
-   3.913977032207535*^9}},ExpressionUUID->"93b59af4-8b67-42e9-925c-\
-06efc51a797f"],
+   3.9139088063430843`*^9}, {3.9139769371196613`*^9, 3.913977032207535*^9}, {
+   3.938778214367622*^9, 
+   3.938778243365497*^9}},ExpressionUUID->"9ee94525-5e1e-4bf6-bf53-\
+0ad5e2c1c21f"],
 
 Cell[BoxData[{
  RowBox[{
@@ -3833,31 +4575,32 @@ Cell[BoxData[{
    3.9139748861417437`*^9, {3.9139753963346977`*^9, 3.913975399921713*^9}, {
    3.913977041882327*^9, 3.913977250186741*^9}, {3.913977322673087*^9, 
    3.9139774232793207`*^9}, {3.913977601658992*^9, 3.913977632982275*^9}, {
-   3.913978432715642*^9, 3.913978435280348*^9}},
+   3.913978432715642*^9, 3.913978435280348*^9}, {3.929808038545875*^9, 
+   3.9298080402232447`*^9}},
  CellLabel->
-  "In[106]:=",ExpressionUUID->"f336c7ff-d70b-4941-a6f8-f6932e024961"],
+  "In[123]:=",ExpressionUUID->"6cbe6514-08e5-486d-b9d5-4e5745add00e"],
 
 Cell[TextData[{
  "Plotting the interpolated data and the model data at the last date for \
 which we have prevalence data.\n\n",
  StyleBox["Note",
   FontWeight->"Bold"],
- ". The ",
+ ". When the ",
  StyleBox["NIntegrate",
   FontSlant->"Italic"],
- " error occurs due to the prevalence at ",
+ " error occurs, it is due to the prevalence at ",
  Cell[BoxData[
   FormBox[
-   RowBox[{"a", "=", "0"}], TraditionalForm]],
-  FormatType->TraditionalForm,ExpressionUUID->
-  "95a0a7ed-c3dd-42dc-9dab-55eea7b81a03"],
- " always being zero, and can be ignored."
+   RowBox[{"a", "=", "0"}], TraditionalForm]],ExpressionUUID->
+  "9161b15c-e28d-4b3e-8607-3ad9e51bfbf7"],
+ " always being zero and can be safely ignored."
 }], "Text",
  CellChangeTimes->{{3.891768440005138*^9, 3.891768461446211*^9}, {
   3.908882269877451*^9, 3.908882286695714*^9}, {3.9139767019200478`*^9, 
-  3.913976762065152*^9}, {3.913978459467021*^9, 
-  3.913978503496538*^9}},ExpressionUUID->"e632d4a0-f068-4852-86d3-\
-88d2d31d998e"],
+  3.913976762065152*^9}, {3.913978459467021*^9, 3.913978503496538*^9}, {
+  3.938778146920176*^9, 
+  3.938778160175782*^9}},ExpressionUUID->"85a7377e-8aa1-4241-976d-\
+3f0b6bb392cc"],
 
 Cell[BoxData[{
  RowBox[{
@@ -4060,9 +4803,9 @@ Cell[BoxData[{
    3.913976567584784*^9}, {3.913976653913273*^9, 3.913976685412384*^9}, {
    3.913977281980592*^9, 3.913977289201236*^9}, {3.913977585756501*^9, 
    3.913977606092428*^9}, {3.913977639281754*^9, 3.9139776508862867`*^9}, {
-   3.9139922541243963`*^9, 3.913992257804694*^9}},
+   3.9139922541243963`*^9, 3.913992257804694*^9}, 3.929808043089926*^9},
  CellLabel->
-  "In[145]:=",ExpressionUUID->"18cc9d41-27d3-404b-a0b5-f4d4faca969f"],
+  "In[130]:=",ExpressionUUID->"97b4b12b-f4f0-4027-9973-ba277b699133"],
 
 Cell["\<\
 The integrated prevalence for the data and model, using the population data \
@@ -4070,32 +4813,30 @@ set for the last date for which we have prevalence data.\
 \>", "Text",
  CellChangeTimes->{{3.89178996846351*^9, 3.8917899982373037`*^9}, {
   3.9088900874914*^9, 
-  3.908890102522457*^9}},ExpressionUUID->"3c56ae7f-2c43-43b5-8920-\
-894227fb31c5"],
+  3.908890102522457*^9}},ExpressionUUID->"e7495a45-671f-42b3-9089-\
+4e7d3fc73c75"],
 
 Cell[BoxData[{
  RowBox[{
-  RowBox[{
-   RowBox[{"populationAgeMax", "=", 
-    RowBox[{"Max", "[", 
-     RowBox[{"Table", "[", 
+  RowBox[{"populationAgeMax", "=", 
+   RowBox[{"Max", "[", 
+    RowBox[{"Table", "[", 
+     RowBox[{
       RowBox[{
        RowBox[{
         RowBox[{
-         RowBox[{
-         "populations", "\[LeftDoubleBracket]", "i", 
-          "\[RightDoubleBracket]"}], "\[LeftDoubleBracket]", "j", 
-         "\[RightDoubleBracket]"}], "\[LeftDoubleBracket]", "1", 
-        "\[RightDoubleBracket]"}], ",", 
-       RowBox[{"{", 
-        RowBox[{"j", ",", "1", ",", 
-         RowBox[{"Length", "[", 
-          RowBox[{"populations", "[", 
-           RowBox[{"[", "i", "]"}], "]"}], "]"}]}], "}"}], ",", 
-       RowBox[{"{", 
-        RowBox[{"i", ",", "1", ",", 
-         RowBox[{"Length", "[", "populations", "]"}]}], "}"}]}], "]"}], 
-     "]"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+        "populations", "\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}],
+         "\[LeftDoubleBracket]", "j", "\[RightDoubleBracket]"}], 
+       "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "1", ",", 
+        RowBox[{"Length", "[", "populations", "]"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"j", ",", "1", ",", 
+        RowBox[{"Length", "[", 
+         RowBox[{"populations", "[", 
+          RowBox[{"[", "i", "]"}], "]"}], "]"}]}], "}"}]}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"norm", "=", 
    RowBox[{"1", "/", 
@@ -4156,7 +4897,7 @@ Cell[BoxData[{
      "\[RightDoubleBracket]"}], "]"}], "<>", "\"\< = \>\"", "<>", 
    RowBox[{"ToString", "[", 
     RowBox[{"pData", "\[Times]", "100"}], "]"}], "<>", "\"\<%\>\""}], 
-  "]"}]}], "Input",
+  "]"}], "\[IndentingNewLine]"}], "Input",
  CellChangeTimes->{{3.891790018319532*^9, 3.8917900590325317`*^9}, {
    3.891790112528818*^9, 3.891790137581736*^9}, 3.891790224107328*^9, {
    3.891790261691475*^9, 3.8917903291374903`*^9}, {3.8917907372610483`*^9, 
@@ -4170,15 +4911,16 @@ Cell[BoxData[{
    3.909064933830529*^9}, {3.9139734937264967`*^9, 3.913973581221056*^9}, {
    3.913977470213644*^9, 3.913977494985776*^9}, {3.913977546328923*^9, 
    3.913977561843647*^9}, {3.91397765709829*^9, 3.913977660392714*^9}, {
-   3.9139777928855352`*^9, 3.913977798906386*^9}},
+   3.9139777928855352`*^9, 3.913977798906386*^9}, {3.929436071662314*^9, 
+   3.929436114710216*^9}, {3.929436388056872*^9, 3.929436389982111*^9}},
  CellLabel->
-  "In[123]:=",ExpressionUUID->"85825afa-b5af-4ba7-8ef3-145a8be2ef7e"],
+  "In[139]:=",ExpressionUUID->"30ec953c-81e8-4898-b6ee-f9824e0ab43d"],
 
 Cell["Save the prevalence data as a function of time.", "Text",
  CellChangeTimes->{
   3.891713721280713*^9, 3.8917159428978767`*^9, {3.891774153540851*^9, 
-   3.891774156529948*^9}},ExpressionUUID->"c8b530c0-e4ca-4461-a017-\
-381cb355a43f"],
+   3.891774156529948*^9}},ExpressionUUID->"96255731-43ed-4524-aacd-\
+e91d873c5470"],
 
 Cell[BoxData[{
  RowBox[{
@@ -4186,7 +4928,8 @@ Cell[BoxData[{
    RowBox[{"filePath", "=", 
     RowBox[{"rootOutputDir", "<>", "\"\<prevalence/model_data_\>\"", "<>", 
      RowBox[{"ToString", "[", "modelEndYear", "]"}], "<>", 
-     "\"\<_comparison/PrevalencesCompared.csv\>\""}]}], ";"}], 
+     "\"\<_comparison/\>\"", "<>", "subType", "<>", 
+     "\"\</PrevalencesCompared.csv\>\""}]}], ";"}], 
   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"csvAges", "=", 
@@ -4277,17 +5020,18 @@ Cell[BoxData[{
    3.9139776813125973`*^9}, {3.913979836896152*^9, 3.913979837196426*^9}, {
    3.913990029592532*^9, 3.913990039108541*^9}, {3.9139904437704*^9, 
    3.913990448268632*^9}, {3.913991711394395*^9, 3.913991714411134*^9}, {
-   3.913992167496183*^9, 3.913992225968133*^9}},
+   3.913992167496183*^9, 3.913992225968133*^9}, {3.9283342428981447`*^9, 
+   3.928334250621788*^9}},
  CellLabel->
-  "In[138]:=",ExpressionUUID->"fca1a22d-031d-4136-957e-c3e40e257de1"]
+  "In[146]:=",ExpressionUUID->"9441c568-16e7-4d54-979a-0a6f6582267b"]
 }, Open  ]]
 }, Open  ]]
 },
-WindowSize->{1737, 1027},
-WindowMargins->{{32, Automatic}, {Automatic, -1093}},
+WindowSize->{1728, 1027},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
 FrontEndVersion->"13.2 for Mac OS X ARM (64-bit) (January 30, 2023)",
 StyleDefinitions->"Default.nb",
-ExpressionUUID->"e1886547-a560-4c56-a8ca-0b0a3f85da98"
+ExpressionUUID->"351c260d-dece-4bff-9abe-81c784351214"
 ]
 (* End of Notebook Content *)
 
@@ -4308,98 +5052,129 @@ Cell[1093, 36, 8093, 199, 2134, "Text",ExpressionUUID->"86175990-b432-49f8-8008-
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[9223, 240, 159, 3, 101, "Section",ExpressionUUID->"2fec88c8-fcd3-4a3d-8ba3-099c31e7900a"],
-Cell[9385, 245, 8260, 202, 1221, "Text",ExpressionUUID->"8e7fecf3-81af-4c99-91cd-c5c999a09c19"]
+Cell[9385, 245, 9667, 243, 1469, "Text",ExpressionUUID->"8e7fecf3-81af-4c99-91cd-c5c999a09c19"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[17682, 452, 161, 3, 101, "Section",ExpressionUUID->"b2dbf604-abce-4337-9fc1-b443afbda1d8"],
-Cell[17846, 457, 1610, 27, 502, "Text",ExpressionUUID->"90a716b0-6034-4129-a192-046569864003"],
-Cell[19459, 486, 6544, 122, 419, "Input",ExpressionUUID->"82f4fafa-4f2f-4091-a9ad-cbd08216daa1"],
+Cell[19089, 493, 291, 4, 101, "Section",ExpressionUUID->"2befff29-4607-43ee-b123-d9cc4ba1f79d"],
+Cell[19383, 499, 1078, 18, 226, "Text",ExpressionUUID->"f1f05168-c25b-4119-932b-dc60df1c1edc"],
 Cell[CellGroupData[{
-Cell[26028, 612, 166, 3, 81, "Subsection",ExpressionUUID->"50b9eff3-6281-41eb-8969-730523eebc02"],
-Cell[26197, 617, 345, 7, 53, "Text",ExpressionUUID->"b4eda8b7-6282-4405-83eb-54bfe8c31a9c"],
-Cell[26545, 626, 3330, 66, 326, "Input",ExpressionUUID->"bfc140f6-6b51-45eb-8d93-2f442c5a7070"]
+Cell[20486, 521, 157, 3, 67, "Subsubsection",ExpressionUUID->"579eb7ff-cc38-456b-9e23-2900d76ac18e"],
+Cell[20646, 526, 2059, 49, 264, "Input",ExpressionUUID->"95366923-800c-4510-bbca-c99dce6b2b3a"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[29912, 697, 160, 3, 81, "Subsection",ExpressionUUID->"b58a7232-80ea-48f0-9ea0-cbb99490d807"],
-Cell[30075, 702, 553, 12, 122, "Text",ExpressionUUID->"3f922bad-4440-4dc2-9cde-e07e33730685"],
-Cell[30631, 716, 2703, 58, 326, "Input",ExpressionUUID->"1e3e5f02-afe2-41f2-afdc-d6f221602c77"],
-Cell[33337, 776, 1285, 30, 124, "Text",ExpressionUUID->"2588b0dc-243e-47cd-a0a8-d928233055a9"],
-Cell[34625, 808, 6174, 143, 705, "Input",ExpressionUUID->"eb4cafcb-5fdf-4c75-91ec-16376a08aa09"]
+Cell[22742, 580, 160, 3, 67, "Subsubsection",ExpressionUUID->"cda8a5c9-65a1-4d8a-a948-017a5c9f8634"],
+Cell[22905, 585, 2111, 50, 264, "Input",ExpressionUUID->"62e2124d-bb5b-490d-ae13-5c501600d4f0"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[40836, 956, 173, 3, 81, "Subsection",ExpressionUUID->"556f98b9-67ea-47b3-8b22-510e694ba59e"],
-Cell[41012, 961, 424, 8, 88, "Text",ExpressionUUID->"89b7075d-a9ea-4d9c-b5da-e4412bd27f61"],
-Cell[41439, 971, 2538, 56, 326, "Input",ExpressionUUID->"5060bf67-bb44-477e-9415-125a92f223aa"]
+Cell[25053, 640, 396, 6, 67, "Subsubsection",ExpressionUUID->"755412ed-7b01-492a-b3e6-5e44fcd37f2e"],
+Cell[25452, 648, 599, 12, 53, "Text",ExpressionUUID->"fbcc6daa-7dd3-4746-9b19-0d37b4ff1117"],
+Cell[26054, 662, 2316, 52, 264, "Input",ExpressionUUID->"abe92b34-73aa-4c67-992e-eaa963301146"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[44026, 1033, 269, 4, 101, "Section",ExpressionUUID->"cb747d5d-f73e-494a-b9ff-d29dba124eaf"],
+Cell[28419, 720, 161, 3, 101, "Section",ExpressionUUID->"b2dbf604-abce-4337-9fc1-b443afbda1d8"],
+Cell[28583, 725, 2339, 46, 536, "Text",ExpressionUUID->"90a716b0-6034-4129-a192-046569864003"],
 Cell[CellGroupData[{
-Cell[44320, 1041, 217, 4, 81, "Subsection",ExpressionUUID->"060a3a68-aec7-4db5-97e9-778c46e1bee0"],
-Cell[44540, 1047, 638, 11, 88, "Text",ExpressionUUID->"101066de-ed45-4bda-8c4c-03bd16057d70"],
-Cell[45181, 1060, 9137, 182, 884, "Input",ExpressionUUID->"5b11d0d0-8689-477d-84e9-d04e97fc58dc"],
-Cell[54321, 1244, 337, 7, 53, "Text",ExpressionUUID->"05f1a6a3-a053-4511-8754-6d09bfd8891f"],
-Cell[54661, 1253, 7959, 165, 1194, "Input",ExpressionUUID->"ef859127-62e2-4200-a0a8-1ae6d0d338c5"]
+Cell[30947, 775, 160, 3, 67, "Subsubsection",ExpressionUUID->"72ad302b-a21c-4f1a-9793-fb8412f55a94"],
+Cell[31110, 780, 651, 11, 122, "Text",ExpressionUUID->"d8762fda-d5f7-4226-a04f-787e3bc081b5"],
+Cell[31764, 793, 1219, 22, 450, "Input",ExpressionUUID->"d75a6f22-ab2b-4fb8-acac-95f22676a355"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[62657, 1423, 255, 4, 81, "Subsection",ExpressionUUID->"ae15a872-cb05-4953-b0d0-93fe9efbbd3f"],
-Cell[62915, 1429, 477, 9, 53, "Text",ExpressionUUID->"84e4f979-c891-4cc4-8a05-f646ea240d67"],
-Cell[63395, 1440, 7413, 149, 822, "Input",ExpressionUUID->"7c5bfbb3-b2a2-47bd-9269-9671b5f29115"]
+Cell[33020, 820, 164, 3, 67, "Subsubsection",ExpressionUUID->"14631489-77a5-476d-9529-294c77a7f26c"],
+Cell[33187, 825, 187, 3, 53, "Text",ExpressionUUID->"5c8305e4-8cdf-4bd3-a986-dd65d9c462e6"],
+Cell[33377, 830, 12848, 225, 729, "Input",ExpressionUUID->"82f4fafa-4f2f-4091-a9ad-cbd08216daa1"],
+Cell[46228, 1057, 365, 8, 53, "Text",ExpressionUUID->"d8de29b1-3f47-40fe-8538-f82f205b9ac0"],
+Cell[46596, 1067, 2101, 49, 450, "Input",ExpressionUUID->"494ba29f-5b85-4fe9-8963-163ce1c6a0ab"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[70845, 1594, 262, 4, 81, "Subsection",ExpressionUUID->"63468aed-46ba-4a59-a779-9ba18249e8b9"],
-Cell[71110, 1600, 610, 11, 53, "Text",ExpressionUUID->"3a210247-1ea5-424a-96a4-2b2a7f680627"],
-Cell[71723, 1613, 6427, 152, 760, "Input",ExpressionUUID->"24600e74-4327-4629-9932-37dae216260c"],
-Cell[78153, 1767, 317, 5, 53, "Text",ExpressionUUID->"434b1606-13cc-4209-a27a-bc800d19feba"],
-Cell[78473, 1774, 3794, 78, 605, "Input",ExpressionUUID->"6708ad2c-014e-4037-b05b-bba618212cc7"],
-Cell[82270, 1854, 944, 17, 191, "Text",ExpressionUUID->"03fb0196-ee28-48c6-ac29-a2aa223904fd"],
-Cell[83217, 1873, 9455, 202, 1039, "Input",ExpressionUUID->"83107b97-5082-4d63-b879-5d3186dcc0cb"],
-Cell[92675, 2077, 391, 8, 53, "Text",ExpressionUUID->"411dcd5f-33ef-43c5-9f78-3c21429b4a1f"],
-Cell[93069, 2087, 7864, 160, 1225, "Input",ExpressionUUID->"05a14298-f712-4ff1-9651-6e339341b8e4"]
+Cell[48734, 1121, 166, 3, 81, "Subsection",ExpressionUUID->"50b9eff3-6281-41eb-8969-730523eebc02"],
+Cell[48903, 1126, 345, 7, 53, "Text",ExpressionUUID->"b4eda8b7-6282-4405-83eb-54bfe8c31a9c"],
+Cell[49251, 1135, 3500, 70, 326, "Input",ExpressionUUID->"bfc140f6-6b51-45eb-8d93-2f442c5a7070"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[52788, 1210, 160, 3, 81, "Subsection",ExpressionUUID->"b58a7232-80ea-48f0-9ea0-cbb99490d807"],
+Cell[52951, 1215, 553, 12, 122, "Text",ExpressionUUID->"3f922bad-4440-4dc2-9cde-e07e33730685"],
+Cell[53507, 1229, 2882, 62, 326, "Input",ExpressionUUID->"1e3e5f02-afe2-41f2-afdc-d6f221602c77"],
+Cell[56392, 1293, 1376, 31, 124, "Text",ExpressionUUID->"2588b0dc-243e-47cd-a0a8-d928233055a9"],
+Cell[57771, 1326, 6174, 143, 705, "Input",ExpressionUUID->"eb4cafcb-5fdf-4c75-91ec-16376a08aa09"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[63982, 1474, 173, 3, 81, "Subsection",ExpressionUUID->"556f98b9-67ea-47b3-8b22-510e694ba59e"],
+Cell[64158, 1479, 424, 8, 88, "Text",ExpressionUUID->"89b7075d-a9ea-4d9c-b5da-e4412bd27f61"],
+Cell[64585, 1489, 2764, 60, 326, "Input",ExpressionUUID->"5060bf67-bb44-477e-9415-125a92f223aa"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[100982, 2253, 179, 3, 101, "Section",ExpressionUUID->"433bcac7-ac4b-4e4b-9e5d-0aca0907e9dd"],
-Cell[101164, 2258, 2071, 52, 263, "Text",ExpressionUUID->"e51bfba3-2629-4bc2-aaad-040d6ac70e7b"],
-Cell[103238, 2312, 10827, 249, 916, "Input",ExpressionUUID->"9a0dc165-b8ba-4796-aa21-59decc3b0142"],
-Cell[114068, 2563, 352, 7, 53, "Text",ExpressionUUID->"488a2422-f6d1-4d70-8bc7-6a30d4ba505b"],
-Cell[114423, 2572, 1860, 41, 295, "Input",ExpressionUUID->"e239870d-93ec-4c7a-bcbf-dcf82cf76442"]
+Cell[67398, 1555, 269, 4, 101, "Section",ExpressionUUID->"cb747d5d-f73e-494a-b9ff-d29dba124eaf"],
+Cell[CellGroupData[{
+Cell[67692, 1563, 217, 4, 81, "Subsection",ExpressionUUID->"060a3a68-aec7-4db5-97e9-778c46e1bee0"],
+Cell[67912, 1569, 638, 11, 88, "Text",ExpressionUUID->"101066de-ed45-4bda-8c4c-03bd16057d70"],
+Cell[68553, 1582, 11109, 209, 915, "Input",ExpressionUUID->"5b11d0d0-8689-477d-84e9-d04e97fc58dc"],
+Cell[79665, 1793, 337, 7, 53, "Text",ExpressionUUID->"05f1a6a3-a053-4511-8754-6d09bfd8891f"],
+Cell[80005, 1802, 8154, 169, 1194, "Input",ExpressionUUID->"ef859127-62e2-4200-a0a8-1ae6d0d338c5"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[116320, 2618, 401, 8, 101, "Section",ExpressionUUID->"8caca48b-421a-4425-94ae-d52ded01bf76"],
-Cell[116724, 2628, 2806, 65, 372, "Text",ExpressionUUID->"3d69506e-3a2c-4851-b179-a8c837fe65ce"],
-Cell[CellGroupData[{
-Cell[119555, 2697, 305, 5, 67, "Subsubsection",ExpressionUUID->"dcdf2e97-e16c-4680-91bd-19e9a00e4eb4"],
-Cell[119863, 2704, 13515, 239, 1318, "Input",ExpressionUUID->"0aed58d4-3d25-4831-a883-1dee7391a801"]
+Cell[88196, 1976, 255, 4, 81, "Subsection",ExpressionUUID->"ae15a872-cb05-4953-b0d0-93fe9efbbd3f"],
+Cell[88454, 1982, 477, 9, 53, "Text",ExpressionUUID->"84e4f979-c891-4cc4-8a05-f646ea240d67"],
+Cell[88934, 1993, 9015, 176, 884, "Input",ExpressionUUID->"7c5bfbb3-b2a2-47bd-9269-9671b5f29115"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[133415, 2948, 179, 3, 67, "Subsubsection",ExpressionUUID->"f1518fd6-28c7-4187-8861-6a7f2f4e8132"],
-Cell[133597, 2953, 820, 13, 122, "Text",ExpressionUUID->"2b7eeb1d-f04d-4775-b354-da2983189ad7"],
-Cell[134420, 2968, 1875, 48, 264, "Input",ExpressionUUID->"d41d43b5-22d9-408f-b009-dedf2679d916"],
-Cell[136298, 3018, 297, 7, 53, "Text",ExpressionUUID->"b443c939-67ba-4e26-89b0-75124856b32a"],
-Cell[136598, 3027, 4087, 91, 543, "Input",ExpressionUUID->"dd87b337-d46b-496f-8806-266400ce1649"],
-Cell[140688, 3120, 272, 6, 53, "Text",ExpressionUUID->"c1846efd-1a6f-41e1-876e-3682fc43f850"],
-Cell[140963, 3128, 3804, 106, 574, "Input",ExpressionUUID->"145510a8-1167-4f24-8219-2d1fa565589c"]
+Cell[97986, 2174, 262, 4, 81, "Subsection",ExpressionUUID->"63468aed-46ba-4a59-a779-9ba18249e8b9"],
+Cell[98251, 2180, 610, 11, 53, "Text",ExpressionUUID->"3a210247-1ea5-424a-96a4-2b2a7f680627"],
+Cell[98864, 2193, 6997, 159, 698, "Input",ExpressionUUID->"24600e74-4327-4629-9932-37dae216260c"],
+Cell[105864, 2354, 317, 5, 53, "Text",ExpressionUUID->"434b1606-13cc-4209-a27a-bc800d19feba"],
+Cell[106184, 2361, 3933, 80, 605, "Input",ExpressionUUID->"6708ad2c-014e-4037-b05b-bba618212cc7"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[144804, 3239, 172, 3, 67, "Subsubsection",ExpressionUUID->"a1f35d81-4e3a-48ba-912f-c1293fe96842"],
-Cell[144979, 3244, 242, 4, 53, "Text",ExpressionUUID->"964a9c71-f927-48fc-a8b7-8e75ae98068a"],
-Cell[145224, 3250, 7306, 134, 543, "Input",ExpressionUUID->"a3e5375d-e7a9-4df4-a730-c6bafe1d5a81"],
-Cell[152533, 3386, 407, 9, 53, "Text",ExpressionUUID->"24ea77a8-7a03-4896-9673-2dca5f96b627"],
-Cell[152943, 3397, 7093, 173, 1132, "Input",ExpressionUUID->"7c6cbb6b-515f-43c8-82f5-17a8cc7a2a43"]
+Cell[110154, 2446, 156, 3, 81, "Subsection",ExpressionUUID->"82bd3dba-17ab-45cb-b0e8-392c22ae7655"],
+Cell[110313, 2451, 984, 17, 157, "Text",ExpressionUUID->"03fb0196-ee28-48c6-ac29-a2aa223904fd"],
+Cell[111300, 2470, 9889, 208, 1039, "Input",ExpressionUUID->"83107b97-5082-4d63-b879-5d3186dcc0cb"],
+Cell[121192, 2680, 391, 8, 53, "Text",ExpressionUUID->"411dcd5f-33ef-43c5-9f78-3c21429b4a1f"],
+Cell[121586, 2690, 8068, 165, 1225, "Input",ExpressionUUID->"05a14298-f712-4ff1-9651-6e339341b8e4"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[160085, 3576, 496, 7, 101, "Section",ExpressionUUID->"5f861b8b-54c3-406d-b959-fa2ea31e47f4"],
-Cell[160584, 3585, 1231, 19, 122, "Text",ExpressionUUID->"1128e561-33b0-40e5-a06c-8d22370eab0f"],
-Cell[161818, 3606, 1249, 23, 122, "Text",ExpressionUUID->"93b59af4-8b67-42e9-925c-06efc51a797f"],
-Cell[163070, 3631, 9291, 206, 758, "Input",ExpressionUUID->"f336c7ff-d70b-4941-a6f8-f6932e024961"],
-Cell[172364, 3839, 761, 20, 123, "Text",ExpressionUUID->"e632d4a0-f068-4852-86d3-88d2d31d998e"],
-Cell[173128, 3861, 8520, 203, 977, "Input",ExpressionUUID->"18cc9d41-27d3-404b-a0b5-f4d4faca969f"],
-Cell[181651, 4066, 332, 7, 53, "Text",ExpressionUUID->"3c56ae7f-2c43-43b5-8920-894227fb31c5"],
-Cell[181986, 4075, 4046, 99, 326, "Input",ExpressionUUID->"85825afa-b5af-4ba7-8ef3-145a8be2ef7e"],
-Cell[186035, 4176, 239, 4, 53, "Text",ExpressionUUID->"c8b530c0-e4ca-4461-a017-381cb355a43f"],
-Cell[186277, 4182, 4267, 99, 543, "Input",ExpressionUUID->"fca1a22d-031d-4136-957e-c3e40e257de1"]
+Cell[129703, 2861, 179, 3, 101, "Section",ExpressionUUID->"e9928256-1700-4915-945d-168cfe1e3dac"],
+Cell[129885, 2866, 2071, 52, 263, "Text",ExpressionUUID->"6677d032-c05b-48e9-8bb7-9efc61a6c380"],
+Cell[131959, 2920, 10929, 250, 884, "Input",ExpressionUUID->"ff4a715e-abe5-44d8-933d-02eeef04241d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[142925, 3175, 401, 8, 101, "Section",ExpressionUUID->"fbeb8a4c-3e11-4d46-9b20-15f23a9f2eae"],
+Cell[143329, 3185, 2829, 65, 372, "Text",ExpressionUUID->"9f121b8c-4a3f-4e9c-80d1-1ca7b3f2483e"],
+Cell[CellGroupData[{
+Cell[146183, 3254, 305, 5, 67, "Subsubsection",ExpressionUUID->"e5e3e6d1-7790-4db6-bad8-8ea213257423"],
+Cell[146491, 3261, 14234, 242, 1101, "Input",ExpressionUUID->"b6a8e162-346e-4023-95b9-d27e4bfb1ff7"],
+Cell[160728, 3505, 326, 7, 53, "Text",ExpressionUUID->"014b0d2b-3888-4781-858f-fadb9eb110dc"],
+Cell[161057, 3514, 5313, 136, 667, "Input",ExpressionUUID->"b1351623-ca0c-441f-acea-82291465911e"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[166407, 3655, 179, 3, 67, "Subsubsection",ExpressionUUID->"a8a23944-c731-40fa-b766-6a56e741f114"],
+Cell[166589, 3660, 1121, 20, 158, "Text",ExpressionUUID->"f92edd6a-e5ec-4479-90cf-20e9fab188ae"],
+Cell[167713, 3682, 2531, 61, 357, "Input",ExpressionUUID->"a9725832-e0db-413a-9a88-744f022cddf6"],
+Cell[170247, 3745, 394, 8, 53, "Text",ExpressionUUID->"638380bc-437d-4754-9081-b970a2bf9cdb"],
+Cell[170644, 3755, 4898, 102, 543, "Input",ExpressionUUID->"b9340c8b-0ab7-41e9-93de-4884b21e9c2c"],
+Cell[175545, 3859, 272, 6, 53, "Text",ExpressionUUID->"22d8a929-1444-4f13-89d4-fabec27bd83d"],
+Cell[175820, 3867, 4250, 111, 574, "Input",ExpressionUUID->"0af02396-70b6-4088-922b-0637e952ae1c"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[180107, 3983, 172, 3, 67, "Subsubsection",ExpressionUUID->"dd283d07-236d-43b2-a72a-0993793bbfc2"],
+Cell[180282, 3988, 242, 4, 53, "Text",ExpressionUUID->"e5f7125a-48bd-4cd9-903e-815709ca6aa3"],
+Cell[180527, 3994, 7189, 130, 543, "Input",ExpressionUUID->"56ff3fa0-94e4-4f75-bfbf-ca841e9c369c"],
+Cell[187719, 4126, 407, 9, 53, "Text",ExpressionUUID->"3d667c12-9b6c-4fd1-bf78-bc9f29a2c94c"],
+Cell[188129, 4137, 7238, 177, 1163, "Input",ExpressionUUID->"6e197265-86f4-497a-bc2d-a7a6c1592001"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[195416, 4320, 496, 7, 101, "Section",ExpressionUUID->"e8ecc4a9-291c-46d7-93ad-80d2683ba3d8"],
+Cell[195915, 4329, 1231, 19, 122, "Text",ExpressionUUID->"c86db1ce-675f-4cd9-a39d-ccfe3a1e68da"],
+Cell[197149, 4350, 1072, 21, 88, "Text",ExpressionUUID->"9ee94525-5e1e-4bf6-bf53-0ad5e2c1c21f"],
+Cell[198224, 4373, 9343, 207, 758, "Input",ExpressionUUID->"6cbe6514-08e5-486d-b9d5-4e5745add00e"],
+Cell[207570, 4582, 797, 20, 123, "Text",ExpressionUUID->"85a7377e-8aa1-4241-976d-3f0b6bb392cc"],
+Cell[208370, 4604, 8542, 203, 977, "Input",ExpressionUUID->"97b4b12b-f4f0-4027-9973-ba277b699133"],
+Cell[216915, 4809, 332, 7, 53, "Text",ExpressionUUID->"e7495a45-671f-42b3-9089-4e7d3fc73c75"],
+Cell[217250, 4818, 4097, 98, 326, "Input",ExpressionUUID->"30ec953c-81e8-4898-b6ee-f9824e0ab43d"],
+Cell[221350, 4918, 239, 4, 53, "Text",ExpressionUUID->"96255731-43ed-4524-aacd-e91d873c5470"],
+Cell[221592, 4924, 4361, 101, 543, "Input",ExpressionUUID->"9441c568-16e7-4d54-979a-0a6f6582267b"]
 }, Open  ]]
 }, Open  ]]
 }
