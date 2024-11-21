@@ -1,0 +1,2937 @@
+---
+title: "Stage 4 modelling plots"
+contributor: Lindsay Hracs; Julia Gorospe
+script date: "2023-11-23; update 2024-07-29"
+plot generated date: "2024-08-09"
+output: html_document
+R version: 4.2.2
+update notes:
+    "2024-01-09: update file paths"
+    "2024-07-29: update file paths revised data"
+---
+
+# R Markdown
+
+This is an R Markdown document <http://rmarkdown.rstudio.com>. Data and code to generate each plot for stage 4 modelling is below.
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+# Script description
+
+
+
+
+```{r setup, include=FALSE}
+# clear environment
+rm(list = ls(all = TRUE))
+# ensure pacman is installed
+if (!require("pacman")) install.packages("pacman")
+
+# install and load packages
+pacman::p_load(
+      rio,                 # v0.5.16 import/exporting files
+      openxlsx,
+      tidyverse,           # v1.3.0
+      ggpubr,
+      plotly,
+      htmlwidgets,
+      manipulateWidget,
+      htmltools,
+      RColorBrewer,
+      reshape2,
+      AER,
+      emmeans,
+      MASS)
+
+
+# set directory
+require("knitr")
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '~/Desktop/')   #CHANGE ME!
+```
+
+# Compare model and data prevalences
+
+```{r load data}
+# observed and modelled national yearly prevalence (%)
+path <- "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_4A/total"
+files <- list.files(path = path, recursive = TRUE, pattern = "*.csv", full.names = TRUE)
+all_prev_per <- 
+  # load data
+  read_csv(files, id="path") %>% 
+  mutate(path = str_remove(path, ".*Figure_4A/")) %>% 
+  separate_wider_delim(path, delim = "/", names = c("disease", "country", "data_type")) %>% 
+  arrange(country, Year) %>% 
+  # remove modelled year that overlaps with observed
+  filter(!(country == "Canada" & data_type == "ModelPrevalence.csv" & Year == 2014),
+         !(country == "Denmark" & data_type == "ModelPrevalence.csv" & Year == 2017),
+         !(country == "Scotland" & data_type == "ModelPrevalence.csv" & Year == 2017)) %>% 
+  # recode cols
+  mutate(country = case_when(country == "Canada" ~ "CAD",
+                             country == "Denmark" ~ "DNK",
+                             country == "Scotland" ~ "SCO",
+                             TRUE ~ country),
+         data_type = case_when(data_type == "ModelPrevalence.csv" ~ "model",
+                               data_type == "PseudoRawPrevalence.csv" ~ "obs",
+                               TRUE ~ data_type)) %>% 
+  dplyr::select(year = Year, percent_prev = `Prevalence [%]`, everything())
+
+
+# CDA slope of prevalence year over year
+path <- "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_4B/total"
+files <- list.files(path = path, recursive = TRUE, pattern = "*.csv", full.names = TRUE)
+all_prev_CDA <- 
+  read_csv(files, id="path") %>% 
+  pivot_wider(names_from = path, values_from = `Prevalence Slope [% / year]`)
+names(all_prev_CDA) <- c("year", "CAD_CDA", "DNK_CDA", "SCO_CDA")
+```
+```{r plot design}
+# build plots
+compare_prevs <- plot_ly() %>%
+    add_trace(type = "scatter",
+        data = subset(all_prev_per, country == "CAD" & data_type == "obs"),
+        x = ~year,
+        y = ~percent_prev, 
+        name = "Canada observed",
+        mode = "lines", 
+        line = list(color= "#7570B3", width = 4, shape = "linear"),
+        #marker = list(color= "#7570B3", size = 8), 
+        legendrank = 1, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(all_prev_per, country == "CAD" & data_type == "model"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Canada PDE",
+        mode = "lines",
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+        #marker = list(color= "#7570B3", size = 8), 
+        legendrank = 4, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(all_prev_per, country == "DNK" & data_type == "obs" & year >= 2002),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Denmark observed",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, shape = "linear"),
+        #marker = list(color= "#D95F02", size = 8), 
+        legendrank = 2, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(all_prev_per, country == "DNK" & data_type == "model" & year >= 2002),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Denmark PDE",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8), 
+        legendrank = 5, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(all_prev_per, country == "SCO" & data_type == "obs"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Scotland observed",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, shape = "linear"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        legendrank = 3, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(all_prev_per, country == "SCO" & data_type == "model"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Scotland PDE",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        legendrank = 6, 
+        legendgroup = "A") %>%
+    layout(legend = list(y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0,2),
+                        tickvals = list(0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00),
+                        ticktext = list("0.25"," 0.50", "0.75", "1.00", "1.25", "1.50", "1.75", "2.00"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+compare_prevs
+
+compare_CDAs <- plot_ly(data = all_prev_CDA) %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~CAD_CDA,
+        name = "Canada",
+        mode = "lines",
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+       # marker = list(color= "#7570B3", size = 8), 
+        showlegend = TRUE,
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~DNK_CDA,
+        name = "Denmark",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8), 
+        showlegend = TRUE,
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~SCO_CDA,
+        name = "Scotland",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        showlegend = TRUE,
+        legendgroup = "B") %>%
+    layout(xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Slope change (% / year)",
+                        range = c(0,0.035),
+                        tickvals = list(0.005, 0.010, 0.015, 0.020, 0.025, 0.030, 0.035),
+                        ticktext = list("0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+compare_CDAs
+
+# panel plots
+
+annote_prev_CDA_v = list(
+    list( 
+    x = -0.115,  
+    y = 1.01, 
+    text = "<b>A</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.115,  
+    y = 0.475, 
+    text = "<b>B</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.505,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = -0.0405,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+list( 
+    x = -0.115,  
+    y = 0.755,  
+    text = "Prevalence (%)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = -0.115,  
+    y = 0.1775,  
+    text = "Slope change (% / year)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+)
+
+
+
+# vertical organization
+prev_CDA_panel <- subplot(compare_prevs, compare_CDAs,
+                          nrows = 2,
+                          margin = 0.045) %>% # c(left, right, top, bottom)
+    layout(legend = list(x = 1.05, 
+                         y = 0.5,
+                         tracegroupgap = 775),
+           annotations = annote_prev_CDA_v,
+           margin = list(l = 125, r = 100,
+                         t = 75, b = 75))
+
+prev_CDA_panel
+
+# annote_prev_CDA_h = list(
+#     list( 
+#     x = -0.05,  
+#     y = 1, 
+#     text = "<b>A</b>",  
+#     xref = "paper",  
+#     yref = "paper",  
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE,
+#     font = list(size = 40)
+#   ),  
+#   list( 
+#     x = 0.515,  
+#     y = 1, 
+#     text = "<b>B</b>",  
+#     xref = "paper",  
+#     yref = "paper",  
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE,
+#     font = list(size = 40)
+#   ),
+#   list( 
+#     x = 0.2115,  
+#     y = -0.0975,  
+#     text = "Year",  
+#     xref = "paper",  
+#     yref = "paper",  
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE,
+#     font = list(size = 24) 
+#   ),
+#   list( 
+#     x = 0.775,  
+#     y = -0.0975,  
+#     text = "Year",  
+#     xref = "paper",  
+#     yref = "paper",  
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE,
+#     font = list(size = 24) 
+#   ),
+# list( 
+#     x = -0.05,  
+#     y = 0.375,  
+#     text = "Prevalence (%)", 
+#     textangle = 270,
+#     xref = "paper",  
+#     yref = "paper",
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE,
+#     font = list(size = 24) 
+#   ),
+#   list( 
+#     x = 0.515,  
+#     y = 0.325,  
+#     text = "Slope change (% / year)", 
+#     textangle = 270,
+#     xref = "paper",  
+#     yref = "paper",
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE,
+#     font = list(size = 24) 
+#   )
+# )
+
+# # uncomment and run for horizontal organization
+# prev_CDA_panel <- subplot(compare_prevs, compare_CDAs, 
+#                           nrows = 1,
+#                           widths = c(0.5, 0.5),
+#                           margin = 0.075) %>% # c(left, right, top, bottom)
+#     layout(legend = list(x = 1.01,
+#                          y = 0.5,
+#                          tracegroupgap = 750),
+#            annotations = annote_prev_CDA_h,
+#            margin = list(l = 100, r = 100,
+#                          t = 50, b = 75))
+# 
+# prev_CDA_panel
+
+# comment or uncomment below depending on whether you want to generate figure
+
+# prev_CDA_panel %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 1250, height: 2000, filename: 'prev_CDA_panel_2024-08-09', scale: 5});
+#   }"
+#  )
+
+# horizontal size = 2000 x 750
+
+# prev_CDA dataset
+all_prev_CDA_long <- all_prev_CDA %>% 
+  pivot_longer(cols = !year,
+               names_to = "country",
+               names_pattern = "(.*)_CDA",
+               values_to = "CDA",
+               values_drop_na = TRUE)
+
+prev_CDA_data <- all_prev_per %>% 
+  left_join(., all_prev_CDA_long, by = c("country", "year")) %>% 
+  mutate(disease = "IBD",
+         figure = "4",
+         country = case_when(country == "CAD" ~ "Canada",
+                             country == "DNK" ~ "Denmark",
+                             country == "SCO" ~ "Scotland (Lothian)")) %>% 
+  dplyr::select(figure, disease, country, data_type, year, percent_prevalence = percent_prev, CDA)
+
+#write.csv(prev_CDA_data, file = "~/Desktop/prev_CDA_data.csv", row.names = FALSE, na = "")
+
+```
+
+# Compare model and data prevalences stratified by disease type
+## CD
+```{r load data}
+# observed and modelled national yearly prevalence (%)
+path <- "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_4A/cd"
+files <- list.files(path = path, recursive = TRUE, pattern = "*.csv", full.names = TRUE)
+cd_prev_per <- 
+  # load data
+  read_csv(files, id="path") %>% 
+  mutate(path = str_remove(path, ".*Figure_4A/")) %>% 
+  separate_wider_delim(path, delim = "/", names = c("disease", "country", "data_type")) %>% 
+  arrange(country, Year) %>% 
+  # remove modelled year that overlaps with observed
+  filter(!(country == "Canada" & data_type == "ModelPrevalence.csv" & Year == 2014),
+         !(country == "Denmark" & data_type == "ModelPrevalence.csv" & Year == 2017),
+         !(country == "Scotland" & data_type == "ModelPrevalence.csv" & Year == 2017)) %>% 
+  # recode cols
+  mutate(country = case_when(country == "Canada" ~ "CAD",
+                             country == "Denmark" ~ "DNK",
+                             country == "Scotland" ~ "SCO",
+                             TRUE ~ country),
+         data_type = case_when(data_type == "ModelPrevalence.csv" ~ "model",
+                               data_type == "PseudoRawPrevalence.csv" ~ "obs",
+                               TRUE ~ data_type)) %>% 
+  dplyr::select(year = Year, percent_prev = `Prevalence [%]`, everything())
+
+
+# CDA slope of prevalence year over year
+path <- "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_4B/cd"
+files <- list.files(path = path, recursive = TRUE, pattern = "*.csv", full.names = TRUE)
+cd_prev_CDA <- 
+  read_csv(files, id="path") %>% 
+  pivot_wider(names_from = path, values_from = `Prevalence Slope [% / year]`)
+names(cd_prev_CDA) <- c("year", "CAD_CDA", "DNK_CDA", "SCO_CDA")
+```
+```{r plot design}
+# build plots
+compare_prevs_cd <- plot_ly(showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        data = subset(cd_prev_per, country == "CAD" & data_type == "obs"),
+        x = ~year,
+        y = ~percent_prev, 
+        name = "Canada observed",
+        mode = "lines", 
+        line = list(color= "#7570B3", width = 4, shape = "linear"),
+        #marker = list(color= "#7570B3", size = 8), 
+        legendrank = 1, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(cd_prev_per, country == "CAD" & data_type == "model"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Canada PDE",
+        mode = "lines",
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+        #marker = list(color= "#7570B3", size = 8), 
+        legendrank = 4, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(cd_prev_per, country == "DNK" & data_type == "obs" & year >= 2002),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Denmark observed",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, shape = "linear"),
+        #marker = list(color= "#D95F02", size = 8), 
+        legendrank = 2, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(cd_prev_per, country == "DNK" & data_type == "model" & year >= 2002),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Denmark PDE",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8), 
+        legendrank = 5, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(cd_prev_per, country == "SCO" & data_type == "obs"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Scotland observed",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, shape = "linear"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        legendrank = 3, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(cd_prev_per, country == "SCO" & data_type == "model"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Scotland PDE",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        legendrank = 6, 
+        legendgroup = "A") %>%
+    layout(showlegend = FALSE,
+    # layout(legend = list(y = 0.5,
+    #                      font = list(size = 24)),
+           xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0,1.25),
+                        tickvals = list(0.25, 0.50, 0.75, 1.00, 1.25),
+                        ticktext = list("0.25", "0.50", "0.75", "1.00", "1.25"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+compare_prevs_cd
+
+compare_CDAs_cd <- plot_ly(data = cd_prev_CDA, showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~CAD_CDA,
+        name = "Canada",
+        mode = "lines",
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+        #marker = list(color= "#7570B3", size = 8), 
+        #showlegend = TRUE,
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~DNK_CDA,
+        name = "Denmark",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8), 
+        #showlegend = TRUE,
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~SCO_CDA,
+        name = "Scotland",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        #showlegend = TRUE,
+        legendgroup = "B") %>%
+    layout(showlegend = FALSE, 
+           xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Slope change (% / year)",
+                        range = c(0,0.025),
+                        tickvals = list(0.005, 0.010, 0.015, 0.020, 0.025),
+                        ticktext = list("0.005", "0.010"," 0.015", "0.020", "0.025"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+compare_CDAs_cd
+```
+## UC
+```{r load data}
+# observed and modelled national yearly prevalence (%)
+path <- "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_4A/uc"
+files <- list.files(path = path, recursive = TRUE, pattern = "*.csv", full.names = TRUE)
+uc_prev_per <- 
+  # load data
+  read_csv(files, id="path") %>% 
+  mutate(path = str_remove(path, ".*Figure_4A/")) %>% 
+  separate_wider_delim(path, delim = "/", names = c("disease", "country", "data_type")) %>% 
+  arrange(country, Year) %>% 
+  # remove modelled year that overlaps with observed
+  filter(!(country == "Canada" & data_type == "ModelPrevalence.csv" & Year == 2014),
+         !(country == "Denmark" & data_type == "ModelPrevalence.csv" & Year == 2017),
+         !(country == "Scotland" & data_type == "ModelPrevalence.csv" & Year == 2017)) %>% 
+  # recode cols
+  mutate(country = case_when(country == "Canada" ~ "CAD",
+                             country == "Denmark" ~ "DNK",
+                             country == "Scotland" ~ "SCO",
+                             TRUE ~ country),
+         data_type = case_when(data_type == "ModelPrevalence.csv" ~ "model",
+                               data_type == "PseudoRawPrevalence.csv" ~ "obs",
+                               TRUE ~ data_type)) %>% 
+  dplyr::select(year = Year, percent_prev = `Prevalence [%]`, everything())
+
+
+# CDA slope of prevalence year over year
+path <- "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_4B/uc"
+files <- list.files(path = path, recursive = TRUE, pattern = "*.csv", full.names = TRUE)
+uc_prev_CDA <- 
+  read_csv(files, id="path") %>% 
+  pivot_wider(names_from = path, values_from = `Prevalence Slope [% / year]`)
+names(uc_prev_CDA) <- c("year", "CAD_CDA", "DNK_CDA", "SCO_CDA")
+```
+
+```{r plot design}
+# build plots
+compare_prevs_uc <- plot_ly() %>%
+    add_trace(type = "scatter",
+        data = subset(uc_prev_per, country == "CAD" & data_type == "obs"),
+        x = ~year,
+        y = ~percent_prev, 
+        name = "Canada observed",
+        mode = "lines", 
+        line = list(color= "#7570B3", width = 4, shape = "linear"),
+        #marker = list(color= "#7570B3", size = 8), 
+        legendrank = 1, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(uc_prev_per, country == "CAD" & data_type == "model"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Canada PDE",
+        mode = "lines",
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+        #marker = list(color= "#7570B3", size = 8), 
+        legendrank = 4, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(uc_prev_per, country == "DNK" & data_type == "obs" & year >= 2002),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Denmark observed",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, shape = "linear"),
+        #marker = list(color= "#D95F02", size = 8), 
+        legendrank = 2, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(uc_prev_per, country == "DNK" & data_type == "model" & year >= 2002),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Denmark PDE",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8), 
+        legendrank = 5, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(uc_prev_per, country == "SCO" & data_type == "obs"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Scotland observed",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, shape = "linear"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        legendrank = 3, 
+        legendgroup = "A") %>%
+    add_trace(type = "scatter",
+        data = subset(uc_prev_per, country == "SCO" & data_type == "model"),
+        x = ~year,
+        y = ~percent_prev,
+        name = "Scotland PDE",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        legendrank = 6, 
+        legendgroup = "A") %>%
+    layout(legend = list(y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0,1.25),
+                        tickvals = list(0.25, 0.50, 0.75, 1.00, 1.25),
+                        ticktext = list("0.25", "0.50", "0.75", "1.00", "1.25"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+compare_prevs_uc
+
+compare_CDAs_uc <- plot_ly(data = uc_prev_CDA) %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~CAD_CDA,
+        name = "Canada",
+        mode = "lines",
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+        #marker = list(color= "#7570B3", size = 8), 
+        showlegend = TRUE,
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~DNK_CDA,
+        name = "Denmark",
+        mode = "lines",
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8), 
+        showlegend = TRUE,
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        x = ~year,
+        y = ~SCO_CDA,
+        name = "Scotland",
+        mode = "lines",
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        showlegend = TRUE,
+        legendgroup = "B") %>%
+    layout(xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Slope change (% / year)",
+                        range = c(0,0.025),
+                        tickvals = list(0.005, 0.010, 0.015, 0.020, 0.025),
+                        ticktext = list("0.005", "0.010", "0.015", "0.020", "0.025"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+compare_CDAs_uc
+
+```
+```{r}
+# annotate and combine disease-specific PDE plots
+
+annote_prev_dis_v = list(
+  list( 
+    x = -0.06,  
+    y = 1.01, 
+    text = "<b>A</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.06,  
+    y = 0.475, 
+    text = "<b>C</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = 0.49,  
+    y = 1.01, 
+    text = "<b>B</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = 0.49,  
+    y = 0.475, 
+    text = "<b>D</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = -0.06,  
+    y = 0.735,  
+    text = "Prevalence (%)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = -0.06,  
+    y = 0.170,  
+    text = "Slope change (% / year)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.49,  
+    y = 0.735,  
+    text = "Prevalence (%)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.49,  
+    y = 0.170,  
+    text = "Slope change (% / year)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+  # list( 
+  #   x = 0.25,  
+  #   y = 0.505,  
+  #   text = "Year",  
+  #   xref = "paper",  
+  #   yref = "paper",  
+  #   xanchor = "center",  
+  #   yanchor = "bottom",  
+  #   showarrow = FALSE,
+  #   font = list(size = 24) 
+  # ),
+  # list( 
+  #   x = 0.25,  
+  #   y = -0.0405,  
+  #   text = "Year",  
+  #   xref = "paper",  
+  #   yref = "paper",  
+  #   xanchor = "center",  
+  #   yanchor = "bottom",  
+  #   showarrow = FALSE,
+  #   font = list(size = 24) 
+  # ),
+  # list( 
+  #   x = 0.75,  
+  #   y = 0.505,  
+  #   text = "Year",  
+  #   xref = "paper",  
+  #   yref = "paper",  
+  #   xanchor = "center",  
+  #   yanchor = "bottom",  
+  #   showarrow = FALSE,
+  #   font = list(size = 24) 
+  # ),
+  # list( 
+  #   x = 0.75,  
+  #   y = -0.0405,  
+  #   text = "Year",  
+  #   xref = "paper",  
+  #   yref = "paper",  
+  #   xanchor = "center",  
+  #   yanchor = "bottom",  
+  #   showarrow = FALSE,
+  #   font = list(size = 24) 
+  # )
+)
+
+# vertical organization
+prev_CDA_dis_panel <- subplot(compare_prevs_cd, compare_prevs_uc,
+                              compare_CDAs_cd, compare_CDAs_uc,
+                          nrows = 2,
+                          #shareY = TRUE,
+                          margin = 0.05) %>% # c(left, right, top, bottom)
+    layout(legend = list(x = 1.05, 
+                         y = 0.5,
+                         tracegroupgap = 800),
+           annotations = annote_prev_dis_v,
+           xaxis = list(title = list(text = "Year",
+                                     standoff = 0L,
+                                     font = list(size = 24))),
+           xaxis2 = list(title = list(text = "Year",
+                                     standoff = 0L,
+                                     font = list(size = 24))),
+           xaxis3 = list(title = list(text = "Year",
+                                     standoff = 0L,
+                                     font = list(size = 24))),
+           xaxis4 = list(title = list(text = "Year",
+                                     standoff = 0L,
+                                     font = list(size = 24))),
+           margin = list(l = 175, r = 100,
+                         t = 75, b = 75))
+
+prev_CDA_dis_panel
+
+# prev_CDA_dis_panel %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 2250, height: 1750, filename: 'prev_CDA_dis_panel_2024-08-09', scale: 5});
+#   }"
+#  )
+```
+
+
+# Compare model and data prevalences for five growth rate scenarios
+
+```{r}
+# observed and modelled national yearly prevalence (%) across 5 incidence growth scenarios
+
+# prevalence
+files <- list("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_5A_(Canada)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_5B_(Denmark)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_5C_(Scotland)/total.csv")
+
+tables <- lapply(files, read.csv, header = TRUE)
+countries <- c("CAD","DNK","SCO")
+tables <- mapply(cbind, tables, "country"=countries, SIMPLIFY=F)
+gr_prev <- do.call(rbind , tables) %>% 
+  mutate(data_type = "Prevalence")
+names(gr_prev) <- c("year", "dec2per", "dec1per", "no_ch", "inc1per", "inc2per", "country", "data_type")
+
+# CDA
+files <- list("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_5D_(Canada)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_5E_(Denmark)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Figure_5F_(Scotland)/total.csv")
+
+tables <- lapply(files, read.csv, header = TRUE)
+countries <- c("CAD","DNK","SCO")
+tables <- mapply(cbind, tables, "SampleID"=countries, SIMPLIFY=F)
+gr_CDA <- do.call(rbind , tables) %>% 
+  mutate(data_type = "CDA")
+names(gr_CDA) <- c("year", "dec2per", "dec1per", "no_ch", "inc1per", "inc2per", "country", "data_type")
+
+# prevalence of IBD based on five incidence growth rates
+
+# build Canada plot
+CAD_prev_gr <- plot_ly(data = subset(gr_prev, country == "CAD"), x = ~year) %>%
+    add_trace(type = "scatter",
+              y = ~inc2per,
+              name = "+2% per year",
+              legendrank = 1,
+              mode = "lines", 
+              line = list(color= "#666666", width = 4),
+              showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+              y = ~inc1per, 
+              name = "+1% per year",
+              legendrank = 2,
+              mode = "lines",
+              line = list(color = "#A6761D", width = 4),
+              showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+              y = ~dec1per, 
+              name = "−1% per year",
+              legendrank = 4,
+              mode = "lines",
+              line = list(color = "#D95F02", width = 4),
+              showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+              y = ~dec2per, 
+              name = "−2% per year",
+              legendrank = 5,
+              mode = "lines", 
+              line = list(color = "#1B9E77", width = 4),
+              showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+              y = ~no_ch, 
+              name = "&nbsp;&nbsp;0% per year",
+              legendrank = 3,
+              mode = "lines",
+              line = list(color = "#7570B3", width = 4),
+              showlegend = FALSE) %>%
+    layout(
+        legend = list(title = list(text = "Change in incidence"),
+                      y = 0.5,
+                      font = list(size = 24)),
+        xaxis = list(title = "<br>Year",
+                     range = c(2015, 2045),
+                     titlefont = list(size = 26),
+                     tickfont = list(size = 24)),
+        yaxis = list(title = "Prevalence (%)",
+                     range = c(0, 2.0),
+                     tickvals = list(0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0),
+                     ticktext = list("0.25"," 0.50", "0.75", "1.00", "1.25", "1.50", "1.75", "2.00"),
+                     titlefont = list(size = 26),
+                     tickfont = list(size = 24))
+        )
+
+CAD_prev_gr
+
+# build Denmark plot
+DNK_prev_gr <- plot_ly(data = subset(gr_prev, country == "DNK"), x = ~year) %>%
+    add_trace(type = "scatter",
+              y = ~inc2per,
+              name = "+2% per year",
+              legendrank = 1,
+              mode = "lines", 
+              line = list(color= "#666666", width = 4),
+              showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+              y = ~inc1per, 
+              name = "+1% per year",
+              legendrank = 2,
+              mode = "lines",
+              line = list(color = "#A6761D", width = 4),
+              showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+              y = ~dec1per, 
+              name = "−1% per year",
+              legendrank = 4,
+              mode = "lines",
+              line = list(color = "#D95F02", width = 4),
+              showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+              y = ~dec2per, 
+              name = "−2% per year",
+              legendrank = 5,
+              mode = "lines", 
+              line = list(color = "#1B9E77", width = 4),
+              showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+              y = ~no_ch, 
+              name = "&nbsp;&nbsp;0% per year",
+              legendrank = 3,
+              mode = "lines",
+              line = list(color = "#7570B3", width = 4),
+              showlegend = FALSE) %>%
+    layout(
+        legend = list(title = list(text = "Change in incidence"),
+                      y = 0.5,
+                      font = list(size = 24)),
+        xaxis = list(title = "<br>Year",
+                     range = c(2015, 2045),
+                     titlefont = list(size = 26),
+                     tickfont = list(size = 24)),
+        yaxis = list(title = "Prevalence (%)",
+                     range = c(0, 2.0),
+                     tickvals = list(0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0),
+                     ticktext = list("0.25"," 0.50", "0.75", "1.00", "1.25", "1.50", "1.75", "2.00"),
+                     titlefont = list(size = 26),
+                     tickfont = list(size = 24))
+        )
+
+DNK_prev_gr
+
+# build Scotland plot
+SCO_prev_gr <- plot_ly(data = subset(gr_prev, country == "SCO"), x = ~year) %>%
+    add_trace(type = "scatter",
+              y = ~inc2per,
+              name = "+2% per year",
+              legendrank = 1,
+              mode = "lines", 
+              line = list(color= "#666666", width = 4),
+              showlegend = TRUE, 
+              legendgroup = "A") %>%
+    add_trace(type = "scatter",
+              y = ~inc1per, 
+              name = "+1% per year",
+              legendrank = 2,
+              mode = "lines",
+              line = list(color = "#A6761D", width = 4),
+              showlegend = TRUE, 
+              legendgroup = "A") %>%
+    add_trace(type = "scatter",
+              y = ~dec1per, 
+              name = "−1% per year",
+              legendrank = 4,
+              mode = "lines",
+              line = list(color = "#D95F02", width = 4),
+              showlegend = TRUE, 
+              legendgroup = "A") %>%
+    add_trace(type = "scatter",
+              y = ~dec2per, 
+              name = "−2% per year",
+              legendrank = 5,
+              mode = "lines", 
+              line = list(color = "#1B9E77", width = 4),
+              showlegend = TRUE, 
+              legendgroup = "A") %>%
+    add_trace(type = "scatter",
+              y = ~no_ch, 
+              name = "&nbsp;&nbsp;0% per year",
+              legendrank = 3,
+              mode = "lines",
+              line = list(color = "#7570B3", width = 4),
+              showlegend = TRUE, 
+              legendgroup = "A") %>%
+    layout(
+        legend = list(title = list(text = "Change in incidence"),
+                      y = 0.5,
+                      font = list(size = 24)),
+        xaxis = list(title = "<br>Year",
+                     range = c(2015, 2045),
+                     titlefont = list(size = 26),
+                     tickfont = list(size = 24)),
+        yaxis = list(title = "Prevalence (%)",
+                     range = c(0, 2.0),
+                     tickvals = list(0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0),
+                     ticktext = list("0.25"," 0.50", "0.75", "1.00", "1.25", "1.50", "1.75", "2.00"),
+                     titlefont = list(size = 26),
+                     tickfont = list(size = 24))
+        )
+SCO_prev_gr
+
+# build Canada slope change by growth scenario plot
+CAD_CDA_gr <- plot_ly(data = subset(gr_CDA, country == "CAD"), x = ~year) %>%
+    add_trace(type = "scatter",
+        y = ~inc2per, 
+        name = "+2% per year",
+        legendrank = 1,
+        mode = "lines", 
+        line = list(color= "#666666", width = 4, dash = "dash"),
+        #marker = list(color= "#666666", size = 8),
+        showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        y = ~inc1per, 
+        name = "+1% per year",
+        legendrank = 2,
+        mode = "lines",
+        line = list(color= "#A6761D", width = 4, dash = "dash"),
+        #marker = list(color= "#A6761D", size = 8),
+        showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        y = ~dec1per,
+        name = "−1% per year",
+        mode = "lines", 
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8),
+        showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        y = ~dec2per,
+        name = "−2% per year",
+        mode = "lines", 
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8),
+        showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        y = ~no_ch,
+        name = "&nbsp;&nbsp;0% per year",
+        legendrank = 3, 
+        mode = "lines", 
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+        #marker = list(color= "#7570B3", size = 8),
+        showlegend = FALSE) %>%
+    layout(legend = list(title = list(text = "Change in incidence"),
+                         y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Slope change (% / year)",
+                        range = c(0,0.045),
+                        tickvals = list(0.005, 0.010, 0.015, 0.020, 0.025, 0.030, 0.035, 0.040, 0.045),
+                        ticktext = list("0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035", "0.040", "0.045"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+CAD_CDA_gr
+
+# build Denmark slope change by growth scenario plot
+DNK_CDA_gr <- plot_ly(data = subset(gr_CDA, country == "DNK"), x = ~year) %>%
+    add_trace(type = "scatter",
+        y = ~inc2per, 
+        name = "+2% per year",
+        legendrank = 1,
+        mode = "lines", 
+        line = list(color= "#666666", width = 4, dash = "dash"),
+        #marker = list(color= "#666666", size = 8),
+        showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        y = ~inc1per, 
+        name = "+1% per year",
+        legendrank = 2,
+        mode = "lines",
+        line = list(color= "#A6761D", width = 4, dash = "dash"),
+        #marker = list(color= "#A6761D", size = 8),
+        showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        y = ~dec1per,
+        name = "−1% per year",
+        mode = "lines", 
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8),
+        showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        y = ~dec2per,
+        name = "−2% per year",
+        mode = "lines", 
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8),
+        showlegend = FALSE) %>%
+    add_trace(type = "scatter",
+        y = ~no_ch,
+        name = "&nbsp;&nbsp;0% per year",
+        legendrank = 3, 
+        mode = "lines", 
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+        #marker = list(color= "#7570B3", size = 8),
+        showlegend = FALSE) %>%
+    layout(legend = list(title = list(text = "Change in incidence"),
+                         y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Slope change (% / year)",
+                        range = c(0,0.045),
+                        tickvals = list(0.005, 0.010, 0.015, 0.020, 0.025, 0.030, 0.035, 0.040, 0.045),
+                        ticktext = list("0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035", "0.040", "0.045"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+DNK_CDA_gr
+
+# build Scotland slope change by growth scenario plot
+SCO_CDA_gr <- plot_ly(data = subset(gr_CDA, country == "SCO"), x = ~year) %>%
+    add_trace(type = "scatter",
+        y = ~inc2per, 
+        name = "+2% per year",
+        legendrank = 1,
+        mode = "lines", 
+        line = list(color= "#666666", width = 4, dash = "dash"),
+        #marker = list(color= "#666666", size = 8), 
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        y = ~inc1per, 
+        name = "+1% per year",
+        legendrank = 2,
+        mode = "lines",
+        line = list(color= "#A6761D", width = 4, dash = "dash"),
+        #marker = list(color= "#A6761D", size = 8), 
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        y = ~dec1per,
+        name = "−1% per year",
+        mode = "lines", 
+        line = list(color= "#D95F02", width = 4, dash = "dash"),
+        #marker = list(color= "#D95F02", size = 8), 
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        y = ~dec2per,
+        name = "−2% per year",
+        mode = "lines", 
+        line = list(color= "#1B9E77", width = 4, dash = "dash"),
+        #marker = list(color= "#1B9E77", size = 8), 
+        legendgroup = "B") %>%
+    add_trace(type = "scatter",
+        y = ~no_ch,
+        name = "&nbsp;&nbsp;0% per year",
+        legendrank = 3, 
+        mode = "lines", 
+        line = list(color= "#7570B3", width = 4, dash = "dash"),
+        #marker = list(color= "#7570B3", size = 8), 
+        legendgroup = "B") %>%
+    layout(legend = list(title = list(text = ""),
+                         y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "<br>Year",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24)),
+           yaxis = list(title = "Slope change (% / year)",
+                        range = c(0,0.045),
+                        tickvals = list(0.005, 0.010, 0.015, 0.020, 0.025, 0.030, 0.035, 0.040, 0.045),
+                        ticktext = list("0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035", "0.040", "0.045"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+
+           )
+
+SCO_CDA_gr
+
+# stacked incidence and prevalence scatterplots
+annote_gr = list(
+   list( 
+    x = -0.025,  
+    y = 1.01, 
+    text = "<b>A</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = 0.325,  
+    y = 1.01, 
+    text = "<b>B</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+    list( 
+    x = 0.675,  
+    y = 1.01, 
+    text = "<b>C</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = -0.025,  
+    y = 0.455, 
+    text = "<b>D</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = 0.325,  
+    y = 0.455, 
+    text = "<b>E</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+    list( 
+    x = 0.675,  
+    y = 0.455, 
+    text = "<b>F</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = 0.14,  
+    y = 0.5,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.5,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.85,  
+    y = 0.5,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.14,  
+    y = -0.05,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = -0.05,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.85,  
+    y = -0.05,  
+    text = "Year",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+list( 
+    x = -0.025,  
+    y = 0.71,  
+    text = "Prevalence (%)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = -0.025,  
+    y = 0.135,  
+    text = "Slope change (% / year)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+list( 
+    x = 0.325,  
+    y = 0.71,  
+    text = "Prevalence (%)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.325,  
+    y = 0.135,  
+    text = "Slope change (% / year)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+list( 
+    x = 0.675,  
+    y = 0.71,  
+    text = "Prevalence (%)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.675,  
+    y = 0.135,  
+    text = "Slope change (% / year)", 
+    textangle = 270,
+    xref = "paper",  
+    yref = "paper",
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+)
+
+gr_panel <- subplot(CAD_prev_gr, DNK_prev_gr, SCO_prev_gr, CAD_CDA_gr, DNK_CDA_gr, SCO_CDA_gr, 
+                             nrows = 2,  
+                             widths = c(0.30, 0.35, 0.30),
+                             # shareY = TRUE,
+                             margin = 0.05) %>% # c(left, right, top, bottom)
+    layout(legend = list(x = 1.01, 
+                         y = 0.5,
+                         tracegroupgap = 500),
+           annotations = annote_gr,
+           margin = list(l = 100, r = 100,
+                         t = 100, b = 100))
+
+
+gr_panel
+
+# comment or uncomment below depending on whether you want to generate figure
+
+# gr_panel %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 2700, height: 1500, filename: 'gr_panel_2024-08-09', scale: 5});
+#   }"
+#  )
+
+# save dataset
+gr_data <- rbind(gr_prev, gr_CDA) %>% 
+  mutate(disease = "IBD",
+         figure = case_when(country == "CAD" & data_type == "Prevalence" ~ "5A",
+                            country == "DNK" & data_type == "Prevalence" ~ "5B",
+                            country == "SCO" & data_type == "Prevalence" ~ "5C",
+                            country == "CAD" & data_type == "CDA" ~ "5D",
+                            country == "DNK" & data_type == "CDA" ~ "5E",
+                            country == "SCO" & data_type == "CDA" ~ "5F"),
+         country = case_when(country == "CAD" ~ "Canada",
+                             country == "DNK" ~ "Denmark",
+                             country == "SCO" ~ "Scotland (Lothian)")) %>% 
+  dplyr::select(figure, disease, data_type, country, year, 
+                decrease2percent = dec2per, decrease1percent = dec1per, no_change = no_ch, increase1percent = inc1per, increase2percent = inc2per)
+
+#write.csv(gr_data, file = "~/Desktop/gr_data.csv", row.names = FALSE, na = "")
+```
+
+# Age-structured prevalence 
+
+```{r age-structured prevalence data}
+
+# raw national prevalence data sets
+
+# CAD_prev <- read.xlsx("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/01a_raw_inc_prev/Canada/Canada_with_forecast.xlsx")
+# DNK_prev <- read.xlsx("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/01a_raw_inc_prev/Denmark/Denmark.xlsx", sheet = "Calculated_prev")
+# SCO_prev <- read.xlsx("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/01a_raw_inc_prev/Scotland_Lothian/Prevalence Summary Lothian Only.xlsx", sheet = "Calculated_prev")
+# CAD_prev_by_age <- read.xlsx("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/01a_raw_inc_prev/Canada/Age Stratified Prev_Inci.xlsx")
+# DNK_prev_by_age <- read.xlsx("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/01a_raw_inc_prev/Denmark/Denmark.xlsx", sheet = "Prev")
+# SCO_prev_by_age <- read.xlsx("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/01a_raw_inc_prev/Scotland_Lothian/Prevalence Summary Lothian Only.xlsx", sheet = "summary_table")
+
+
+# clean national prevalence data sets
+
+# Canada
+# CAD_prev <- CAD_prev %>%
+#     filter(year >= 2002 & year <= 2014) %>%
+#     mutate(rate_type = case_when( # included in case date subset is off
+#             !is.na(std_rate) ~ "standardized",
+#             is.na(std_rate) ~ "forecasted"
+#         ),
+#         per_prev = case_when( 
+#             !is.na(std_rate) ~ (std_rate/100000)*100, # calculate prevalence percent
+#             is.na(std_rate) ~ (f_std_rate/100000)*100
+#         ),
+#         source = "CAD"
+#     ) %>%
+#     dplyr::select(year, rate_type, per_prev, source)
+# 
+# CAD_calcs <- CAD_prev_by_age %>%
+#     filter(Data_type == "Prevalence") %>%
+#     mutate(per_prev = (rate/100000)*100,
+#            age_yr = case_when(age == "less than 10" ~ 5,
+#                               age == "10 to 17" ~ 14,
+#                               age == "18 to 24" ~ 21,
+#                               age == "25 to 34" ~ 30, 
+#                               age == "35 to 44" ~ 40, 
+#                               age == "45 to 54" ~ 50,
+#                               age == "55 to 64" ~ 60,
+#                               age == "65 to 79" ~ 72,
+#                               age == "80+" ~ 85))
+# CAD_2007 <- subset(CAD_calcs, year == 2007)
+# CAD_2010 <- subset(CAD_calcs, year == 2010)
+# CAD_2014 <- subset(CAD_calcs, year == 2014)
+# 
+# CAD_zero <- c("zero", "year", "IBD", "Prevalence", 0, 0, 0, 0, 0)
+# 
+# CAD_2007 <- rbind(CAD_zero, CAD_2007)
+# CAD_2007$per_prev <- as.numeric(CAD_2007$per_prev)
+# CAD_2007$age_yr <- as.numeric(CAD_2007$age_yr)
+# 
+# CAD_2010 <- rbind(CAD_zero, CAD_2010)
+# CAD_2010$per_prev <- as.numeric(CAD_2010$per_prev)
+# CAD_2010$age_yr <- as.numeric(CAD_2010$age_yr)
+# 
+# CAD_2014 <- rbind(CAD_zero, CAD_2014)
+# CAD_2014$per_prev <- as.numeric(CAD_2014$per_prev)
+# CAD_2014$age_yr <- as.numeric(CAD_2014$age_yr)
+# 
+# # Denmark
+# DNK_prev <- DNK_prev %>%
+#     filter(year >= 2002 & year <= 2017) %>%
+#     mutate(rate_type = case_when( 
+#             !is.na(std_rate) ~ "crude",
+#             is.na(std_rate) ~ "forecasted"
+#         ), 
+#         per_prev = case_when(
+#             !is.na(std_rate) ~ (std_rate/100000)*100,
+#             is.na(std_rate) ~ (f_std_rate/100000)*100
+#         ),
+#         source = "DNK"
+#     ) %>%
+#     dplyr::select(year, rate_type, per_prev, source)
+# 
+# DNK_pop_denoms <- DNK_prev_by_age %>%
+#     group_by(year, age_class) %>%
+#     reframe(denoms = unique(value)) %>% # reframe because more than one unique
+#     aggregate(denoms ~ year + age_class, FUN = sum) 
+# 
+# DNK_prev_counts <- DNK_prev_by_age %>%
+#     aggregate(prev_adj ~ year + age_class, FUN = sum) 
+# 
+# DNK_for_calc <- merge(DNK_pop_denoms, DNK_prev_counts)
+# 
+# DNK_calcs <- DNK_for_calc %>%
+#     mutate(rate = (prev_adj/denoms)*100000) %>%
+#     mutate(per_prev = (rate/100000)*100,
+#            age_yr = case_when(age_class == "< 10" ~ 5,
+#                               age_class == "10-17" ~ 14,
+#                               age_class == "18-24" ~ 21,
+#                               age_class == "25-34" ~ 30, 
+#                               age_class == "35-44" ~ 40, 
+#                               age_class == "45-54" ~ 50,
+#                               age_class == "55-64" ~ 60,
+#                               age_class == "65-79" ~ 72,
+#                               age_class == "80+" ~ 85))
+# DNK_2010 <- subset(DNK_calcs, year == 2010)
+# DNK_2014 <- subset(DNK_calcs, year == 2014)
+# DNK_2017 <- subset(DNK_calcs, year == 2017)
+# 
+# DNK_zero <- c("year", "zero", 0, 0, 0, 0, 0)
+# 
+# DNK_2010 <- rbind(DNK_zero, DNK_2010)
+# DNK_2010$per_prev <- as.numeric(DNK_2010$per_prev)
+# DNK_2010$age_yr <- as.numeric(DNK_2010$age_yr)
+# 
+# DNK_2014 <- rbind(DNK_zero, DNK_2014)
+# DNK_2014$per_prev <- as.numeric(DNK_2014$per_prev)
+# DNK_2014$age_yr <- as.numeric(DNK_2014$age_yr)
+# 
+# DNK_2017 <- rbind(DNK_zero, DNK_2017)
+# DNK_2017$per_prev <- as.numeric(DNK_2017$per_prev)
+# DNK_2017$age_yr <- as.numeric(DNK_2017$age_yr)
+# 
+# # Scotland
+# SCO_prev <- SCO_prev %>%
+#     filter(year >= 2002 & year <= 2017) %>%
+#     mutate(rate_type = case_when(
+#             !is.na(std_rate) ~ "crude",
+#             is.na(std_rate) ~ "forecasted"
+#         ),
+#         per_prev = case_when(
+#             !is.na(std_rate) ~ (std_rate/100000)*100,
+#             is.na(std_rate) ~ (f_std_rate/100000)*100
+#         ),
+#         source = "SCO"
+#     ) %>%
+#     dplyr::select(year, rate_type, per_prev, source)
+# 
+# SCO_prev_by_age <- SCO_prev_by_age %>% 
+#   mutate(prev_adj = as.numeric(case_when(N == "<5" ~ "2",
+#                                          TRUE ~ N)))
+# 
+# SCO_pop_denoms <- SCO_prev_by_age %>%
+#     group_by(Year, Age) %>%
+#     reframe(denoms = unique(Population)) %>% # reframe because more than one unique
+#     aggregate(denoms ~ Year + Age, FUN = sum) 
+# 
+# SCO_prev_counts <- SCO_prev_by_age %>%
+#     aggregate(prev_adj ~ Year + Age, FUN = sum) 
+# 
+# SCO_for_calc <- merge(SCO_pop_denoms, SCO_prev_counts)
+# 
+# SCO_calcs <- SCO_for_calc %>%
+#     mutate(rate = (prev_adj/denoms)*100000) %>%
+#     mutate(per_prev = (rate/100000)*100,
+#            age_yr = case_when(Age == "<10" ~ 5,
+#                               Age == "10-17" ~ 14,
+#                               Age == "18-24" ~ 21,
+#                               Age == "25-34" ~ 30, 
+#                               Age == "35-44" ~ 40, 
+#                               Age == "45-54" ~ 50,
+#                               Age == "55-64" ~ 60,
+#                               Age == "65-79" ~ 72,
+#                               Age == "80+" ~ 85))
+# SCO_2010 <- subset(SCO_calcs, Year == 2010)
+# SCO_2014 <- subset(SCO_calcs, Year == 2014)
+# SCO_2017 <- subset(SCO_calcs, Year == 2017)
+# 
+# SCO_zero <- c("year", "zero", 0, 0, 0, 0, 0)
+# 
+# SCO_2010 <- rbind(SCO_zero, SCO_2010)
+# SCO_2010$per_prev <- as.numeric(SCO_2010$per_prev)
+# SCO_2010$age_yr <- as.numeric(SCO_2010$age_yr)
+# 
+# SCO_2014 <- rbind(SCO_zero, SCO_2014)
+# SCO_2014$per_prev <- as.numeric(SCO_2014$per_prev)
+# SCO_2014$age_yr <- as.numeric(SCO_2014$age_yr)
+# 
+# SCO_2017 <- rbind(SCO_zero, SCO_2017)
+# SCO_2017$per_prev <- as.numeric(SCO_2017$per_prev)
+# SCO_2017$age_yr <- as.numeric(SCO_2017$age_yr)
+# 
+# 
+# obs_prevs <- rbind(CAD_prev, DNK_prev, SCO_prev)
+```
+```{r age-structured prevalence data}
+# age-stratified obs and modeled prevalence
+files <- list("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_17A_(Canada)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_17B_(Denmark)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_17C_(Scotland)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_ProjectedPrevalenceWithAge_A_(Canada)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_ProjectedPrevalenceWithAge_B_(Denmark)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_ProjectedPrevalenceWithAge_C_(Scotland)/total.csv")
+
+tables <- lapply(files, read.csv, header = TRUE)
+
+#years <- seq(0, 110, by = 8)
+
+CAD_age <- merge(tables[[1]], tables[[4]], by.x = "Age..Years.", by.y = "Year")
+names(CAD_age) <- c("age_yr", "2007", "2011", "2014", "2023", "2033", "2043")
+#CAD_age <- filter(CAD_age, age_yr %in% years)
+
+DNK_age <- merge(tables[[2]], tables[[5]], by.x = "Age..Years.", by.y = "Year")
+names(DNK_age) <- c("age_yr", "2010", "2014", "2017", "2023", "2033", "2043")
+
+SCO_age <- merge(tables[[3]], tables[[6]], by.x = "Age..Years.", by.y = "Year")
+names(SCO_age) <- c("age_yr", "2010", "2014", "2017", "2023", "2033", "2043")
+```
+
+```{r plot design}
+grey = "#666666"
+gold = "#A6761D"
+pink = "#cf247c"
+orange = "#D95F02"
+green = "#1B9E77"
+purple = "#7570B3"
+
+# age-structured prevalence for IBD in Canada
+age_str_prev_CAD <- plot_ly() %>%
+    add_trace(
+        data = CAD_age,
+        x = ~age_yr,
+        y = ~`2007`, 
+        name = "2007 observed",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3), 
+        legendgroup = "A") %>%
+    add_trace(
+        data = CAD_age,
+        x = ~age_yr,
+        y = ~`2011`, 
+        name = "2011 observed",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3), 
+        legendgroup = "A") %>%
+    add_trace(
+        data = CAD_age,
+        x = ~age_yr,
+        y = ~`2014`, 
+        name = "2014 observed",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3), 
+        legendgroup = "A") %>%
+      add_trace(
+        data = CAD_age,
+        x = ~age_yr,
+        y = ~`2023`,
+        name = "2023 PDE",
+        mode = "lines",
+        line = list(color = pink, width = 3, dash = "dash"),
+        legendgroup = "A") %>%
+      add_trace(
+        data = CAD_age,
+        x = ~age_yr,
+        y = ~`2033`,
+        name = "2033 PDE",
+        mode = "lines",
+        line = list(color = gold, width = 3, dash = "dash"),
+        legendgroup = "A") %>%
+      add_trace(
+        data = CAD_age,
+        x = ~age_yr,
+        y = ~`2043`,
+        name = "2043 PDE",
+        mode = "lines",
+        line = list(color = grey, width = 3, dash = "dash"),
+        legendgroup = "A") %>%
+    layout(legend = list(# title = list(text = "Year of data\nfor Canada"),
+                         y = 0.5,
+                         font = list(size = 24), 
+                         legendgroup = "A"),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 85)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 2.75),
+                        tickvals = list(0, 0.5, 1.0, 1.5, 2.0, 2.5),
+                        ticktext = list("0", "0.5", "1.0", "1.5", "2.0", "2.5"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+           )
+
+age_str_prev_CAD
+
+# age-structured prevalence for IBD in Denmark
+age_str_prev_DNK <- plot_ly() %>%
+    add_trace(
+        data = DNK_age,
+        x = ~age_yr,
+        y = ~`2010`, 
+        name = "2010 observed",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3),
+        legendgroup = "B") %>%
+    add_trace(
+        data = DNK_age,
+        x = ~age_yr,
+        y = ~`2014`, 
+        name = "2014 observed",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3), 
+        legendgroup = "B") %>%
+    add_trace(
+        data = DNK_age,
+        x = ~age_yr,
+        y = ~`2017`, 
+        name = "2017 observed",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3), 
+        legendgroup = "B") %>%
+    add_trace(
+        data = DNK_age,
+        x = ~age_yr,
+        y = ~`2023`,
+        name = "2023 PDE",
+        mode = "lines",
+        line = list(color = pink, width = 3, dash = "dash"),
+        legendgroup = "B") %>%
+      add_trace(
+        data = DNK_age,
+        x = ~age_yr,
+        y = ~`2033`,
+        name = "2033 PDE",
+        mode = "lines",
+        line = list(color = gold, width = 3, dash = "dash"),
+        legendgroup = "B") %>%
+      add_trace(
+        data = DNK_age,
+        x = ~age_yr,
+        y = ~`2043`,
+        name = "2043 PDE",
+        mode = "lines",
+        line = list(color = grey, width = 3, dash = "dash"),
+        legendgroup = "B") %>%
+    layout(legend = list(# title = list(text = "Year of data\nfor Denmark"),
+                         y = 0.5,
+                         font = list(size = 24), 
+                         legendgroup = "B"),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 85)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 2.75),
+                        tickvals = list(0, 0.5, 1.0, 1.5, 2.0, 2.5),
+                        ticktext = list("0", "0.5", "1.0", "1.5", "2.0", "2.5"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+           )
+
+age_str_prev_DNK
+
+# age-structured prevalence for IBD in Scotland
+age_str_prev_SCO <- plot_ly() %>%
+    add_trace(
+        data = SCO_age,
+        x = ~age_yr,
+        y = ~`2010`, 
+        name = "2010 observed",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3), 
+        legendgroup = "C") %>%
+    add_trace(
+        data = SCO_age,
+        x = ~age_yr,
+        y = ~`2014`, 
+        name = "2014 observed",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3),
+        legendgroup = "C") %>%
+    add_trace(
+        data = SCO_age,
+        x = ~age_yr,
+        y = ~`2017`, 
+        name = "2017 observed",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3),
+        legendgroup = "C") %>%
+   add_trace(
+        data = SCO_age,
+        x = ~age_yr,
+        y = ~`2023`,
+        name = "2023 PDE",
+        mode = "lines",
+        line = list(color = pink, width = 3, dash = "dash"),
+        legendgroup = "C") %>%
+      add_trace(
+        data = SCO_age,
+        x = ~age_yr,
+        y = ~`2033`,
+        name = "2033 PDE",
+        mode = "lines",
+        line = list(color = gold, width = 3, dash = "dash"),
+        legendgroup = "C") %>%
+      add_trace(
+        data = SCO_age,
+        x = ~age_yr,
+        y = ~`2043`,
+        name = "2043 PDE",
+        mode = "lines",
+        line = list(color = grey, width = 3, dash = "dash"),
+        legendgroup = "C") %>%
+    layout(legend = list(# title = list(text = "Year of data\nfor Scotland"),
+                         y = 0.5,
+                         font = list(size = 24), 
+                         legendgroup = "C"),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 85)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 2.75),
+                        tickvals = list(0, 0.5, 1.0, 1.5, 2.0, 2.5),
+                        ticktext = list("0", "0.5", "1.0", "1.5", "2.0", "2.5"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+           )
+
+age_str_prev_SCO
+
+
+# panel plots
+
+# annotations for vertical orientation
+annote_age_str_prev = list(
+    list( 
+    x = -0.075,  
+    y = 1.01, 
+    text = "<b>A</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.075,  
+    y = 0.6385, 
+    text = "<b>B</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+   list( 
+    x = -0.075,  
+    y = 0.30, 
+    text = "<b>C</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.675,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.335,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = -0.0375,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+)
+
+# vertical orientation
+age_structure_prev_panel <- subplot(age_str_prev_CAD, age_str_prev_DNK, age_str_prev_SCO,
+                                    nrows = 3,
+                                    heights = c(0.33, 0.34, 0.33),
+                                    shareY = TRUE,
+                                    margin = 0.04) %>% # c(left, right, top, bottom)
+    layout(legend = list(x = 1.01, 
+                         y = 0.5,
+                         tracegroupgap = 450,
+                         traceorder = "reversed+grouped"),
+           annotations = annote_age_str_prev,
+           margin = list(l = 100, r = 100,
+                         t = 75, b = 75))
+
+
+age_structure_prev_panel
+
+# comment or uncomment below depending on whether you want to generate figure
+
+# age_structure_prev_panel %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 1250, height: 2000, filename: 'age_str_prev_panel_2024-08-09', scale: 5});
+#   }"
+#  )
+
+```
+
+# Population age structure
+
+```{r}
+# prevalence
+files <- list("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_18A_(Canada)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_18B_(Denmark)/total.csv",
+              "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_18C_(Scotland)/total.csv")
+
+tables <- lapply(files, read.csv, header = TRUE)
+countries <- c("CAD","DNK","SCO")
+tables <- mapply(cbind, tables, "country"=countries, SIMPLIFY=F)
+pop_proj <- do.call(rbind , tables)
+names(pop_proj) <- c("age_yr", "pop_2023", "pop_2033", "pop_2043", "country")
+
+# population age structured plots
+pop2023_plot <- plot_ly() %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "CAD",],
+        x = ~age_yr,
+        y = ~pop_2023, 
+        name = "Canada",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3),
+        legendgroup = "A") %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "DNK",],
+        x = ~age_yr,
+        y = ~pop_2023, 
+        name = "Denmark",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3),
+        legendgroup = "A") %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "SCO",],
+        x = ~age_yr,
+        y = ~pop_2023, 
+        name = "Scotland",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3),
+        legendgroup = "A") %>%
+    layout(legend = list(y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 110)),
+           yaxis = list(title = "Normalized Population",
+                        range = c(0,0.020),
+                        tickvals = list(0, 0.005, 0.010, 0.015, 0.020),
+                        ticktext = list("0", "0.005", "0.010", "0.015", "0.020"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+    )
+
+pop2023_plot
+
+pop2033_plot <- plot_ly() %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "CAD",],
+        x = ~age_yr,
+        y = ~pop_2033, 
+        name = "Canada",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3),
+        legendgroup = "B") %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "DNK",],
+        x = ~age_yr,
+        y = ~pop_2033, 
+        name = "Denmark",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3),
+        legendgroup = "B") %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "SCO",],
+        x = ~age_yr,
+        y = ~pop_2033, 
+        name = "Scotland",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3),
+        legendgroup = "B") %>%
+    layout(legend = list(y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 110)),
+           yaxis = list(title = "Normalized Population",
+                        range = c(0,0.020),
+                        tickvals = list(0, 0.005, 0.010, 0.015, 0.020),
+                        ticktext = list("0", "0.005", "0.010", "0.015", "0.020"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+    )
+
+pop2033_plot
+
+pop2043_plot <- plot_ly() %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "CAD",],
+        x = ~age_yr,
+        y = ~pop_2043, 
+        name = "Canada",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3),
+        legendgroup = "C") %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "DNK",],
+        x = ~age_yr,
+        y = ~pop_2043, 
+        name = "Denmark",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3),
+        legendgroup = "C") %>%
+    add_trace(
+        data = pop_proj[pop_proj$country == "SCO",],
+        x = ~age_yr,
+        y = ~pop_2043, 
+        name = "Scotland",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3),
+        legendgroup = "C") %>%
+    layout(legend = list(y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 110)),
+           yaxis = list(title = "Normalized Population",
+                        range = c(0,0.020),
+                        tickvals = list(0, 0.005, 0.010, 0.015, 0.020),
+                        ticktext = list("0", "0.005", "0.010", "0.015", "0.020"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+    )
+
+pop2043_plot
+
+# panel plots
+
+# annotations for vertical orientation
+annote_pop = list(
+    list( 
+    x = -0.0925,  
+    y = 1.01, 
+    text = "<b>A</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.0925,  
+    y = 0.6385, 
+    text = "<b>B</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+   list( 
+    x = -0.0925,  
+    y = 0.30, 
+    text = "<b>C</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.675,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.335,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = -0.0375,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+)
+
+# vertical orientation
+pop_age_str_panel <- subplot(pop2023_plot, pop2033_plot, pop2043_plot,
+                                    nrows = 3,
+                                    heights = c(0.33, 0.34, 0.33),
+                                    shareY = TRUE,
+                                    margin = 0.04) %>% # c(left, right, top, bottom)
+    layout(legend = list(x = 1.01, 
+                         y = 0.5,
+                         tracegroupgap = 550),
+           annotations = annote_pop,
+           margin = list(l = 125, r = 100,
+                         t = 75, b = 75))
+
+
+pop_age_str_panel
+
+# comment or uncomment below depending on whether you want to generate figure
+
+# pop_age_str_panel %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 1250, height: 2000, filename: 'pop_age_str_panel_2024-07-29', scale: 5});
+#   }"
+#  )
+
+```
+
+# Age-structured prevalence
+
+```{r}
+age_str_prev <- read.csv("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_19/total.csv")
+names(age_str_prev)[1:4] <- c("age", "CAD_2014", "DNK_2014", "SCO_2014")
+
+# age-structured prevalence for IBD in Canada, Denmark, and Scotland in 2014
+age_str_prev_plot <- plot_ly(data = age_str_prev, x = ~age) %>%
+    add_trace(
+        y = ~CAD_2014, 
+        name = "Canada",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3)) %>%
+    add_trace(
+        y = ~DNK_2014, 
+        name = "Denmark",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3)) %>%
+    add_trace(
+        y = ~SCO_2014, 
+        name = "Scotland",
+        mode = "lines", 
+        line = list(color = "#1B9E77", width = 3)) %>%
+    layout(legend = list(y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 90)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 1.25),
+                        tickvals = list(0, 0.25, 0.5, 0.75, 1.0, 1.25),
+                        ticktext = list("0", "0.25", "0.50", "0.75", "1.00", "1.25"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+           )
+age_str_prev_plot
+
+# comment or uncomment below depending on whether you want to generate figure
+
+# age_str_prev_plot %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 2000, height: 1250, filename: 'age_str_prev_2014_2024-08-09', scale: 5});
+#   }"
+#  )
+
+```
+
+# Age-structured incidence
+```{r}
+# observed and modelled national yearly prevalence (%)
+path <- "~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_21/total"
+files <- list.files(path = path, recursive = TRUE, pattern = "*.csv", full.names = TRUE)
+tables <- lapply(files, read.csv, header = TRUE)
+age_str_inc <- Reduce(function(x, y) merge(x, y, by="Age..Years."), tables)
+names(age_str_inc) <- c("age", "CAD_inc", "CAD_lb", "CAD_ub", "DNK_inc", "DNK_lb", "DNK_ub","SCO_inc", "SCO_lb", "SCO_ub")
+
+# average incidence of IBD in Canada (2007-2014), Denmark (2010-2017), and Scotland (2010-2017)
+age_str_inc_plot <- plot_ly(data = age_str_inc, x = ~age) %>%
+    add_ribbons(
+        x = ~age,
+        ymin = ~CAD_lb,
+        ymax = ~CAD_ub,
+        opacity = 0.35,
+        fillcolor = "#7570B3",
+        line = list(color = "#7570B3"),
+        showlegend = FALSE
+    ) %>%
+    add_trace(
+        y = ~CAD_inc, 
+        name = "Canada",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3)) %>%
+    add_ribbons(
+        x = ~age,
+        ymin = ~DNK_lb,
+        ymax = ~DNK_ub,
+        opacity = 0.35,
+        fillcolor = "#D95F02",
+        line = list(color = "#D95F02"),
+        showlegend = FALSE
+    ) %>%
+    add_trace(
+        y = ~DNK_inc, 
+        name = "Denmark",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3)) %>%
+    add_ribbons(
+        x = ~age,
+        ymin = ~SCO_lb,
+        ymax = ~SCO_ub,
+        opacity = 0.35,
+        fillcolor = "#1B9E77",
+        line = list(color = "#1B9E77"),
+        showlegend = FALSE
+    ) %>%
+    add_trace(
+        y = ~SCO_inc, 
+        name = "Scotland",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3)) %>%
+    layout(
+        legend = list(y = 0.5,
+                      font = list(size = 24)),
+        xaxis = list(title = "Age (years)",
+                     titlefont = list(size = 26),
+                     tickfont = list(size = 24), 
+                     range = list(0, 90)),
+        yaxis = list(title = "Incidence (per 100,000)",
+                     range = c(0, 90),
+                     tickvals = list(0, 10, 20, 30, 40, 50, 60, 70, 80, 90),
+                     titlefont = list(size = 26),
+                     tickfont = list(size = 24))
+        )
+
+age_str_inc_plot
+
+# age_str_inc_plot %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 2000, height: 1250, filename: 'age_str_inc_2024-08-09', scale: 5});
+#   }"
+#  )
+
+```
+
+# Data and model comparison
+```{r}
+CAD_compare <- read.csv("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_22/total/Canada.csv")
+names(CAD_compare) <- c("age", "data2002", "data2014", "model2014")
+CAD_markers <- CAD_compare %>%
+    filter(age == 0 | age == 5 | age == 14 | age == 21 | age == 30 | age == 40 | age == 50 | age == 60 | age == 72 | age == 90)
+
+
+DNK_compare <- read.csv("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_22/total/Denmark.csv")
+names(DNK_compare) <- c("age", "data2010", "data2017", "model2017")
+DNK_markers <- DNK_compare %>%
+    filter(age == 0 | age == 5 | age == 14 | age == 21 | age == 30 | age == 40 | age == 50 | age == 60 | age == 72 | age == 90)
+
+SCO_compare <- read.csv("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_2024-08-08/Supplementary_Figure_22/total/Scotland.csv")
+names(SCO_compare) <- c("age", "data2009", "data2017", "model2017")
+SCO_markers <- SCO_compare %>%
+    filter(age == 0 | age == 5 | age == 14 | age == 21 | age == 30 | age == 40 | age == 50 | age == 60 | age == 72 | age == 90)
+
+# comparison of prevalence for starting point prevalence, measured prevalence, and modelled prevalence
+# Canada
+CAD_compare_plot <-plot_ly(type = "scatter") %>%
+    # add_markers(
+    #     x = CAD_markers$age,
+    #     y = CAD_markers$data2002,
+    #     name = "2002 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#7570B3", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = CAD_compare$age,
+        y = CAD_compare$data2002, 
+        name = "2002",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3),
+        legendgroup = "A") %>%
+        # showlegend = TRUE) %>%
+    # add_markers(
+    #     x = CAD_markers$age,
+    #     y = CAD_markers$data2014,
+    #     name = "2014 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#D95F02", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = CAD_compare$age,
+        y = CAD_compare$data2014, 
+        name = "2014\nmeasured",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3),
+        legendgroup = "A") %>%
+        # showlegend = TRUE) %>%
+    # add_markers(
+    #     x = CAD_markers$age,
+    #     y = CAD_markers$model2014,
+    #     name = "2014 model dots",
+    #     mode = "markers",
+    #     marker = list(color = "#1B9E77", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = CAD_compare$age,
+        y = CAD_compare$model2014, 
+        name = "2014\nmodel",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3, dash = "dash"),
+        legendgroup = "A") %>%
+        # showlegend = TRUE) %>%
+    layout(legend = list(x = 0.1,
+                         y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 95)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 1.5),
+                        tickvals = list(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5),
+                        ticktext = list("0", "0.25", "0.50", "0.75", "1.00", "1.25", "1.50"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+           )
+
+CAD_compare_plot
+
+# Denmark
+DNK_compare_plot <-plot_ly(type = "scatter") %>%
+    # add_markers(
+    #     x = DNK_markers$age,
+    #     y = DNK_markers$data2010,
+    #     name = "2010 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#7570B3", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = DNK_compare$age,
+        y = DNK_compare$data2010, 
+        name = "2010",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3),
+        legendgroup = "B") %>%
+    # add_markers(
+    #     x = DNK_markers$age,
+    #     y = DNK_markers$data2017,
+    #     name = "2017 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#D95F02", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = DNK_compare$age,
+        y = DNK_compare$data2017, 
+        name = "2017\nmeasured",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3),
+        legendgroup = "B") %>%
+    # add_markers(
+    #     x = DNK_markers$age,
+    #     y = DNK_markers$model2017,
+    #     name = "2017 model dots",
+    #     mode = "markers",
+    #     marker = list(color = "#1B9E77", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = DNK_compare$age,
+        y = DNK_compare$model2017, 
+        name = "2017\nmodel",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3, dash = "dash"),
+        legendgroup = "B") %>%
+        # showlegend = TRUE) %>%
+    layout(legend = list(x = 0.1,
+                         y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 95)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 1.5),
+                        tickvals = list(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5),
+                        ticktext = list("0", "0.25", "0.50", "0.75", "1.00", "1.25", "1.50"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+           )
+
+DNK_compare_plot
+
+# Scotland
+SCO_compare_plot <-plot_ly(type = "scatter") %>%
+    # add_markers(
+    #     x = SCO_markers$age,
+    #     y = SCO_markers$data2009,
+    #     name = "2009 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#7570B3", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = SCO_compare$age,
+        y = SCO_compare$data2009, 
+        name = "2009",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 3),
+        legendgroup = "C") %>%
+    # add_markers(
+    #     x = SCO_markers$age,
+    #     y = SCO_markers$data2017,
+    #     name = "2017 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#D95F02", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = SCO_compare$age,
+        y = SCO_compare$data2017, 
+        name = "2017\nmeasured",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 3),
+        legendgroup = "C") %>%
+    # add_markers(
+    #     x = SCO_markers$age,
+    #     y = SCO_markers$model2017,
+    #     name = "2017 model dots",
+    #     mode = "markers",
+    #     marker = list(color = "#1B9E77", width = 3),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = SCO_compare$age,
+        y = SCO_compare$model2017, 
+        name = "2017\nmodel",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 3, dash = "dash"),
+        legendgroup = "C") %>%
+    layout(legend = list(x = 0.1, 
+                         y = 0.5,
+                         font = list(size = 24)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24), 
+                        range = list(0, 95)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 1.5),
+                        tickvals = list(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5),
+                        ticktext = list("0", "0.25", "0.50", "0.75", "1.00", "1.25", "1.50"),
+                        titlefont = list(size = 26),
+                        tickfont = list(size = 24))
+           )
+
+SCO_compare_plot
+
+# panel plots
+
+# annotations for vertical orientation
+annote_compare = list(
+    list( 
+    x = -0.08,  
+    y = 1.01, 
+    text = "<b>A</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),  
+  list( 
+    x = -0.08,  
+    y = 0.6385, 
+    text = "<b>B</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+   list( 
+    x = -0.08,  
+    y = 0.30, 
+    text = "<b>C</b>",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 40)
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.675,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = 0.335,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  ),
+  list( 
+    x = 0.5,  
+    y = -0.0375,  
+    text = "Age (years)",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE,
+    font = list(size = 24) 
+  )
+)
+
+# vertical orientation
+model_compare_panel <- subplot(CAD_compare_plot, DNK_compare_plot, SCO_compare_plot,
+                                    nrows = 3,
+                                    heights = c(0.33, 0.34, 0.33),
+                                    shareY = TRUE,
+                                    margin = 0.04) %>% # c(left, right, top, bottom)
+    layout(legend = list(x = 1.01,
+                         y = 0.5,
+                         tracegroupgap = 550),
+           annotations = annote_compare,
+           margin = list(l = 100, r = 100,
+                         t = 75, b = 75))
+
+
+model_compare_panel
+
+# comment or uncomment below depending on whether you want to generate figure
+
+# model_compare_panel %>% htmlwidgets::onRender(
+#   "function(el, x) {
+#   var gd = document.getElementById(el.id);
+#   Plotly.downloadImage(gd, {format: 'png', width: 1250, height: 2000, filename: 'model_compare_panel_2024-08-09', scale: 5});
+#   }"
+#  )
+```
+
+
+# Data and model comparison--HORIZONTAL with ggsave
+```{r}
+CAD_compare <- read.csv("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_20Nov23/Supplementary_Figure_10A_(Canada).csv")
+names(CAD_compare) <- c("age", "data2002", "data2014", "model2014")
+CAD_markers <- CAD_compare %>%
+    filter(age == 0 | age == 5 | age == 14 | age == 21 | age == 30 | age == 40 | age == 50 | age == 60 | age == 72 | age == 90)
+
+
+DNK_compare <- read.csv("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_20Nov23/Supplementary_Figure_10B_(Denmark).csv")
+names(DNK_compare) <- c("age", "data2010", "data2017", "model2017")
+DNK_markers <- DNK_compare %>%
+    filter(age == 0 | age == 5 | age == 14 | age == 21 | age == 30 | age == 40 | age == 50 | age == 60 | age == 72 | age == 90)
+
+SCO_compare <- read.csv("~/Dropbox/Ratio_2021 (2)/Epi_Stages_Modelling/01_Data/02_generated/Reanalysis_20Nov23/Supplementary_Figure_10C_(Scotland).csv")
+names(SCO_compare) <- c("age", "data2009", "data2017", "model2017")
+SCO_markers <- SCO_compare %>%
+    filter(age == 0 | age == 5 | age == 14 | age == 21 | age == 30 | age == 40 | age == 50 | age == 60 | age == 72 | age == 90)
+
+# comparison of prevalence for starting point prevalence, measured prevalence, and modelled prevalence
+# Canada
+CAD_compare_plot <-plot_ly(type = "scatter") %>%
+    # add_markers(
+    #     x = CAD_markers$age,
+    #     y = CAD_markers$data2002,
+    #     name = "2002 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#7570B3", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = CAD_compare$age,
+        y = CAD_compare$data2002, 
+        name = "2002",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 7),
+        legendgroup = "A") %>%
+    # add_markers(
+    #     x = CAD_markers$age,
+    #     y = CAD_markers$data2014,
+    #     name = "2014 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#D95F02", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = CAD_compare$age,
+        y = CAD_compare$data2014, 
+        name = "2014\nmeasured",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 7),
+        legendgroup = "B") %>%
+    # add_markers(
+    #     x = CAD_markers$age,
+    #     y = CAD_markers$model2014,
+    #     name = "2014 model dots",
+    #     mode = "markers",
+    #     marker = list(color = "#1B9E77", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = CAD_compare$age,
+        y = CAD_compare$model2014, 
+        name = "2014\nmodel",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 7, dash = "dash"),
+        legendgroup = "C") %>%
+    layout(legend = list(y = 0.5,
+                         font = list(size = 58)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 60),
+                        tickfont = list(size = 58), 
+                        range = list(0, 95)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 1.5),
+                        tickvals = list(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5),
+                        ticktext = list("0"," 0.25"," 0.50", "0.75", "1.00", "1.25", "1.50"),
+                        titlefont = list(size = 60),
+                        tickfont = list(size = 58))
+           )
+
+CAD_compare_plot
+
+# Denmark
+DNK_compare_plot <-plot_ly(type = "scatter") %>%
+    # add_markers(
+    #     x = DNK_markers$age,
+    #     y = DNK_markers$data2010,
+    #     name = "2010 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#7570B3", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = DNK_compare$age,
+        y = DNK_compare$data2010, 
+        name = "2010",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 7),
+        legendgroup = "A") %>%
+    # add_markers(
+    #     x = DNK_markers$age,
+    #     y = DNK_markers$data2017,
+    #     name = "2017 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#D95F02", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = DNK_compare$age,
+        y = DNK_compare$data2017, 
+        name = "2017\nmeasured",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 7),
+        legendgroup = "B") %>%
+    # add_markers(
+    #     x = DNK_markers$age,
+    #     y = DNK_markers$model2017,
+    #     name = "2017 model dots",
+    #     mode = "markers",
+    #     marker = list(color = "#1B9E77", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = DNK_compare$age,
+        y = DNK_compare$model2017, 
+        name = "2017\nmodel",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 7, dash = "dash"),
+        legendgroup = "C") %>%
+    layout(legend = list(y = 0.5,
+                         font = list(size = 58)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 60),
+                        tickfont = list(size = 58), 
+                        range = list(0, 95)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 1.5),
+                        tickvals = list(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5),
+                        ticktext = list("0"," 0.25"," 0.50", "0.75", "1.00", "1.25", "1.50"),
+                        titlefont = list(size = 60),
+                        tickfont = list(size = 58))
+           )
+
+DNK_compare_plot
+
+# Scotland
+SCO_compare_plot <-plot_ly(type = "scatter") %>%
+    # add_markers(
+    #     x = SCO_markers$age,
+    #     y = SCO_markers$data2009,
+    #     name = "2009 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#7570B3", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = SCO_compare$age,
+        y = SCO_compare$data2009, 
+        name = "2009",
+        mode = "lines",
+        line = list(color = "#7570B3", width = 7),
+        legendgroup = "A") %>%
+    # add_markers(
+    #     x = SCO_markers$age,
+    #     y = SCO_markers$data2017,
+    #     name = "2017 dots",
+    #     mode = "markers",
+    #     marker = list(color = "#D95F02", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = SCO_compare$age,
+        y = SCO_compare$data2017, 
+        name = "2017\nmeasured",
+        mode = "lines",
+        line = list(color = "#D95F02", width = 7),
+        legendgroup = "B") %>%
+    # add_markers(
+    #     x = SCO_markers$age,
+    #     y = SCO_markers$model2017,
+    #     name = "2017 model dots",
+    #     mode = "markers",
+    #     marker = list(color = "#1B9E77", width = 7),
+    #     showlegend = FALSE) %>%
+    add_trace(
+        x = SCO_compare$age,
+        y = SCO_compare$model2017, 
+        name = "2017\nmodel          ",
+        mode = "lines",
+        line = list(color = "#1B9E77", width = 7, dash = "dash"),
+        legendgroup = "C") %>%
+    layout(legend = list(y = 0.5,
+                         tracegroupgap = 10,
+                         font = list(size = 58)),
+           xaxis = list(title = "Age (years)",
+                        titlefont = list(size = 60),
+                        tickfont = list(size = 58), 
+                        range = list(0, 95)),
+           yaxis = list(title = "Prevalence (%)",
+                        range = c(0, 1.5),
+                        tickvals = list(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5),
+                        ticktext = list("0"," 0.25"," 0.50", "0.75", "1.00", "1.25", "1.50"),
+                        titlefont = list(size = 60),
+                        tickfont = list(size = 58))
+           )
+
+SCO_compare_plot
+
+
+# comment or uncomment below depending on whether you want to generate figure
+
+SCO_compare_plot %>% htmlwidgets::onRender(
+  "function(el, x) {
+  var gd = document.getElementById(el.id);
+  Plotly.downloadImage(gd, {format: 'png', width: 2250, height: 1750, filename: 'SCO_compare_2024-01-09', scale: 5});
+  }"
+ )
+
+
+library(ggplot2)
+library(ggpubr)
+library(magick)
+
+imgCAD <- ggdraw() +
+    draw_image("/Users/lindsayhracs/Desktop/CAD_compare_2024-01-09.png")
+imgDNK <- ggdraw() +
+    draw_image("/Users/lindsayhracs/Desktop/DNK_compare_2024-01-09.png")
+imgSCO <- ggdraw() +
+    draw_image("/Users/lindsayhracs/Desktop/SCO_compare_2024-01-09.png")
+
+imgs_comb <- ggarrange(imgCAD, imgDNK, imgSCO, nrow = 1)
+
+ggsave("model_comp_hz_2024-01-09_resize.png", imgs_comb, width = 200, height = 70, units = "cm", dpi = 300, limitsize = FALSE)
+
+```

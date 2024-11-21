@@ -6,11 +6,15 @@ Pre-print DOI: https://doi.org/10.21203/rs.3.rs-3846147/v1
 
 ## File Descriptions
 
+fourth_stage_modelling_plots | Generates all line graphs depicting inputs and outputs of PDE modelling (incidence and prevalence over time and across age).
+
 heatmaps_medians.R | Produces gradient heatmaps for country-decade-level aggregate incidence and prevalence of Crohn's disease and ulcerative colitis, plots are built with the ggplot2 package. See the 1_Data
 
 indicators_plot.Rmd | Produces box plots for five societal indicator measures stratified by three epidemiologic stages, plots are built with the plotly package
 
 scatterplots_regional.Rmd | Produces interactive scatterplots with LOESS trend lines for individual incidence and prevalence of Crohn's disease and ulcerative colitis, plots are built with the plotly package and are available for download from the 4_Plots/4.1_Regional_Scatterplots folder in this repository
+
+stages_maps.R | Produces world map colour-coded by epidemiologic stage. Panels for each decade between 1950 and 2020.
 
 stages_plots.Rmd | Produces boxplot of incidence and prevalence of Crohn's disease and ulcerative colitis stratified by three epidemiologic stages, plots are built with the plotly package
 
