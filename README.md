@@ -6,7 +6,7 @@ Contact: kaplan [dot] lab [at] ucalgary [dot] ca
 This repository contains the scripts for analysis and visualization of the four epidemiologic stages of inflammatory bowel disease as described in our paper *The Global Evolution of Inflammatory Bowel Disease across Four Epidemiologic Stages* (submitted - 2024/01/08, accepted - 2025/03/26).
 
 Citation:<br>
-Hracs L, Windsor JW, Global evolution of inflammatory bowel disease across epidemiologic stages. Nature (Published online 30 April 2025). https://doi.org/10.1038/s41586-025-08940-0
+Hracs L, Windsor JW, et al. Global evolution of inflammatory bowel disease across epidemiologic stages. Nature (Published online 30 April 2025). https://doi.org/10.1038/s41586-025-08940-0
 
 
 ## Overview
