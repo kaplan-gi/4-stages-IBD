@@ -1,0 +1,47 @@
+name: nature_ma
+channels:
+  - conda-forge
+  - defaults
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - bzip2=1.0.8=h80987f9_6
+  - ca-certificates=2025.4.26=hbd8a1cb_0
+  - expat=2.7.1=h313beb8_0
+  - joblib=1.5.0=pyhd8ed1ab_0
+  - libblas=3.9.0=31_h10e41b3_openblas
+  - libcblas=3.9.0=31_hb3479ef_openblas
+  - libcxx=20.1.4=ha82da77_1
+  - libffi=3.4.4=hca03da5_1
+  - libgfortran=14.2.0=heb5dd2a_105
+  - libgfortran5=14.2.0=h2c44a93_105
+  - liblapack=3.9.0=31_hc9a63f6_openblas
+  - libmpdec=4.0.0=h80987f9_0
+  - libopenblas=0.3.29=openmp_hf332438_0
+  - libxgboost=3.0.0=cpu_hf17a1b1_1
+  - llvm-openmp=20.1.4=hdb05f8b_0
+  - ncurses=6.4=h313beb8_0
+  - numpy=2.2.5=py313h41a2e72_0
+  - openssl=3.5.0=h81ee809_1
+  - pandas=2.2.3=py313h668b085_3
+  - pip=25.1=pyhc872135_2
+  - py-xgboost=3.0.0=cpu_pyheee7c3a_1
+  - python=3.13.2=h4862095_100_cp313
+  - python-dateutil=2.9.0.post0=pyhff2d567_1
+  - python-tzdata=2025.2=pyhd8ed1ab_0
+  - python_abi=3.13=0_cp313
+  - pytz=2025.2=pyhd8ed1ab_0
+  - readline=8.2=h1a28f6b_0
+  - scikit-learn=1.6.1=py313hecba28c_0
+  - scipy=1.15.2=py313h9a24e0a_0
+  - setuptools=78.1.1=py313hca03da5_0
+  - six=1.17.0=pyhd8ed1ab_0
+  - sqlite=3.45.3=h80987f9_0
+  - threadpoolctl=3.6.0=pyhecae5ae_0
+  - tk=8.6.14=h6ba3021_0
+  - tzdata=2025b=h04d1e81_0
+  - wheel=0.45.1=py313hca03da5_0
+  - xgboost=3.0.0=cpu_pyhc1a9e11_1
+  - xz=5.6.4=h80987f9_1
+  - zlib=1.2.13=h18a0788_1
+prefix: /opt/anaconda3/envs/nature_ma
